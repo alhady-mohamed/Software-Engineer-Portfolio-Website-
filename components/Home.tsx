@@ -134,7 +134,7 @@ const Home: React.FC = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group flex flex-col bg-slate-900/80 rounded-3xl overflow-hidden border border-white/5 hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 h-full shadow-lg"
               >
-                <div className="relative h-56 overflow-hidden shrink-0 bg-black">
+                <Link to={`/project/${project.id}`} className="relative h-56 overflow-hidden shrink-0 bg-black block cursor-pointer">
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80 z-10" />
                   <img
                     src={project.imageUrl}
@@ -146,12 +146,14 @@ const Home: React.FC = () => {
                       {project.category}
                     </span>
                   </div>
-                </div>
+                </Link>
 
                 <div className="p-8 flex flex-col flex-grow">
-                  <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-primary transition-colors">
-                    {project.title}
-                  </h3>
+                  <Link to={`/project/${project.id}`}>
+                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-primary transition-colors cursor-pointer inline-block">
+                      {project.title}
+                    </h3>
+                  </Link>
                   <p className="text-gray-400 text-sm mb-6 leading-relaxed flex-grow line-clamp-3">
                     {project.description}
                   </p>
@@ -173,14 +175,12 @@ const Home: React.FC = () => {
                   </div>
 
                   <div className="flex justify-between items-center pt-6 border-t border-white/5 mt-auto">
-                    <a 
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Link 
+                      to={`/project/${project.id}`}
                       className="text-sm font-bold text-white group-hover:text-primary transition-colors flex items-center gap-1"
                     >
                       Case Study <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                    </a>
+                    </Link>
                     
                     <div className="flex gap-2">
                        <a href={project.githubUrl} className="text-gray-400 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">

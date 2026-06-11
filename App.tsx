@@ -7,6 +7,7 @@ import About from './components/About';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import ProjectDetail from './components/ProjectDetail';
 
 // Wrapper component to handle route change animations
 const AnimatedRoutes: React.FC = () => {
@@ -18,6 +19,7 @@ const AnimatedRoutes: React.FC = () => {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/project/:id" element={<ProjectDetail />} />
         <Route path="/contact" element={<Contact />} />
       </Routes>
     </AnimatePresence>
