@@ -89,9 +89,9 @@ const Home: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/[0.07] hover:border-purple-400/30 transition-all duration-300"
+              className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/[0.07] hover:border-primary/30 transition-all duration-300"
             >
-              <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-400 mb-6">
+              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
                 <Zap size={28} />
               </div>
               <h3 className="text-xl font-bold text-white mb-4">Performance Optimization</h3>

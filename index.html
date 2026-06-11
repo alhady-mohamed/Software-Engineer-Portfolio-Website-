@@ -22,18 +22,20 @@
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              primary: '#6366f1', // Indigo 500
-              secondary: '#06b6d4', // Cyan 500
+              primary: '#facc15', // Yellow 400
+              secondary: '#22c55e', // Green 500
               // Dynamic Theme Colors mapped to CSS Variables
               dark: 'rgb(var(--color-bg-base) / <alpha-value>)', 
               white: 'rgb(var(--color-text-base) / <alpha-value>)',
               black: 'rgb(var(--color-bg-secondary) / <alpha-value>)',
               slate: {
-                900: 'rgb(var(--color-bg-card) / <alpha-value>)', // Used for cards/sections
+                800: 'rgb(var(--color-bg-card) / <alpha-value>)',
+                900: 'rgb(var(--color-bg-card) / <alpha-value>)',
               },
               gray: {
                 300: 'rgb(var(--color-text-muted) / <alpha-value>)',
                 400: 'rgb(var(--color-text-muted) / <alpha-value>)',
+                500: 'rgb(var(--color-text-muted) / <alpha-value>)',
               }
             }
           }
@@ -42,23 +44,23 @@
     </script>
     <style>
       :root {
-        /* Dark Mode (Default) */
-        --color-bg-base: 15 23 42;      /* Slate 900 */
-        --color-bg-card: 30 41 59;      /* Slate 800 */
-        --color-bg-secondary: 2 6 23;   /* Slate 950 (Black replacement) */
+        /* Dark Mode (Dark Green & Yellow) */
+        --color-bg-base: 2 15 10;       /* Deep Dark Green */
+        --color-bg-card: 6 36 24;       /* Slightly lighter Dark Green */
+        --color-bg-secondary: 0 5 2;    /* Very Dark Green / almost Black */
         --color-text-base: 255 255 255; /* White */
-        --color-text-muted: 148 163 184; /* Slate 400 */
-        --color-border: 255 255 255;
+        --color-text-muted: 153 178 162; /* Lighter green-gray for muted text */
+        --color-border: 12 72 48;
       }
 
       html.light {
         /* Light Mode */
-        --color-bg-base: 241 245 249;   /* Slate 100 */
+        --color-bg-base: 240 253 244;   /* Green 50 */
         --color-bg-card: 255 255 255;   /* White */
-        --color-bg-secondary: 226 232 240; /* Slate 200 */
-        --color-text-base: 15 23 42;    /* Slate 900 (White replacement) */
-        --color-text-muted: 71 85 105;  /* Slate 600 */
-        --color-border: 15 23 42;
+        --color-bg-secondary: 220 252 231; /* Green 100 */
+        --color-text-base: 2 44 34;     /* Emerald 950 */
+        --color-text-muted: 6 95 70;    /* Emerald 800 */
+        --color-border: 167 243 208;
       }
 
       body {
@@ -80,7 +82,7 @@
         opacity: 0.5;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #6366f1;
+        background: #facc15;
       }
     </style>
   <script type="importmap">

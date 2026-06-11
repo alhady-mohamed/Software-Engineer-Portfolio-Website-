@@ -86,7 +86,7 @@ const Contact: React.FC = () => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="p-4 bg-purple-500/10 rounded-2xl text-purple-400 border border-purple-500/20">
+                  <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20">
                     <MapPin size={24} />
                   </div>
                   <div>
@@ -217,7 +217,7 @@ const Contact: React.FC = () => {
                       className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-white transition-all transform ${
                         status === 'submitting' 
                           ? 'bg-white/10 cursor-not-allowed border border-white/20' 
-                          : 'bg-primary hover:bg-indigo-500 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-1'
+                          : 'bg-primary hover:bg-yellow-400 hover:text-dark hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-1'
                       }`}
                     >
                       {status === 'submitting' ? (

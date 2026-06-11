@@ -93,7 +93,7 @@ const Footer: React.FC = () => {
               />
               <button 
                 type="submit" 
-                className="absolute right-1.5 p-2 bg-primary text-white rounded-lg hover:bg-indigo-500 transition-colors"
+                className="absolute right-1.5 p-2 bg-primary text-dark rounded-lg hover:bg-yellow-400 font-bold transition-colors"
                 aria-label="Subscribe"
               >
                 <ArrowRight size={16} />

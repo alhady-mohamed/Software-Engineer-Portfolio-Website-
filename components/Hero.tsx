@@ -49,7 +49,7 @@ const Hero: React.FC = () => {
 
             <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.1]">
               Building the <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-400 to-secondary animate-gradient-x">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary animate-gradient-x">
                 Digital Future
               </span>
             </motion.h1>
@@ -61,7 +61,7 @@ const Hero: React.FC = () => {
             <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mb-12">
               <Link
                 to="/projects"
-                className="group flex items-center gap-2 px-8 py-3.5 bg-primary hover:bg-indigo-600 text-white rounded-full font-medium transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5"
+                className="group flex items-center gap-2 px-8 py-3.5 bg-primary hover:bg-yellow-400 text-dark rounded-full font-bold transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5"
               >
                 View Work
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -125,18 +125,18 @@ const Hero: React.FC = () => {
                   </div>
                   <div>
                     <p><span className="text-pink-400">const</span> <span className="text-blue-400">Developer</span> <span className="text-white">=</span> <span className="text-yellow-400">()</span> <span className="text-pink-400">=&gt;</span> <span className="text-yellow-400">{`{`}</span></p>
-                    <p className="pl-4"><span className="text-pink-400">const</span> <span className="text-white">skills</span> <span className="text-pink-400">=</span> <span className="text-purple-400">[</span></p>
+                    <p className="pl-4"><span className="text-pink-400">const</span> <span className="text-white">skills</span> <span className="text-pink-400">=</span> <span className="text-primary">[</span></p>
                     <p className="pl-8"><span className="text-green-400">'React'</span>,</p>
                     <p className="pl-8"><span className="text-green-400">'Next.js'</span>,</p>
                     <p className="pl-8"><span className="text-green-400">'TypeScript'</span>,</p>
                     <p className="pl-8"><span className="text-green-400">'Node.js'</span></p>
-                    <p className="pl-4"><span className="text-purple-400">]</span>;</p>
+                    <p className="pl-4"><span className="text-primary">]</span>;</p>
                     <p className="br">&nbsp;</p>
-                    <p className="pl-4"><span className="text-pink-400">return</span> <span className="text-purple-400">(</span></p>
+                    <p className="pl-4"><span className="text-pink-400">return</span> <span className="text-primary">(</span></p>
                     <p className="pl-8"><span className="text-blue-300">&lt;Card&gt;</span></p>
                     <p className="pl-12"><span className="text-white">Start Building</span></p>
                     <p className="pl-8"><span className="text-blue-300">&lt;/Card&gt;</span></p>
-                    <p className="pl-4"><span className="text-purple-400">)</span>;</p>
+                    <p className="pl-4"><span className="text-primary">)</span>;</p>
                     <p><span className="text-yellow-400">{`}`}</span>;</p>
                   </div>
                 </div>

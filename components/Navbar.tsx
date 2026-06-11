@@ -143,7 +143,7 @@ const Navbar: React.FC = () => {
               <Link
                 to="/contact"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="mt-4 text-center px-5 py-3 rounded-lg bg-primary text-white font-medium hover:bg-indigo-600 transition-colors"
+                className="mt-4 text-center px-5 py-3 rounded-lg bg-primary text-dark font-bold hover:bg-yellow-400 transition-colors"
               >
                 Let's Talk
               </Link>

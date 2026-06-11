@@ -1,6 +1,6 @@
 import React from 'react';
 import { SKILLS_DATA, EXPERIENCE } from '../constants';
-import { Terminal, Cpu, Globe, Briefcase, GraduationCap, ChevronRight, User } from 'lucide-react';
+import { Terminal, Cpu, Globe, Briefcase, GraduationCap, ChevronRight, User, Award, Users, Code2, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -50,6 +50,46 @@ const About: React.FC = () => {
                 I thrive in collaborative environments where I can translate complex business requirements into elegant, user-centric, and highly performant applications. When I'm not writing code, you can find me exploring nature trails, reading sci-fi novels, or experimenting with emerging AI tools.
               </p>
             </motion.div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-colors"
+              >
+                <div className="text-3xl font-bold text-primary mb-1">5+</div>
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-medium">Years Exp</div>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-colors"
+              >
+                <div className="text-3xl font-bold text-secondary mb-1">40+</div>
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-medium">Projects</div>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-colors"
+              >
+                <div className="text-3xl font-bold text-primary mb-1">15+</div>
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-medium">Clients</div>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-colors"
+              >
+                <div className="text-3xl font-bold text-white mb-1">1M+</div>
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-medium">Lines Code</div>
+              </motion.div>
+            </div>
 
             {/* Core Values Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-16">
@@ -107,7 +147,7 @@ const About: React.FC = () => {
                   >
                     {/* Timeline Dot */}
                     <div className="absolute -left-12 md:-left-20 mt-1.5 flex items-center justify-center w-10 h-10 rounded-full border-4 border-dark bg-primary shadow-lg z-10 hidden md:flex">
-                      <Briefcase size={16} className="text-white" />
+                      <Briefcase size={16} className="text-dark" />
                     </div>
                     <div className="absolute -left-12 mt-2 w-4 h-4 rounded-full border-2 border-primary bg-dark z-10 md:hidden"></div>
                     
@@ -148,6 +188,45 @@ const About: React.FC = () => {
               </div>
             </div>
 
+            {/* Certifications & Awards Section */}
+            <div className="mt-20">
+              <h3 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
+                <div className="p-2 bg-primary/20 rounded-lg">
+                  <Award className="text-primary" size={24} />
+                </div>
+                Certifications & Awards
+              </h3>
+              <div className="space-y-4">
+                <div className="p-5 rounded-2xl border border-white/10 bg-white/5 flex items-center gap-4 hover:bg-white/10 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <Award size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold mb-1">AWS Certified Solutions Architect</h4>
+                    <p className="text-sm text-gray-400">Amazon Web Services • Valid till 2026</p>
+                  </div>
+                </div>
+                <div className="p-5 rounded-2xl border border-white/10 bg-white/5 flex items-center gap-4 hover:bg-white/10 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <Code2 size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold mb-1">Frontend Developer Certificate</h4>
+                    <p className="text-sm text-gray-400">Meta / Coursera • 2022</p>
+                  </div>
+                </div>
+                <div className="p-5 rounded-2xl border border-white/10 bg-white/5 flex items-center gap-4 hover:bg-white/10 transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+                    <Sparkles size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold mb-1">Best Innovation Demo</h4>
+                    <p className="text-sm text-gray-400">TechHackathon 2021 • 1st Place Winner</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           {/* Right Column: Skills & CTA */}
@@ -181,6 +260,46 @@ const About: React.FC = () => {
                 ))}
               </div>
             </motion.div>
+
+            {/* Methodology/Workflow */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-slate-800/50 p-8 rounded-3xl border border-white/10 shadow-xl backdrop-blur-sm"
+            >
+              <h3 className="text-xl font-bold text-white mb-6">Workflow & Approach</h3>
+              <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-primary/50 before:via-white/10 before:to-transparent">
+                <div className="relative pl-8">
+                  <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-dark border-2 border-primary flex items-center justify-center z-10">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                  </div>
+                  <h4 className="text-white font-bold mb-1">1. Discovery & Planning</h4>
+                  <p className="text-sm text-gray-400">Understanding requirements, target audience, and business goals.</p>
+                </div>
+                <div className="relative pl-8">
+                  <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-dark border-2 border-secondary flex items-center justify-center z-10">
+                    <div className="w-2 h-2 rounded-full bg-secondary" />
+                  </div>
+                  <h4 className="text-white font-bold mb-1">2. Architecture & Design</h4>
+                  <p className="text-sm text-gray-400">Prototyping UI/UX and designing scalable system architecture.</p>
+                </div>
+                <div className="relative pl-8">
+                  <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-dark border-2 border-primary flex items-center justify-center z-10">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                  </div>
+                  <h4 className="text-white font-bold mb-1">3. Agile Development</h4>
+                  <p className="text-sm text-gray-400">Iterative coding focusing on clean code and robust features.</p>
+                </div>
+                <div className="relative pl-8">
+                  <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-dark border-2 border-white/50 flex items-center justify-center z-10">
+                    <div className="w-2 h-2 rounded-full bg-white" />
+                  </div>
+                  <h4 className="text-white font-bold mb-1">4. Testing & Delivery</h4>
+                  <p className="text-sm text-gray-400">Rigorous QA, automated testing, and seamless deployment.</p>
+                </div>
+              </div>
+            </motion.div>
             
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -188,7 +307,7 @@ const About: React.FC = () => {
               viewport={{ once: true }}
               className="p-8 rounded-3xl bg-gradient-to-br from-primary/10 via-secondary/10 to-transparent border border-white/10 relative overflow-hidden group"
             >
-               <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-secondary opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
+               <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
                <h4 className="text-2xl font-bold text-white mb-3">Ready to collaborate?</h4>
                <p className="text-gray-400 mb-8 leading-relaxed">
                  I'm currently looking for new opportunities and freelancing projects. Let's build something amazing together!

@@ -52,7 +52,7 @@ const Projects: React.FC = () => {
               onClick={() => setActiveCategory(cat)}
               className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeCategory === cat
-                  ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                  ? 'bg-primary text-dark shadow-lg shadow-primary/25'
                   : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
               }`}
             >
@@ -140,7 +140,7 @@ const Projects: React.FC = () => {
                         href={project.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-white transition-all shadow-lg hover:shadow-primary/30"
+                        className="p-2 rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-dark transition-all shadow-lg hover:shadow-primary/30"
                         aria-label="View Live Demo"
                       >
                          <ExternalLink size={20} />
