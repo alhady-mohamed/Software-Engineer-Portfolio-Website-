@@ -18,16 +18,16 @@ const Footer: React.FC = () => {
           
           {/* Brand Column: Title, summary details, and direct developer connection links */}
           <div className="lg:col-span-4">
-            <Link to="/" className="flex items-center gap-2 mb-6 w-fit">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20">
-                <Code2 className="w-5 h-5 text-white" />
+            <Link to="/" className="flex items-center gap-2 mb-6 w-fit group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+                <span className="text-white font-bold text-sm tracking-widest">M&A</span>
               </div>
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
                 Mohamed Alhady
               </span>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6 pr-4">
-              Building high-performance web applications with a focus on exceptional user experiences, robust architecture, and clean code. Located in San Francisco, CA.
+              Building high-performance web applications with a focus on exceptional user experiences, robust architecture, and clean code. Located in Hargeisa, Somaliland.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <a href="https://github.com/alhady-mohamed" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="GitHub">
@@ -44,9 +44,6 @@ const Footer: React.FC = () => {
               </a>
               <a href="https://youtube.com/@mohamed-alhady01" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#FF0000] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="YouTube">
                 <Youtube size={18} className="group-hover:scale-110 transition-transform" />
-              </a>
-              <a href="https://www.tiktok.com/@mohamed.alhady33" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="TikTok">
-                <Video size={18} className="group-hover:scale-110 transition-transform" />
               </a>
             </div>
           </div>

@@ -59,8 +59,8 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         {/* Brand Logo - Wraps back to top of root page */}
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="p-2 bg-gradient-to-tr from-primary to-secondary rounded-lg group-hover:scale-110 transition-transform">
-            <Code2 className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-tr from-primary to-secondary rounded-lg group-hover:scale-110 transition-transform">
+            <span className="text-white font-bold text-sm tracking-widest">M&A</span>
           </div>
           <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
             Mohamed Alhady
@@ -103,12 +103,14 @@ const Navbar: React.FC = () => {
           </button>
 
           {/* Action Call for custom engagement */}
-          <Link
-            to="/contact"
+          <a
+            href="https://wa.link/cs6dy4"
+            target="_blank"
+            rel="noopener noreferrer"
             className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-sm font-medium text-white"
           >
             Hire Me
-          </Link>
+          </a>
         </div>
 
         {/* Mobile Toolbar Trigger Controls */}
@@ -153,13 +155,15 @@ const Navbar: React.FC = () => {
                   {item.label}
                 </NavLink>
               ))}
-              <Link
-                to="/contact"
+              <a
+                href="https://wa.link/cs6dy4"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="mt-4 text-center px-5 py-3 rounded-lg bg-primary text-dark font-bold hover:bg-yellow-400 transition-colors"
               >
                 Let's Talk
-              </Link>
+              </a>
             </div>
           </motion.div>
         )}

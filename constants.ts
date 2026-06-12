@@ -16,12 +16,12 @@ export const NAV_ITEMS: NavItem[] = [
 
 // Normalized proficiency levels plotted on radial charts to visualize core developer domains
 export const SKILLS_DATA: SkillData[] = [
-  { subject: 'Frontend', A: 90, fullMark: 100 },
-  { subject: 'Backend', A: 75, fullMark: 100 },
-  { subject: 'UI/UX', A: 85, fullMark: 100 },
-  { subject: 'DevOps', A: 60, fullMark: 100 },
-  { subject: 'Mobile', A: 70, fullMark: 100 },
-  { subject: 'AI/ML', A: 50, fullMark: 100 },
+  { subject: 'Software Development', A: 95, fullMark: 100 },
+  { subject: 'Branding & Visual Identity', A: 95, fullMark: 100 },
+  { subject: 'Video Production', A: 90, fullMark: 100 },
+  { subject: 'Social Media Marketing', A: 85, fullMark: 100 },
+  { subject: 'UI/UX Design', A: 90, fullMark: 100 },
+  { subject: 'Digital Strategy', A: 80, fullMark: 100 },
 ];
 
 /**
@@ -37,7 +37,7 @@ export const PROJECTS: Project[] = [
     category: "Web App",
     imageUrl: "https://picsum.photos/id/1/800/600",
     link: "#",
-    githubUrl: "#"
+    githubUrl: "https://github.com/alhady-mohamed"
   },
   {
     id: 2,
@@ -47,7 +47,7 @@ export const PROJECTS: Project[] = [
     category: "Web App",
     imageUrl: "https://picsum.photos/id/20/800/600",
     link: "#",
-    githubUrl: "#"
+    githubUrl: "https://github.com/alhady-mohamed"
   },
   {
     id: 3,
@@ -57,7 +57,7 @@ export const PROJECTS: Project[] = [
     category: "AI/ML",
     imageUrl: "https://picsum.photos/id/26/800/600",
     link: "#",
-    githubUrl: "#"
+    githubUrl: "https://github.com/alhady-mohamed"
   },
   {
     id: 4,
@@ -67,7 +67,7 @@ export const PROJECTS: Project[] = [
     category: "Web App",
     imageUrl: "https://picsum.photos/id/48/800/600",
     link: "#",
-    githubUrl: "#"
+    githubUrl: "https://github.com/alhady-mohamed"
   },
   {
     id: 5,
@@ -77,7 +77,7 @@ export const PROJECTS: Project[] = [
     category: "Mobile",
     imageUrl: "https://picsum.photos/id/60/800/600",
     link: "#",
-    githubUrl: "#"
+    githubUrl: "https://github.com/alhady-mohamed"
   },
   {
     id: 6,
@@ -87,7 +87,7 @@ export const PROJECTS: Project[] = [
     category: "Web App",
     imageUrl: "https://picsum.photos/id/119/800/600",
     link: "#",
-    githubUrl: "#"
+    githubUrl: "https://github.com/alhady-mohamed"
   }
 ];
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { SKILLS_DATA, EXPERIENCE } from '../constants';
-import { Terminal, Cpu, Globe, Briefcase, GraduationCap, ChevronRight, User, Award, Users, Code2, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Palette, Video, Megaphone, Briefcase, GraduationCap, ChevronRight, User, Award, Users, Code2, Sparkles } from 'lucide-react';
+import { motion, animate, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 /**
@@ -14,6 +14,29 @@ import { Link } from 'react-router-dom';
  * - Formal academic history & digital credentials/awards.
  * - Interactive technical proficiency charts and business workflow guidelines.
  */
+
+const AnimatedCounter = ({ to, suffix, delay = 0 }: { to: number; suffix: string; delay?: number }) => {
+  const [count, setCount] = React.useState(0);
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  React.useEffect(() => {
+    if (isInView) {
+      const controls = animate(0, to, {
+        delay,
+        duration: 2,
+        ease: "easeOut",
+        onUpdate(value) {
+          setCount(Math.floor(value));
+        },
+      });
+      return () => controls.stop();
+    }
+  }, [to, delay, isInView]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+};
+
 const About: React.FC = () => {
   return (
     <div className="pt-32 pb-20 min-h-screen bg-gradient-to-b from-dark to-slate-900 overflow-hidden">
@@ -52,13 +75,13 @@ const About: React.FC = () => {
                className="prose prose-invert prose-lg text-gray-400 mb-12"
             >
               <p className="text-xl text-gray-300 font-medium leading-relaxed mb-6">
-                I am a passionate <span className="text-white">Senior Software Engineer</span> with over 5 years of experience in building scalable digital products and interactive user interfaces.
+                I am a passionate <span className="text-white">Creative Strategist & Software Developer</span> with over 5 years of experience in Software Development, Branding, Video Production, and Social Media Marketing.
               </p>
               <p className="mb-6">
-                My journey into software development began with a deep curiosity for how things work on the internet. That curiosity led me to dive deep into modern web technologies, starting with HTML, CSS, and plain JavaScript, before exploring the world of React, Node.js, and cloud architectures.
+                My journey began with a deep curiosity for visual storytelling, digital communication, and how things work on the internet. That curiosity led me to explore the intersection of custom software development, branding, content creation, and audience engagement, building comprehensive digital solutions.
               </p>
               <p>
-                I thrive in collaborative environments where I can translate complex business requirements into elegant, user-centric, and highly performant applications. When I'm not writing code, you can find me exploring nature trails, reading sci-fi novels, or experimenting with emerging AI tools.
+                I thrive in collaborative environments where I can translate complex ideas into visually stunning narratives and robust applications. When I'm not producing content or writing code, you can find me exploring visual arts, discovering new design trends, or experimenting with emerging digital media tools.
               </p>
             </motion.div>
 
@@ -70,7 +93,7 @@ const About: React.FC = () => {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-colors"
               >
-                <div className="text-3xl font-bold text-primary mb-1">5+</div>
+                <div className="text-3xl font-bold text-primary mb-1"><AnimatedCounter to={5} suffix="+" delay={0.2} /></div>
                 <div className="text-xs text-gray-400 uppercase tracking-wider font-medium">Years Exp</div>
               </motion.div>
               <motion.div 
@@ -79,7 +102,7 @@ const About: React.FC = () => {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-colors"
               >
-                <div className="text-3xl font-bold text-secondary mb-1">40+</div>
+                <div className="text-3xl font-bold text-secondary mb-1"><AnimatedCounter to={40} suffix="+" delay={0.3} /></div>
                 <div className="text-xs text-gray-400 uppercase tracking-wider font-medium">Projects</div>
               </motion.div>
               <motion.div 
@@ -88,7 +111,7 @@ const About: React.FC = () => {
                 transition={{ duration: 0.5, delay: 0.4 }}
                 className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-colors"
               >
-                <div className="text-3xl font-bold text-primary mb-1">15+</div>
+                <div className="text-3xl font-bold text-primary mb-1"><AnimatedCounter to={15} suffix="+" delay={0.4} /></div>
                 <div className="text-xs text-gray-400 uppercase tracking-wider font-medium">Clients</div>
               </motion.div>
               <motion.div 
@@ -97,7 +120,7 @@ const About: React.FC = () => {
                 transition={{ duration: 0.5, delay: 0.5 }}
                 className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-colors"
               >
-                <div className="text-3xl font-bold text-white mb-1">1M+</div>
+                <div className="text-3xl font-bold text-white mb-1"><AnimatedCounter to={1} suffix="M+" delay={0.5} /></div>
                 <div className="text-xs text-gray-400 uppercase tracking-wider font-medium">Lines Code</div>
               </motion.div>
             </div>
@@ -110,9 +133,9 @@ const About: React.FC = () => {
                 viewport={{ once: true }}
                 className="p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-primary/50 transition-colors hover:shadow-lg hover:shadow-primary/5"
               >
-                <Terminal className="w-10 h-10 text-primary mb-4" />
-                <h3 className="text-white font-bold text-lg mb-2">Clean Code</h3>
-                <p className="text-sm text-gray-400">Maintainable, typed, and scalable architecture.</p>
+                <Palette className="w-10 h-10 text-primary mb-4" />
+                <h3 className="text-white font-bold text-lg mb-2">Branding</h3>
+                <p className="text-sm text-gray-400">Cohesive brand identities and storytelling.</p>
               </motion.div>
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -121,9 +144,9 @@ const About: React.FC = () => {
                 transition={{ delay: 0.1 }}
                 className="p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-primary/50 transition-colors hover:shadow-lg hover:shadow-primary/5"
               >
-                <Globe className="w-10 h-10 text-secondary mb-4" />
-                <h3 className="text-white font-bold text-lg mb-2">Responsive</h3>
-                <p className="text-sm text-gray-400">Pixel-perfect, mobile-first design systems.</p>
+                <Video className="w-10 h-10 text-secondary mb-4" />
+                <h3 className="text-white font-bold text-lg mb-2">Video</h3>
+                <p className="text-sm text-gray-400">High-quality production and visual narratives.</p>
               </motion.div>
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -132,9 +155,9 @@ const About: React.FC = () => {
                 transition={{ delay: 0.2 }}
                 className="p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-primary/50 transition-colors hover:shadow-lg hover:shadow-primary/5"
               >
-                <Cpu className="w-10 h-10 text-primary mb-4" />
-                <h3 className="text-white font-bold text-lg mb-2">Performant</h3>
-                <p className="text-sm text-gray-400">Optimized for speed and accessibility.</p>
+                <Megaphone className="w-10 h-10 text-primary mb-4" />
+                <h3 className="text-white font-bold text-lg mb-2">Marketing</h3>
+                <p className="text-sm text-gray-400">Impactful digital campaigns and strategy.</p>
               </motion.div>
             </div>
 

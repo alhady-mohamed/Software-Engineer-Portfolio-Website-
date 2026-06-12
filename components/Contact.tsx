@@ -82,34 +82,34 @@ const Contact: React.FC = () => {
               <div className="space-y-8">
                 {/* Email link items */}
                 <div className="flex items-start gap-4">
-                  <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20">
+                  <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20 shrink-0">
                     <Mail size={24} />
                   </div>
-                  <div>
+                  <div className="min-w-0 overflow-hidden">
                     <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">Email</p>
-                    <a href="mailto:hello@example.com" className="text-lg text-white hover:text-primary transition-colors font-medium">hello@example.com</a>
+                    <a href="mailto:engmohamedabdurazak@gmail.com" className="text-base sm:text-lg text-white hover:text-primary transition-colors font-medium break-all block">engmohamedabdurazak@gmail.com</a>
                   </div>
                 </div>
 
                 {/* Telephone link items */}
                 <div className="flex items-start gap-4">
-                  <div className="p-4 bg-secondary/10 rounded-2xl text-secondary border border-secondary/20">
+                  <div className="p-4 bg-secondary/10 rounded-2xl text-secondary border border-secondary/20 shrink-0">
                     <Phone size={24} />
                   </div>
-                  <div>
+                  <div className="min-w-0 overflow-hidden">
                     <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">Phone</p>
-                    <a href="tel:+1234567890" className="text-lg text-white hover:text-secondary transition-colors font-medium">+1 (555) 000-0000</a>
+                    <a href="tel:+252634944558" className="text-base sm:text-lg text-white hover:text-secondary transition-colors font-medium block">+252 63 4944558</a>
                   </div>
                 </div>
 
                 {/* Geography listings */}
                 <div className="flex items-start gap-4">
-                  <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20">
+                  <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20 shrink-0">
                     <MapPin size={24} />
                   </div>
-                  <div>
+                  <div className="min-w-0 overflow-hidden">
                     <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">Location</p>
-                    <p className="text-lg text-white">San Francisco, CA<br /><span className="text-sm text-gray-400">Remote Available</span></p>
+                    <p className="text-base sm:text-lg text-white font-medium">West, Road 1, Hargeisa<br /><span className="text-sm text-primary font-normal">Remote Available</span></p>
                   </div>
                 </div>
               </div>
@@ -133,9 +133,6 @@ const Contact: React.FC = () => {
                 </a>
                 <a href="https://youtube.com/@mohamed-alhady01" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#FF0000] hover:scale-110 transition-all" aria-label="YouTube">
                   <Youtube size={20} />
-                </a>
-                <a href="https://www.tiktok.com/@mohamed.alhady33" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-white hover:scale-110 transition-all" aria-label="TikTok">
-                  <Video size={20} />
                 </a>
               </div>
             </div>

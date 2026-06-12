@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Code2, Palette, Zap, LayoutGrid, Github, ExternalLink } from 'lucide-react';
+import { ArrowRight, Code2, Palette, Zap, LayoutGrid, Github, ExternalLink, Video, Megaphone } from 'lucide-react';
 import Hero from './Hero';
 import { PROJECTS, EXPERIENCE } from '../constants';
 
@@ -74,8 +74,8 @@ const Home: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Capability Card 1: Advanced software coding frameworks */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Capability Card 1: Software Development */}
             <motion.div 
                initial={{ opacity: 0, y: 20 }}
                whileInView={{ opacity: 1, y: 0 }}
@@ -88,37 +88,37 @@ const Home: React.FC = () => {
                   <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                     <Code2 size={26} />
                   </div>
-                  <span className="font-mono text-xs font-bold text-gray-500 tracking-widest group-hover:text-primary transition-colors">01 / ENG</span>
+                  <span className="font-mono text-xs font-bold text-gray-500 tracking-widest group-hover:text-primary transition-colors">01 / DEV</span>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-primary transition-colors">Functional Engineering</h3>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-primary transition-colors">Software Development</h3>
                 <p className="text-gray-400 text-sm leading-relaxed mb-8">
-                  Scaffolding sturdy microservices, performant APIs, and type-safe frontends using clean, robust design patterns.
+                  Scaffolding sturdy websites, performant APIs, and type-safe frontends using modern, clean architecture.
                 </p>
               </div>
               
               <ul className="space-y-3.5 border-t border-white/5 pt-6 text-xs text-gray-400 font-medium font-sans">
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  Type-Safe Next.js & React Core
+                  Full-Stack Architecture
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  State Management Architectures
+                  Frontend & UI Development
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  REST & GraphQL Enterprise APIs
+                  Responsive & Accessible Apps
                 </li>
               </ul>
             </motion.div>
-            
-            {/* Capability Card 2: Visual interfaces, animations and responsive elements */}
+
+            {/* Capability Card 2: Branding */}
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="group bg-slate-900/40 border border-white/5 hover:border-secondary/20 p-8 md:p-10 rounded-[2rem] hover:bg-slate-900/60 transition-all duration-500 flex flex-col justify-between hover:-translate-y-1 h-full shadow-xl relative overflow-hidden"
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               transition={{ delay: 0.1 }}
+               className="group bg-slate-900/40 border border-white/5 hover:border-secondary/20 p-8 md:p-10 rounded-[2rem] hover:bg-slate-900/60 transition-all duration-500 flex flex-col justify-between hover:-translate-y-1 h-full shadow-xl relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-colors pointer-events-none" />
               <div>
@@ -126,31 +126,31 @@ const Home: React.FC = () => {
                   <div className="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
                     <Palette size={26} />
                   </div>
-                  <span className="font-mono text-xs font-bold text-gray-500 tracking-widest group-hover:text-secondary transition-colors">02 / VIS</span>
+                  <span className="font-mono text-xs font-bold text-gray-500 tracking-widest group-hover:text-secondary transition-colors">02 / BRD</span>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-secondary transition-colors">Interface Implementation</h3>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-secondary transition-colors">Branding & Visual Identity</h3>
                 <p className="text-gray-400 text-sm leading-relaxed mb-8">
-                  Meticulous translation of Figma mockups into structured, responsive layouts with polished, buttery transitions.
+                  Creating memorable brand experiences through cohesive visual language, typography, and logo design that resonates.
                 </p>
               </div>
               
               <ul className="space-y-3.5 border-t border-white/5 pt-6 text-xs text-gray-400 font-medium font-sans">
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-                  Framer Motion Micro-interactions
+                  Logo & Typography Systems
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-                  Pixel-Perfect Tailwind Implementation
+                  Brand Guidelines & Books
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-                  WCAG Accessibility Overhauls
+                  Visual Asset Creation
                 </li>
               </ul>
             </motion.div>
-
-            {/* Capability Card 3: Optimizations, loading checks, SEO integrations */}
+            
+            {/* Capability Card 3: Visual interfaces, animations and responsive elements */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -162,28 +162,66 @@ const Home: React.FC = () => {
               <div>
                 <div className="flex justify-between items-center mb-8">
                   <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                    <Zap size={26} />
+                    <Video size={26} />
                   </div>
-                  <span className="font-mono text-xs font-bold text-gray-500 tracking-widest group-hover:text-primary transition-colors">03 / OPT</span>
+                  <span className="font-mono text-xs font-bold text-gray-500 tracking-widest group-hover:text-primary transition-colors">03 / VID</span>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-primary transition-colors">Performance Tuning</h3>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-primary transition-colors">Video Production</h3>
                 <p className="text-gray-400 text-sm leading-relaxed mb-8">
-                  Eliminating render-blocking bottlenecks, minifying layout shifts, and establishing continuous, high-fidelity SEO health.
+                  Crafting compelling visual narratives from pre-production planning to final cut editing and color grading.
                 </p>
               </div>
               
               <ul className="space-y-3.5 border-t border-white/5 pt-6 text-xs text-gray-400 font-medium font-sans">
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  Core Web Vitals Metric Goals
+                  Storyboarding & Direction
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  Lazy Loading & Asset Optimization
+                  High-Quality Video Editing
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  Robust Semantic HTML Foundations
+                  Motion Graphics & VFX
+                </li>
+              </ul>
+            </motion.div>
+
+            {/* Capability Card 4: Optimizations, loading checks, SEO integrations */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="group bg-slate-900/40 border border-white/5 hover:border-secondary/20 p-8 md:p-10 rounded-[2rem] hover:bg-slate-900/60 transition-all duration-500 flex flex-col justify-between hover:-translate-y-1 h-full shadow-xl relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-colors pointer-events-none" />
+              <div>
+                <div className="flex justify-between items-center mb-8">
+                  <div className="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                    <Megaphone size={26} />
+                  </div>
+                  <span className="font-mono text-xs font-bold text-gray-500 tracking-widest group-hover:text-secondary transition-colors">04 / SMM</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-secondary transition-colors">Social Media Marketing</h3>
+                <p className="text-gray-400 text-sm leading-relaxed mb-8">
+                  Strategizing and executing impactful campaigns to build communities, drive engagement, and grow online presence.
+                </p>
+              </div>
+              
+              <ul className="space-y-3.5 border-t border-white/5 pt-6 text-xs text-gray-400 font-medium font-sans">
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                  Content Strategy & Planning
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                  Community Engagement
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                  Paid Ads & Analytics
                 </li>
               </ul>
             </motion.div>
