@@ -4,18 +4,33 @@ import { ExternalLink, Github, ArrowRight, LayoutGrid, Star, GitPullRequest, Dow
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
+// Fixed categorizations defining portfolio filters
 const Categories = ["All", "Web App", "Mobile", "AI/ML"];
 
+/**
+ * Projects Component
+ * Renders the full showcase portfolio screen.
+ * Modules:
+ * - Page Header describing visual/engineering mindset.
+ * - Spotlight Card highlighting of the top/first project.
+ * - Filter criteria buttons.
+ * - Interactive multi-column responsive grid with animated cards.
+ * - Impact stats.
+ * - Open Source contribution repositories.
+ * - Callouts leading to the main GitHub profile.
+ */
 const Projects: React.FC = () => {
+  // Navigation active tab index setting
   const [activeCategory, setActiveCategory] = useState("All");
 
+  // Dynamic filter query scanning metadata fields fromconstants list
   const filteredProjects = activeCategory === "All" 
     ? PROJECTS 
     : PROJECTS.filter(p => p.category === activeCategory);
 
   return (
     <div className="pt-32 pb-24 min-h-screen bg-dark">
-      {/* Page Header */}
+      {/* Page Header text elements */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -35,13 +50,13 @@ const Projects: React.FC = () => {
           <div className="w-20 h-1 bg-gradient-to-r from-primary to-secondary rounded-full" />
         </motion.div>
         
-        {/* Background decorative blob */}
+        {/* Background ambient light blob */}
         <div className="absolute top-0 right-10 w-96 h-96 bg-secondary/10 rounded-full blur-[100px] -z-10 pointer-events-none" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Spotlight Featured Project */}
+        {/* Spotlight Highlight Box (Top Showcase Item) */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -50,6 +65,7 @@ const Projects: React.FC = () => {
         >
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
           
+          {/* Spotlight text details and main statistics metrics */}
           <div className="lg:w-1/2 p-8 md:p-12 border-r border-white/5 flex flex-col justify-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase w-fit mb-6">
               <Star size={14} className="fill-primary text-primary" />
@@ -64,7 +80,7 @@ const Projects: React.FC = () => {
               A comprehensive case study showcasing end-to-end architecture, a custom design system, and full-stack integration optimized for high scalability. This project generated significant business impact through streamlined workflows.
             </p>
 
-            {/* Impact Metrics inline */}
+            {/* In-spotlight impact metrics block */}
             <div className="grid grid-cols-2 gap-6 border-y border-white/5 py-6 mb-8">
                <div>
                   <div className="text-2xl font-bold text-white mb-1">200%</div>
@@ -76,6 +92,7 @@ const Projects: React.FC = () => {
                </div>
             </div>
             
+            {/* Action buttons directing to the spotlight details */}
             <div className="flex items-center gap-4">
               <Link 
                 to={`/project/${PROJECTS[0]?.id || 1}`}
@@ -88,12 +105,14 @@ const Projects: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-4 rounded-full border border-white/10 text-white hover:bg-white/5 transition-all"
+                aria-label="GitHub Repository Link"
               >
                 <Github size={20} />
               </a>
             </div>
           </div>
           
+          {/* Spotlight image background layout */}
           <div className="lg:w-1/2 relative bg-dark min-h-[300px] lg:min-h-full overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-transparent z-10 hidden lg:block" />
             <img 
@@ -104,7 +123,7 @@ const Projects: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Filter Tabs */}
+        {/* Categories Tab Selector */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -113,9 +132,9 @@ const Projects: React.FC = () => {
         >
           {Categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+               key={cat}
+               onClick={() => setActiveCategory(cat)}
+               className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeCategory === cat
                   ? 'bg-primary text-dark shadow-lg shadow-primary/25'
                   : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
@@ -126,7 +145,7 @@ const Projects: React.FC = () => {
           ))}
         </motion.div>
 
-        {/* Project Grid */}
+        {/* Dynamic Project Grid (supports pop and layout animation shifts) */}
         <motion.div 
           layout
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20"
@@ -142,7 +161,7 @@ const Projects: React.FC = () => {
                 transition={{ duration: 0.4, delay: index * 0.05 }}
                 className="group flex flex-col bg-slate-900/50 rounded-3xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 h-full"
               >
-                {/* Image Overlay */}
+                {/* Visual Cover image frame */}
                 <Link to={`/project/${project.id}`} className="relative h-60 overflow-hidden shrink-0 bg-dark block cursor-pointer">
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80 z-10" />
                   <img
@@ -156,12 +175,12 @@ const Projects: React.FC = () => {
                     </span>
                   </div>
                   
-                  {/* Decorative corner accents */}
+                  {/* Visual accent corner elements triggered on hover */}
                   <div className="absolute bottom-0 left-0 w-8 h-8 border-l-2 border-b-2 border-primary/50 opacity-0 group-hover:opacity-100 transition-opacity z-20 rounded-bl-xl ml-4 mb-4" />
                   <div className="absolute top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-secondary/50 opacity-0 group-hover:opacity-100 transition-opacity z-20 rounded-tr-xl mr-4 mt-4" />
                 </Link>
 
-                {/* Content */}
+                {/* Card textual details and tags */}
                 <div className="p-8 flex flex-col flex-grow">
                   <Link to={`/project/${project.id}`}>
                     <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-primary transition-colors cursor-pointer inline-block">
@@ -172,6 +191,7 @@ const Projects: React.FC = () => {
                     {project.description}
                   </p>
                   
+                  {/* Skill technology label items */}
                   <div className="flex flex-wrap gap-2 mb-8">
                     {project.technologies.map((tech) => (
                       <span 
@@ -183,6 +203,7 @@ const Projects: React.FC = () => {
                     ))}
                   </div>
 
+                  {/* Deep details links and repository connections */}
                   <div className="flex items-center gap-4 pt-6 border-t border-white/5 mt-auto">
                     <Link 
                       to={`/project/${project.id}`}
@@ -218,7 +239,7 @@ const Projects: React.FC = () => {
           </AnimatePresence>
         </motion.div>
         
-        {/* Impact / By the Numbers Section */}
+        {/* Impact Stats Grid Section "By the Numbers" */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -255,7 +276,7 @@ const Projects: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Open Source Section */}
+        {/* Open Source Tools & Repositories list blocks */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -319,7 +340,7 @@ const Projects: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Bottom CTA section */}
+        {/* Global Bottom CTA redirecting leads directly to GitHub search fields */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

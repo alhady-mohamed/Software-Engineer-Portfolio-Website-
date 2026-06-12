@@ -4,17 +4,31 @@ import { PROJECTS } from '../constants';
 import { ArrowLeft, ExternalLink, Github, LayoutGrid, Calendar, Tag, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+/**
+ * ProjectDetail Component
+ * Generates the deep case study document view for individual portfolio items.
+ * Renders:
+ * - Back controls.
+ * - Dynamic metadata details (category, category icon, year of launch).
+ * - Big cover image representation.
+ * - Detailed descriptions detailing challenges and target resolutions.
+ * - Digital metrics scoreboard of achievements.
+ * - Sidebar of applied technologies, plus matching suggestions.
+ */
 const ProjectDetail: React.FC = () => {
+  // Extracts the project numeric identifier directly from route path variable context
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
+  // Searches static mock database arrays to match ID parameters
   const project = PROJECTS.find(p => p.id === Number(id));
   
   useEffect(() => {
-    // Scroll to top when loading new project
+    // Scroll coordinates back to top index on route transition events
     window.scrollTo(0, 0);
   }, [id]);
 
+  // Fallback screen if requested ID pointer doesn't reference any configured records
   if (!project) {
     return (
       <div className="min-h-screen pt-32 pb-24 flex flex-col items-center justify-center bg-dark text-white">
@@ -29,15 +43,15 @@ const ProjectDetail: React.FC = () => {
     );
   }
 
-  // Find related projects (same category, exclude current)
+  // Related work matching filter algorithm scoring similar category entries (excluding current item)
   const relatedProjects = PROJECTS.filter(p => p.category === project.category && p.id !== project.id).slice(0, 2);
   
-  // Find recent projects (just some other projects, excluding current and related)
+  // Alternative recent item suggestions algorithm matching records outside related criteria
   const recentProjects = PROJECTS.filter(p => p.id !== project.id && !relatedProjects.find(rp => rp.id === p.id)).slice(0, 3);
 
   return (
     <div className="pt-32 pb-24 min-h-screen bg-dark">
-      {/* Header Banner */}
+      {/* Structural navigation and visual layout header cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
         <button 
           onClick={() => navigate(-1)}
@@ -47,6 +61,7 @@ const ProjectDetail: React.FC = () => {
         </button>
         
         <div className="flex flex-col lg:flex-row gap-8 lg:items-end justify-between mb-8">
+          {/* Main Title labels and subheadlines details */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -68,6 +83,7 @@ const ProjectDetail: React.FC = () => {
             </p>
           </motion.div>
           
+          {/* Repository interactions and Live Demo redirection button panel */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -81,7 +97,7 @@ const ProjectDetail: React.FC = () => {
               className="px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all flex items-center gap-2 font-bold"
             >
                <Github size={20} /> Repository
-            </a>
+             </a>
             <a 
               href={project.link}
               target="_blank"
@@ -94,17 +110,18 @@ const ProjectDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Grid splitting details layout document from side widgets */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-12">
           
-          {/* Left Column - Main Details */}
+          {/* Columns-8: Detailed Description Document areas */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="w-full lg:w-2/3"
           >
+            {/* Extended Showcase aspect ratio container */}
             <div className="rounded-3xl overflow-hidden bg-black border border-white/5 shadow-2xl mb-12 aspect-[16/9]">
               <img 
                 src={project.imageUrl} 
@@ -113,6 +130,7 @@ const ProjectDetail: React.FC = () => {
               />
             </div>
             
+            {/* Case Study Written Document elements */}
             <div className="prose prose-invert prose-lg max-w-none">
               <h2 className="text-2xl font-bold text-white mb-4">Project Overview</h2>
               <p className="text-gray-400 mb-8 leading-relaxed">
@@ -137,6 +155,7 @@ const ProjectDetail: React.FC = () => {
               </p>
             </div>
             
+            {/* Numerical Scoreboards presenting objective indicators */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-8 border-y border-white/5 my-12">
                <div className="text-center p-4 bg-slate-900/50 rounded-2xl border border-white/5">
                  <div className="text-2xl font-bold text-primary mb-1">100%</div>
@@ -157,14 +176,14 @@ const ProjectDetail: React.FC = () => {
             </div>
           </motion.div>
           
-          {/* Right Column - Sidebar */}
+          {/* Columns-4: Sidebar options matching stacks and recommendations */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
             className="w-full lg:w-1/3 space-y-8"
           >
-            {/* Tech Stack widget */}
+            {/* Tech Stack listings box */}
             <div className="bg-slate-900/50 p-6 rounded-3xl border border-white/5">
               <h4 className="text-white font-bold mb-4 flex items-center gap-2">
                 <Tag size={18} className="text-primary" /> Technologies Used
@@ -178,7 +197,7 @@ const ProjectDetail: React.FC = () => {
               </div>
             </div>
             
-            {/* Related Projects */}
+            {/* Suggest Related category selections list */}
             {relatedProjects.length > 0 && (
               <div className="bg-slate-900/50 p-6 rounded-3xl border border-white/5">
                 <h4 className="text-white font-bold mb-6 flex items-center gap-2">
@@ -204,7 +223,7 @@ const ProjectDetail: React.FC = () => {
               </div>
             )}
             
-            {/* Recent Projects */}
+            {/* Suggest general alternative items list */}
             {recentProjects.length > 0 && (
               <div className="bg-slate-900/50 p-6 rounded-3xl border border-white/5">
                 <h4 className="text-white font-bold mb-6 flex items-center gap-2">

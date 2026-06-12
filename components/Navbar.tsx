@@ -4,19 +4,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { NavLink, Link } from 'react-router-dom';
 import { NAV_ITEMS } from '../constants';
 
+/**
+ * Global Header Navbar Component
+ * Maintains reactive scroll states, light/dark styling togglers, and collapsible mobile drawer states.
+ * Fully responsive across devices with optimal absolute blur layer integration.
+ */
 const Navbar: React.FC = () => {
+  // tracks standard vertical window scroll height to add design borders and blur depth on downscroll
   const [isScrolled, setIsScrolled] = useState(false);
+  // controls show/hide state of mobile drop down links
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // handles visual mode context
   const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
-    // Check local storage or system preference
+    // Check local storage or system preference to read saved user design theme
     if (localStorage.theme === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
       setIsDark(false);
     } else {
       setIsDark(true);
     }
 
+    // Scroll listeners toggling isScrolled flag upon cross-sliding index 20px
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -24,6 +33,7 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Switches theme context classes between dark and light variants and stores preferences
   const toggleTheme = () => {
     if (isDark) {
       document.documentElement.classList.add('light');
@@ -47,7 +57,7 @@ const Navbar: React.FC = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        {/* Logo */}
+        {/* Brand Logo - Wraps back to top of root page */}
         <Link to="/" className="flex items-center gap-2 group">
           <div className="p-2 bg-gradient-to-tr from-primary to-secondary rounded-lg group-hover:scale-110 transition-transform">
             <Code2 className="w-6 h-6 text-white" />
@@ -57,7 +67,7 @@ const Navbar: React.FC = () => {
           </span>
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center gap-8">
           {NAV_ITEMS.map((item) => (
             <NavLink
@@ -72,6 +82,7 @@ const Navbar: React.FC = () => {
               {({ isActive }) => (
                 <>
                   {item.label}
+                  {/* Decorative glowing bottom slider line active upon navigation */}
                   <span
                     className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${
                       isActive ? 'w-full' : 'w-0 group-hover:w-full'
@@ -82,6 +93,7 @@ const Navbar: React.FC = () => {
             </NavLink>
           ))}
           
+          {/* Light/Dark Toggle */}
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
@@ -90,6 +102,7 @@ const Navbar: React.FC = () => {
             {isDark ? <Sun size={20} /> : <Moon size={20} />}
           </button>
 
+          {/* Action Call for custom engagement */}
           <Link
             to="/contact"
             className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-sm font-medium text-white"
@@ -98,7 +111,7 @@ const Navbar: React.FC = () => {
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Toolbar Trigger Controls */}
         <div className="flex items-center gap-4 md:hidden">
           <button
             onClick={toggleTheme}
@@ -116,7 +129,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Nav Overlay */}
+      {/* Mobile Drawer Navigation overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div

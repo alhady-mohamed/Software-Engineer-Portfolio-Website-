@@ -4,10 +4,20 @@ import { Terminal, Cpu, Globe, Briefcase, GraduationCap, ChevronRight, User, Awa
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
+/**
+ * About Component
+ * Renders the introductory profile of the engineer.
+ * Displays:
+ * - Bio and stats block.
+ * - Core architectural values grid.
+ * - Work & leadership timeline.
+ * - Formal academic history & digital credentials/awards.
+ * - Interactive technical proficiency charts and business workflow guidelines.
+ */
 const About: React.FC = () => {
   return (
     <div className="pt-32 pb-20 min-h-screen bg-gradient-to-b from-dark to-slate-900 overflow-hidden">
-      {/* Page Header */}
+      {/* Page Header presenting main intro title */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -25,20 +35,21 @@ const About: React.FC = () => {
           <div className="w-20 h-1 bg-gradient-to-r from-primary to-secondary rounded-full" />
         </motion.div>
         
-        {/* Abstract background element */}
+        {/* Abstract background glowing overlay */}
         <div className="absolute right-0 top-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
           
-          {/* Left Content Side */}
+          {/* Left Content Column: Bio, Value systems, work experiences, certifications */}
           <div className="lg:col-span-7">
+            {/* Extended Biographic details overview */}
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="prose prose-invert prose-lg text-gray-400 mb-12"
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.5, delay: 0.1 }}
+               className="prose prose-invert prose-lg text-gray-400 mb-12"
             >
               <p className="text-xl text-gray-300 font-medium leading-relaxed mb-6">
                 I am a passionate <span className="text-white">Senior Software Engineer</span> with over 5 years of experience in building scalable digital products and interactive user interfaces.
@@ -51,7 +62,7 @@ const About: React.FC = () => {
               </p>
             </motion.div>
 
-            {/* Quick Stats */}
+            {/* Quick numeric numerical counters highlighting achievements */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -91,7 +102,7 @@ const About: React.FC = () => {
               </motion.div>
             </div>
 
-            {/* Core Values Grid */}
+            {/* Core Architectural Value frameworks mapping principles */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-16">
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -127,7 +138,7 @@ const About: React.FC = () => {
               </motion.div>
             </div>
 
-            {/* Experience Timeline */}
+            {/* Complete Work Experience Timeline */}
             <h3 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
               <div className="p-2 bg-primary/20 rounded-lg">
                 <Briefcase className="text-primary" size={24} />
@@ -145,13 +156,13 @@ const About: React.FC = () => {
                     transition={{ delay: index * 0.1 }}
                     className="relative"
                   >
-                    {/* Timeline Dot */}
+                    {/* Visual indicator lines and timeline ticks */}
                     <div className="absolute -left-12 md:-left-20 mt-1.5 flex items-center justify-center w-10 h-10 rounded-full border-4 border-dark bg-primary shadow-lg z-10 hidden md:flex">
                       <Briefcase size={16} className="text-dark" />
                     </div>
                     <div className="absolute -left-12 mt-2 w-4 h-4 rounded-full border-2 border-primary bg-dark z-10 md:hidden"></div>
                     
-                    {/* Content */}
+                    {/* Expanded detail card mapping company credentials */}
                     <div className="p-6 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/[0.07] transition-colors relative group">
                       <div className="flex flex-col md:flex-row md:items-center justify-between mb-2 gap-2">
                         <h4 className="text-xl font-bold text-white group-hover:text-primary transition-colors">{job.role}</h4>
@@ -169,7 +180,7 @@ const About: React.FC = () => {
                ))}
             </div>
             
-            {/* Education Section */}
+            {/* Education History Block */}
             <div className="mt-20">
               <h3 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
                 <div className="p-2 bg-secondary/20 rounded-lg">
@@ -188,7 +199,7 @@ const About: React.FC = () => {
               </div>
             </div>
 
-            {/* Certifications & Awards Section */}
+            {/* Credential listings and awards lists */}
             <div className="mt-20">
               <h3 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
                 <div className="p-2 bg-primary/20 rounded-lg">
@@ -229,13 +240,14 @@ const About: React.FC = () => {
 
           </div>
 
-          {/* Right Column: Skills & CTA */}
+          {/* Right Panel: Technical proficiency tracks and custom agile framework blueprints */}
           <div className="lg:col-span-5 space-y-8">
+            {/* Custom technical skills horizontal graphs */}
             <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-slate-800/50 p-8 rounded-3xl border border-white/10 shadow-xl backdrop-blur-sm"
+               initial={{ opacity: 0, x: 20 }}
+               animate={{ opacity: 1, x: 0 }}
+               transition={{ duration: 0.5, delay: 0.2 }}
+               className="bg-slate-800/50 p-8 rounded-3xl border border-white/10 shadow-xl backdrop-blur-sm"
             >
               <h3 className="text-xl font-bold text-white mb-8">Technical Proficiency</h3>
               <div className="space-y-6">
@@ -245,6 +257,7 @@ const About: React.FC = () => {
                       <span className="text-gray-200 font-medium">{skill.subject}</span>
                       <span className="text-primary font-bold text-sm tracking-widest">{skill.A}%</span>
                     </div>
+                    {/* Customized bar loading visualizers */}
                     <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden border border-white/5 relative">
                       <motion.div
                         initial={{ width: 0 }}
@@ -261,12 +274,12 @@ const About: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Methodology/Workflow */}
+            {/* Methodology processes mapping the step-by-step cycle of client consulting */}
             <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="bg-slate-800/50 p-8 rounded-3xl border border-white/10 shadow-xl backdrop-blur-sm"
+               initial={{ opacity: 0, x: 20 }}
+               whileInView={{ opacity: 1, x: 0 }}
+               viewport={{ once: true }}
+               className="bg-slate-800/50 p-8 rounded-3xl border border-white/10 shadow-xl backdrop-blur-sm"
             >
               <h3 className="text-xl font-bold text-white mb-6">Workflow & Approach</h3>
               <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-primary/50 before:via-white/10 before:to-transparent">
@@ -301,6 +314,7 @@ const About: React.FC = () => {
               </div>
             </motion.div>
             
+            {/* Connection teaser prompt box link */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

@@ -1,5 +1,12 @@
+/**
+ * Global Constants Collection
+ * This file serves as the single source of truth for structural UI and portfolio data,
+ * feeding information directly to navigation menus, experience timelines, skill charts, and showcase grids.
+ */
+
 import { Project, SkillData, NavItem, Experience } from './types';
 
+// Structural list of links featured in primary site navigation and footer menus
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
@@ -7,6 +14,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Contact', href: '/contact' },
 ];
 
+// Normalized proficiency levels plotted on radial charts to visualize core developer domains
 export const SKILLS_DATA: SkillData[] = [
   { subject: 'Frontend', A: 90, fullMark: 100 },
   { subject: 'Backend', A: 75, fullMark: 100 },
@@ -16,6 +24,10 @@ export const SKILLS_DATA: SkillData[] = [
   { subject: 'AI/ML', A: 50, fullMark: 100 },
 ];
 
+/**
+ * Curated Portfolio Projects Data
+ * Captures core details, technical stacks, assets, and deep case-study route keys (id).
+ */
 export const PROJECTS: Project[] = [
   {
     id: 1,
@@ -79,6 +91,10 @@ export const PROJECTS: Project[] = [
   }
 ];
 
+/**
+ * Career Experience Logs
+ * Ordered chronologically for rendering in timeline interfaces.
+ */
 export const EXPERIENCE: Experience[] = [
   {
     id: 1,

@@ -2,35 +2,50 @@ import React, { useState } from 'react';
 import { Mail, MapPin, Send, Phone, CheckCircle, MessageSquare, Linkedin, Twitter, Github } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+/**
+ * Contact Component
+ * Renders the primary client consulting portal.
+ * Features:
+ * - Dynamic state hooks mapping user entries and submission timelines.
+ * - Backdrop glowing lighting layers for aesthetic visual integration.
+ * - Double-column visual structure: Left focuses on core metadata channels; Right centers the validated messaging form.
+ * - Dynamic success state alerts utilizing Framer Motion's AnimatePresence.
+ */
 const Contact: React.FC = () => {
+  // Input fields state models mapping parameters
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  
+  // Timings and statuses hooks tracking state from idle -> submitting -> success
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
+  // Submit handler processing inputs and invoking visual feedback cycles
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('submitting');
     
-    // Simulate API call
+    // Simulate real server delay to present smooth transition spinners
     setTimeout(() => {
       setStatus('success');
+      // Reset input content values
       setFormData({ name: '', email: '', subject: '', message: '' });
       
-      // Reset status after 5 seconds
+      // Auto reset success message state back to idle after 5 seconds
       setTimeout(() => setStatus('idle'), 5000);
     }, 1500);
   };
 
+  // Change listener matching keys and updating single object dictionary
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
     <div className="pt-32 pb-24 min-h-screen bg-dark relative overflow-hidden">
-      {/* Background glow effects */}
+      {/* Absolute background glow visual effects */}
       <div className="absolute top-1/4 -left-64 w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-secondary/20 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* Page Header */}
+      {/* Page Header text elements */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -54,7 +69,7 @@ const Contact: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
           
-          {/* Contact Info Group */}
+          {/* Contact Info Group (Metadata channels, mail directory, and locations) */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -65,6 +80,7 @@ const Contact: React.FC = () => {
               <h3 className="text-2xl font-bold text-white mb-8">Contact Info</h3>
               
               <div className="space-y-8">
+                {/* Email link items */}
                 <div className="flex items-start gap-4">
                   <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20">
                     <Mail size={24} />
@@ -75,6 +91,7 @@ const Contact: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Telephone link items */}
                 <div className="flex items-start gap-4">
                   <div className="p-4 bg-secondary/10 rounded-2xl text-secondary border border-secondary/20">
                     <Phone size={24} />
@@ -85,6 +102,7 @@ const Contact: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Geography listings */}
                 <div className="flex items-start gap-4">
                   <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20">
                     <MapPin size={24} />
@@ -97,6 +115,7 @@ const Contact: React.FC = () => {
               </div>
             </div>
 
+            {/* Social channels block mapping media properties */}
             <div className="bg-slate-900/50 p-8 rounded-3xl border border-white/5 backdrop-blur-sm pt-6">
               <h3 className="text-lg font-bold text-white mb-6">Social Profiles</h3>
               <div className="flex items-center gap-4">
@@ -113,7 +132,7 @@ const Contact: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Contact Form Group */}
+          {/* Contact Messaging Form (validated fields with dynamic status handling) */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}

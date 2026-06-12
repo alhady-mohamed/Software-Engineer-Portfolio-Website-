@@ -5,27 +5,42 @@ import { ArrowRight, Code2, Palette, Zap, LayoutGrid, Github, ExternalLink } fro
 import Hero from './Hero';
 import { PROJECTS, EXPERIENCE } from '../constants';
 
+/**
+ * Home Component
+ * Functions as the main dashboard of the index site space.
+ * Features:
+ * - Dynamic Hero segment framing visual consultant branding.
+ * - Horizontal scrolling tech stack marquee.
+ * - Dynamic Services grid mapping capabilities.
+ * - Interactive custom lists projecting leading work pieces.
+ * - Summary timeline tracking professional journeys.
+ * - Prominent footer CTAs.
+ */
 const Home: React.FC = () => {
+  // Slices data sources to present prominent teaser lists for performance scaling
   const featuredProjects = PROJECTS.slice(0, 3);
   const featuredExperience = EXPERIENCE.slice(0, 2);
 
   return (
     <div className="bg-dark min-h-screen">
+      {/* Intro hero showcasing title assets */}
       <Hero />
       
-      {/* Tech Stack Marquee */}
+      {/* Infinite Tech Stack Marquee loop banner */}
       <section className="py-10 border-y border-white/5 bg-black/20 overflow-hidden relative">
+         {/* Vignette mask overlays targeting seamless crop entries */}
          <div className="absolute inset-x-0 top-0 h-full w-32 bg-gradient-to-r from-dark to-transparent z-10 pointer-events-none" />
          <div className="absolute inset-x-0 right-0 h-full w-32 bg-gradient-to-l from-dark to-transparent z-10 pointer-events-none opacity-100 float-right" />
          <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-dark to-transparent z-10 pointer-events-none" />
          
          <div className="flex whitespace-nowrap">
+            {/* Horizontal Framer motion translation timeline set to run infinitely */}
             <motion.div 
                className="flex items-center gap-16 px-8 min-w-full"
                animate={{ x: ["0%", "-50%"] }}
                transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
             >
-               {/* Items repeated twice for seamless loop */}
+               {/* Items repeated twice for seamless loop without visual breaks */}
                {[...Array(2)].map((_, i) => (
                  <React.Fragment key={i}>
                    <div className="flex items-center gap-3 text-gray-500 font-bold text-xl uppercase tracking-widest"><Code2 size={24} /> React</div>
@@ -40,70 +55,143 @@ const Home: React.FC = () => {
          </div>
       </section>
 
-      {/* Services Section */}
-      <section className="py-24 relative overflow-hidden bg-slate-900/30">
+      {/* Services Section displaying modular capability descriptions split in three */}
+      <section className="py-24 relative overflow-hidden bg-slate-900/10 border-b border-white/5">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[120px] pointer-events-none" />
+        
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-              Expertise & <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Services</span>
+          {/* Header titles highlighting capabilities */}
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase mb-5">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              Engineered Solutions
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight leading-tight">
+              Expertise & <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary">Core Capabilities</span>
             </h2>
             <p className="text-gray-400 text-lg leading-relaxed">
-              I specialize in full-stack web development, creating high-performance applications with beautiful, intuitive interfaces.
+              Delivering high-performance, accessible digital products through rigorous architecture standards, modern technology stacks, and human-centric design.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Capability Card 1: Advanced software coding frameworks */}
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/[0.07] hover:border-primary/30 transition-all duration-300"
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               className="group bg-slate-900/40 border border-white/5 hover:border-primary/20 p-8 md:p-10 rounded-[2rem] hover:bg-slate-900/60 transition-all duration-500 flex flex-col justify-between hover:-translate-y-1 h-full shadow-xl relative overflow-hidden"
             >
-              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
-                <Code2 size={28} />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors pointer-events-none" />
+              <div>
+                <div className="flex justify-between items-center mb-8">
+                  <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <Code2 size={26} />
+                  </div>
+                  <span className="font-mono text-xs font-bold text-gray-500 tracking-widest group-hover:text-primary transition-colors">01 / ENG</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-primary transition-colors">Functional Engineering</h3>
+                <p className="text-gray-400 text-sm leading-relaxed mb-8">
+                  Scaffolding sturdy microservices, performant APIs, and type-safe frontends using clean, robust design patterns.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-white mb-4">Functional Development</h3>
-              <p className="text-gray-400 leading-relaxed">
-                Building scalable, maintainable architectures using React, Next.js, and TypeScript. Focusing on clean code and robust systems.
-              </p>
+              
+              <ul className="space-y-3.5 border-t border-white/5 pt-6 text-xs text-gray-400 font-medium font-sans">
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Type-Safe Next.js & React Core
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  State Management Architectures
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  REST & GraphQL Enterprise APIs
+                </li>
+              </ul>
             </motion.div>
             
+            {/* Capability Card 2: Visual interfaces, animations and responsive elements */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/[0.07] hover:border-secondary/30 transition-all duration-300"
+              className="group bg-slate-900/40 border border-white/5 hover:border-secondary/20 p-8 md:p-10 rounded-[2rem] hover:bg-slate-900/60 transition-all duration-500 flex flex-col justify-between hover:-translate-y-1 h-full shadow-xl relative overflow-hidden"
             >
-              <div className="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary mb-6">
-                <Palette size={28} />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-colors pointer-events-none" />
+              <div>
+                <div className="flex justify-between items-center mb-8">
+                  <div className="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                    <Palette size={26} />
+                  </div>
+                  <span className="font-mono text-xs font-bold text-gray-500 tracking-widest group-hover:text-secondary transition-colors">02 / VIS</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-secondary transition-colors">Interface Implementation</h3>
+                <p className="text-gray-400 text-sm leading-relaxed mb-8">
+                  Meticulous translation of Figma mockups into structured, responsive layouts with polished, buttery transitions.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-white mb-4">UI/UX Design Implementation</h3>
-              <p className="text-gray-400 leading-relaxed">
-                Translating complex design requirements into pixel-perfect, responsive, and accessible user interfaces.
-              </p>
+              
+              <ul className="space-y-3.5 border-t border-white/5 pt-6 text-xs text-gray-400 font-medium font-sans">
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                  Framer Motion Micro-interactions
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                  Pixel-Perfect Tailwind Implementation
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                  WCAG Accessibility Overhauls
+                </li>
+              </ul>
             </motion.div>
 
+            {/* Capability Card 3: Optimizations, loading checks, SEO integrations */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/[0.07] hover:border-primary/30 transition-all duration-300"
+              className="group bg-slate-900/40 border border-white/5 hover:border-primary/20 p-8 md:p-10 rounded-[2rem] hover:bg-slate-900/60 transition-all duration-500 flex flex-col justify-between hover:-translate-y-1 h-full shadow-xl relative overflow-hidden"
             >
-              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
-                <Zap size={28} />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors pointer-events-none" />
+              <div>
+                <div className="flex justify-between items-center mb-8">
+                  <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <Zap size={26} />
+                  </div>
+                  <span className="font-mono text-xs font-bold text-gray-500 tracking-widest group-hover:text-primary transition-colors">03 / OPT</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-primary transition-colors">Performance Tuning</h3>
+                <p className="text-gray-400 text-sm leading-relaxed mb-8">
+                  Eliminating render-blocking bottlenecks, minifying layout shifts, and establishing continuous, high-fidelity SEO health.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-white mb-4">Performance Optimization</h3>
-              <p className="text-gray-400 leading-relaxed">
-                Ensuring applications run smoothly and load quickly, optimizing assets, minimizing web vitals metrics, and improving SEO.
-              </p>
+              
+              <ul className="space-y-3.5 border-t border-white/5 pt-6 text-xs text-gray-400 font-medium font-sans">
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Core Web Vitals Metric Goals
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Lazy Loading & Asset Optimization
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Robust Semantic HTML Foundations
+                </li>
+              </ul>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Selected Work */}
+      {/* Selected Work grid presenting 3 top pieces */}
       <section className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
@@ -116,6 +204,7 @@ const Home: React.FC = () => {
                 Recent Projects
               </h2>
             </div>
+            {/* View full routing link */}
             <Link 
               to="/projects"
               className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors font-medium border-b border-white/20 pb-1 hover:border-primary shrink-0"
@@ -134,6 +223,7 @@ const Home: React.FC = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group flex flex-col bg-slate-900/80 rounded-3xl overflow-hidden border border-white/5 hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 h-full shadow-lg"
               >
+                {/* Visual Cover linking to deep case detail route */}
                 <Link to={`/project/${project.id}`} className="relative h-56 overflow-hidden shrink-0 bg-black block cursor-pointer">
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80 z-10" />
                   <img
@@ -148,6 +238,7 @@ const Home: React.FC = () => {
                   </div>
                 </Link>
 
+                {/* Content area covering details, technologies, and action indicators */}
                 <div className="p-8 flex flex-col flex-grow">
                   <Link to={`/project/${project.id}`}>
                     <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-primary transition-colors cursor-pointer inline-block">
@@ -158,6 +249,7 @@ const Home: React.FC = () => {
                     {project.description}
                   </p>
                   
+                  {/* Skill technology indicators */}
                   <div className="flex flex-wrap gap-2 mb-6">
                     {project.technologies.slice(0, 3).map((tech) => (
                       <span 
@@ -174,6 +266,7 @@ const Home: React.FC = () => {
                     )}
                   </div>
 
+                  {/* Actions bar */}
                   <div className="flex justify-between items-center pt-6 border-t border-white/5 mt-auto">
                     <Link 
                       to={`/project/${project.id}`}
@@ -183,10 +276,10 @@ const Home: React.FC = () => {
                     </Link>
                     
                     <div className="flex gap-2">
-                       <a href={project.githubUrl} className="text-gray-400 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">
+                       <a href={project.githubUrl} className="text-gray-400 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer" aria-label="Github code">
                          <Github size={18} />
                        </a>
-                       <a href={project.link} className="text-gray-400 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">
+                       <a href={project.link} className="text-gray-400 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer" aria-label="Live Demo Link">
                          <ExternalLink size={18} />
                        </a>
                     </div>
@@ -198,11 +291,12 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Experience Timeline Preview */}
+      {/* Experience Timeline Preview showcasing chronological milestones */}
       <section className="py-24 relative overflow-hidden bg-slate-900/40 border-y border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row gap-16 items-center">
             
+            {/* Details and direct route back to Resume */}
             <div className="w-full md:w-1/3">
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
                 Professional <span className="text-secondary">Journey</span>
@@ -218,6 +312,7 @@ const Home: React.FC = () => {
               </Link>
             </div>
 
+            {/* Structured CSS grid tracing timeline steps */}
             <div className="w-full md:w-2/3">
               <div className="space-y-6 relative before:absolute before:inset-0 before:left-[19px] before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-secondary/50 before:via-white/10 before:to-transparent pl-12">
                  {featuredExperience.map((job, index) => (
@@ -229,7 +324,7 @@ const Home: React.FC = () => {
                       transition={{ delay: index * 0.1 }}
                       className="relative bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-white/10 transition-colors"
                     >
-                      {/* Timeline Dot */}
+                      {/* Timeline Year indicator circles */}
                       <div className="absolute -left-[48px] mt-1.5 w-10 h-10 rounded-full border-4 border-dark bg-secondary shadow-lg z-10 flex items-center justify-center text-white text-xs font-bold">
                         {job.period.split(' ')[0]}
                       </div>
@@ -254,7 +349,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Hero CTA section directing leads to connection form interfaces */}
       <section className="py-24 relative">
          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-primary/5 pointer-events-none" />
          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
