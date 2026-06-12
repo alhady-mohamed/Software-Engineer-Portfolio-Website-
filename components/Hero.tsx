@@ -67,7 +67,7 @@ const Hero: React.FC = () => {
             
             {/* Short Bio snippet profiling competencies */}
             <motion.p variants={itemVariants} className="text-lg text-gray-400 mb-8 max-w-lg leading-relaxed">
-              I'm <span className="text-white font-semibold">Alex</span>, a Senior Full Stack Engineer specializing in building exceptional digital experiences. I transform complex problems into elegant, scalable solutions.
+              I'm <span className="text-white font-semibold">Mohamed Alhady</span>, a Senior Full Stack Engineer specializing in building exceptional digital experiences. I transform complex problems into elegant, scalable solutions.
             </motion.p>
             
             {/* Interactive navigation links and downloads */}

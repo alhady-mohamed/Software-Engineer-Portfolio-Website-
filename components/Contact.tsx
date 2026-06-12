@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, MapPin, Send, Phone, CheckCircle, MessageSquare, Linkedin, Twitter, Github } from 'lucide-react';
+import { Mail, MapPin, Send, Phone, CheckCircle, MessageSquare, Linkedin, Twitter, Github, Facebook, Youtube, Instagram, Video } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
@@ -118,15 +118,24 @@ const Contact: React.FC = () => {
             {/* Social channels block mapping media properties */}
             <div className="bg-slate-900/50 p-8 rounded-3xl border border-white/5 backdrop-blur-sm pt-6">
               <h3 className="text-lg font-bold text-white mb-6">Social Profiles</h3>
-              <div className="flex items-center gap-4">
-                <a href="#" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-white hover:scale-110 transition-all">
+              <div className="flex flex-wrap items-center gap-4">
+                <a href="https://github.com/alhady-mohamed" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-white hover:scale-110 transition-all" aria-label="GitHub">
                   <Github size={20} />
                 </a>
-                <a href="#" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#0A66C2] hover:scale-110 transition-all">
+                <a href="https://www.linkedin.com/in/alhady-mohamed" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#0A66C2] hover:scale-110 transition-all" aria-label="LinkedIn">
                   <Linkedin size={20} />
                 </a>
-                <a href="#" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#1DA1F2] hover:scale-110 transition-all">
-                  <Twitter size={20} />
+                <a href="https://www.facebook.com/Mohamet.Abdirisaak304" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#1877F2] hover:scale-110 transition-all" aria-label="Facebook">
+                  <Facebook size={20} />
+                </a>
+                <a href="https://www.instagram.com/alhady_mohamed301" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#E4405F] hover:scale-110 transition-all" aria-label="Instagram">
+                  <Instagram size={20} />
+                </a>
+                <a href="https://youtube.com/@mohamed-alhady01" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#FF0000] hover:scale-110 transition-all" aria-label="YouTube">
+                  <Youtube size={20} />
+                </a>
+                <a href="https://www.tiktok.com/@mohamed.alhady33" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-white hover:scale-110 transition-all" aria-label="TikTok">
+                  <Video size={20} />
                 </a>
               </div>
             </div>

@@ -353,7 +353,7 @@ const Projects: React.FC = () => {
             I've contributed to over 30+ open source projects and built numerous applications across different domains. Check out my GitHub profile for more code snippets and repositories.
           </p>
           <a 
-            href="https://github.com" 
+            href="https://github.com/alhady-mohamed" 
             target="_blank" 
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white text-dark font-bold hover:scale-105 transition-transform shadow-xl relative z-10"

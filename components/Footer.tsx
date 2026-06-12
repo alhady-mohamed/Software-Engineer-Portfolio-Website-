@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Linkedin, Mail, Code2, ArrowRight } from 'lucide-react';
+import { Github, Twitter, Linkedin, Mail, Code2, ArrowRight, Facebook, Youtube, Instagram, Video } from 'lucide-react';
 
 /**
  * Global Page Footer Component
@@ -23,21 +23,30 @@ const Footer: React.FC = () => {
                 <Code2 className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                Alex.dev
+                Mohamed Alhady
               </span>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6 pr-4">
               Building high-performance web applications with a focus on exceptional user experiences, robust architecture, and clean code. Located in San Francisco, CA.
             </p>
-            <div className="flex items-center gap-4">
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="GitHub">
+            <div className="flex flex-wrap items-center gap-4">
+              <a href="https://github.com/alhady-mohamed" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="GitHub">
                 <Github size={18} className="group-hover:scale-110 transition-transform" />
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#0A66C2] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="LinkedIn">
+              <a href="https://www.linkedin.com/in/alhady-mohamed" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#0A66C2] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="LinkedIn">
                 <Linkedin size={18} className="group-hover:scale-110 transition-transform" />
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#1DA1F2] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="Twitter">
-                <Twitter size={18} className="group-hover:scale-110 transition-transform" />
+              <a href="https://www.facebook.com/Mohamet.Abdirisaak304" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#1877F2] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="Facebook">
+                <Facebook size={18} className="group-hover:scale-110 transition-transform" />
+              </a>
+              <a href="https://www.instagram.com/alhady_mohamed301" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#E4405F] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="Instagram">
+                <Instagram size={18} className="group-hover:scale-110 transition-transform" />
+              </a>
+              <a href="https://youtube.com/@mohamed-alhady01" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#FF0000] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="YouTube">
+                <Youtube size={18} className="group-hover:scale-110 transition-transform" />
+              </a>
+              <a href="https://www.tiktok.com/@mohamed.alhady33" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="TikTok">
+                <Video size={18} className="group-hover:scale-110 transition-transform" />
               </a>
             </div>
           </div>
@@ -111,7 +120,7 @@ const Footer: React.FC = () => {
         {/* Bottom Bar: Copyright protection and compliance links */}
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-gray-500 text-sm text-center md:text-left">
-            © {new Date().getFullYear()} Alex. All rights reserved.
+            © {new Date().getFullYear()} Mohamed Alhady. All rights reserved.
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-gray-500 text-sm hover:text-white transition-colors">Privacy Policy</a>
