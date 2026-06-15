@@ -193,7 +193,7 @@ const Contact: React.FC = () => {
                           value={formData.name}
                           onChange={handleChange}
                           className="w-full px-5 py-4 bg-black/40 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-white placeholder-gray-600 transition-all outline-none"
-                          placeholder="John Doe"
+                          placeholder="Abdi Hassan"
                         />
                       </div>
                       <div className="space-y-2">
@@ -206,7 +206,7 @@ const Contact: React.FC = () => {
                           value={formData.email}
                           onChange={handleChange}
                           className="w-full px-5 py-4 bg-black/40 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-white placeholder-gray-600 transition-all outline-none"
-                          placeholder="john@example.com"
+                          placeholder="abdi@example.com"
                         />
                       </div>
                     </div>
