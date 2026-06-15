@@ -1,8 +1,17 @@
-import React, { useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { PROJECTS } from '../constants';
-import { ArrowLeft, ExternalLink, Github, LayoutGrid, Calendar, Tag, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { PROJECTS } from "../constants";
+import {
+  ArrowLeft,
+  ExternalLink,
+  Github,
+  LayoutGrid,
+  Calendar,
+  Tag,
+  ChevronRight,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import ProjectComments from "./ProjectComments";
 
 /**
  * ProjectDetail Component
@@ -19,10 +28,10 @@ const ProjectDetail: React.FC = () => {
   // Extracts the project numeric identifier directly from route path variable context
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   // Searches static mock database arrays to match ID parameters
-  const project = PROJECTS.find(p => p.id === Number(id));
-  
+  const project = PROJECTS.find((p) => p.id === Number(id));
+
   useEffect(() => {
     // Scroll coordinates back to top index on route transition events
     window.scrollTo(0, 0);
@@ -33,8 +42,8 @@ const ProjectDetail: React.FC = () => {
     return (
       <div className="min-h-screen pt-32 pb-24 flex flex-col items-center justify-center bg-dark text-white">
         <h2 className="text-3xl font-bold mb-4">Project Not Found</h2>
-        <button 
-          onClick={() => navigate('/projects')}
+        <button
+          onClick={() => navigate("/projects")}
           className="text-primary hover:text-white transition-colors flex items-center gap-2"
         >
           <ArrowLeft size={20} /> Back to Projects
@@ -44,25 +53,33 @@ const ProjectDetail: React.FC = () => {
   }
 
   // Related work matching filter algorithm scoring similar category entries (excluding current item)
-  const relatedProjects = PROJECTS.filter(p => p.category === project.category && p.id !== project.id).slice(0, 2);
-  
+  const relatedProjects = PROJECTS.filter(
+    (p) => p.category === project.category && p.id !== project.id,
+  ).slice(0, 2);
+
   // Alternative recent item suggestions algorithm matching records outside related criteria
-  const recentProjects = PROJECTS.filter(p => p.id !== project.id && !relatedProjects.find(rp => rp.id === p.id)).slice(0, 3);
+  const recentProjects = PROJECTS.filter(
+    (p) => p.id !== project.id && !relatedProjects.find((rp) => rp.id === p.id),
+  ).slice(0, 3);
 
   return (
     <div className="pt-32 pb-24 min-h-screen bg-dark">
       {/* Structural navigation and visual layout header cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-2 text-gray-400 hover:text-primary transition-colors font-medium mb-8 group"
         >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back
+          <ArrowLeft
+            size={16}
+            className="group-hover:-translate-x-1 transition-transform"
+          />{" "}
+          Back
         </button>
-        
+
         <div className="flex flex-col lg:flex-row gap-8 lg:items-end justify-between mb-8">
           {/* Main Title labels and subheadlines details */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="max-w-3xl"
@@ -82,29 +99,29 @@ const ProjectDetail: React.FC = () => {
               {project.description}
             </p>
           </motion.div>
-          
+
           {/* Repository interactions and Live Demo redirection button panel */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
             className="flex gap-4 shrink-0"
           >
-            <a 
+            <a
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all flex items-center gap-2 font-bold"
             >
-               <Github size={20} /> Repository
-             </a>
-            <a 
+              <Github size={20} /> Repository
+            </a>
+            <a
               href={project.link}
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 rounded-full bg-primary hover:bg-yellow-400 text-dark border border-primary/20 transition-all shadow-lg hover:shadow-primary/30 flex items-center gap-2 font-bold"
             >
-               <ExternalLink size={20} /> View Live
+              <ExternalLink size={20} /> View Live
             </a>
           </motion.div>
         </div>
@@ -113,9 +130,8 @@ const ProjectDetail: React.FC = () => {
       {/* Main Grid splitting details layout document from side widgets */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-12">
-          
           {/* Columns-8: Detailed Description Document areas */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -123,61 +139,89 @@ const ProjectDetail: React.FC = () => {
           >
             {/* Extended Showcase aspect ratio container */}
             <div className="rounded-3xl overflow-hidden bg-black border border-white/5 shadow-2xl mb-12 aspect-[16/9]">
-              <img 
-                src={project.imageUrl} 
+              <img
+                src={project.imageUrl}
                 alt={project.title}
                 className="w-full h-full object-cover"
               />
             </div>
-            
+
             {/* Case Study Written Document elements */}
             <div className="prose prose-invert prose-lg max-w-none">
-              <h2 className="text-2xl font-bold text-white mb-4">Project Overview</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">
+                Project Overview
+              </h2>
               <p className="text-gray-400 mb-8 leading-relaxed">
-                This project was built to address significant challenges in the domain of {project.category.toLowerCase()}. 
-                The core objective was to create a highly scalable, maintainable, and performant application that delivers 
-                an exceptional user experience. {project.description} We focused heavily on modern development practices, 
-                incorporating clean architecture and a robust component library.
+                This project was built to address significant challenges in the
+                domain of {project.category.toLowerCase()}. The core objective
+                was to create a highly scalable, maintainable, and performant
+                application that delivers an exceptional user experience.{" "}
+                {project.description} We focused heavily on modern development
+                practices, incorporating clean architecture and a robust
+                component library.
               </p>
-              
-              <h3 className="text-xl font-bold text-white mb-4">The Challenge</h3>
+
+              <h3 className="text-xl font-bold text-white mb-4">
+                The Challenge
+              </h3>
               <p className="text-gray-400 mb-8 leading-relaxed">
-                Prior implementations suffered from slow load times, poor state management, and an outdated user interface. 
-                Integrating various third-party services while maintaining high security standards and real-time responsiveness 
-                proved to be a significant technical hurdle.
+                Prior implementations suffered from slow load times, poor state
+                management, and an outdated user interface. Integrating various
+                third-party services while maintaining high security standards
+                and real-time responsiveness proved to be a significant
+                technical hurdle.
               </p>
-              
-              <h3 className="text-xl font-bold text-white mb-4">The Solution</h3>
+
+              <h3 className="text-xl font-bold text-white mb-4">
+                The Solution
+              </h3>
               <p className="text-gray-400 mb-8 leading-relaxed">
-                By leveraging {project.technologies.slice(0, 2).join(" and ")}, we established a modern foundation. 
-                This allowed us to implement efficient server-side rendering and static site generation where appropriate. 
-                The user interface was completely overhauled to follow a minimalist, accessible design language.
+                By leveraging {project.technologies.slice(0, 2).join(" and ")},
+                we established a modern foundation. This allowed us to implement
+                efficient server-side rendering and static site generation where
+                appropriate. The user interface was completely overhauled to
+                follow a minimalist, accessible design language.
               </p>
             </div>
-            
+
             {/* Numerical Scoreboards presenting objective indicators */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-8 border-y border-white/5 my-12">
-               <div className="text-center p-4 bg-slate-900/50 rounded-2xl border border-white/5">
-                 <div className="text-2xl font-bold text-primary mb-1">100%</div>
-                 <div className="text-xs text-gray-500 uppercase font-medium tracking-wide">Lighthouse Score</div>
-               </div>
-               <div className="text-center p-4 bg-slate-900/50 rounded-2xl border border-white/5">
-                 <div className="text-2xl font-bold text-secondary mb-1">&lt; 1s</div>
-                 <div className="text-xs text-gray-500 uppercase font-medium tracking-wide">Load Time</div>
-               </div>
-               <div className="text-center p-4 bg-slate-900/50 rounded-2xl border border-white/5">
-                 <div className="text-2xl font-bold text-white mb-1">99.9%</div>
-                 <div className="text-xs text-gray-500 uppercase font-medium tracking-wide">Uptime</div>
-               </div>
-               <div className="text-center p-4 bg-slate-900/50 rounded-2xl border border-white/5">
-                 <div className="text-2xl font-bold text-white mb-1">5 Stars</div>
-                 <div className="text-xs text-gray-500 uppercase font-medium tracking-wide">User Rating</div>
-               </div>
+              <div className="text-center p-4 bg-slate-900/50 rounded-2xl border border-white/5">
+                <div className="text-2xl font-bold text-primary mb-1">100%</div>
+                <div className="text-xs text-gray-500 uppercase font-medium tracking-wide">
+                  Lighthouse Score
+                </div>
+              </div>
+              <div className="text-center p-4 bg-slate-900/50 rounded-2xl border border-white/5">
+                <div className="text-2xl font-bold text-secondary mb-1">
+                  &lt; 1s
+                </div>
+                <div className="text-xs text-gray-500 uppercase font-medium tracking-wide">
+                  Load Time
+                </div>
+              </div>
+              <div className="text-center p-4 bg-slate-900/50 rounded-2xl border border-white/5">
+                <div className="text-2xl font-bold text-white mb-1">99.9%</div>
+                <div className="text-xs text-gray-500 uppercase font-medium tracking-wide">
+                  Uptime
+                </div>
+              </div>
+              <div className="text-center p-4 bg-slate-900/50 rounded-2xl border border-white/5">
+                <div className="text-2xl font-bold text-white mb-1">
+                  5 Stars
+                </div>
+                <div className="text-xs text-gray-500 uppercase font-medium tracking-wide">
+                  User Rating
+                </div>
+              </div>
             </div>
+
+            {/* Comments Section */}
+            <ProjectComments projectId={project.id} />
           </motion.div>
-          
+
           {/* Columns-4: Sidebar options matching stacks and recommendations */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
@@ -189,68 +233,87 @@ const ProjectDetail: React.FC = () => {
                 <Tag size={18} className="text-primary" /> Technologies Used
               </h4>
               <div className="flex flex-wrap gap-2">
-                {project.technologies.map(tech => (
-                  <span key={tech} className="px-3 py-1.5 rounded-lg bg-black/40 border border-white/5 text-gray-300 text-sm font-medium">
+                {project.technologies.map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-3 py-1.5 rounded-lg bg-black/40 border border-white/5 text-gray-300 text-sm font-medium"
+                  >
                     {tech}
                   </span>
                 ))}
               </div>
             </div>
-            
+
             {/* Suggest Related category selections list */}
             {relatedProjects.length > 0 && (
               <div className="bg-slate-900/50 p-6 rounded-3xl border border-white/5">
                 <h4 className="text-white font-bold mb-6 flex items-center gap-2">
-                  <LayoutGrid size={18} className="text-secondary" /> Related Work
+                  <LayoutGrid size={18} className="text-secondary" /> Related
+                  Work
                 </h4>
                 <div className="space-y-4">
-                  {relatedProjects.map(rp => (
-                    <Link 
-                      key={rp.id} 
+                  {relatedProjects.map((rp) => (
+                    <Link
+                      key={rp.id}
                       to={`/project/${rp.id}`}
                       className="group flex gap-4 p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5"
                     >
                       <div className="w-16 h-16 rounded-xl overflow-hidden bg-black shrink-0">
-                        <img src={rp.imageUrl} alt={rp.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <img
+                          src={rp.imageUrl}
+                          alt={rp.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
                       </div>
                       <div className="flex flex-col justify-center">
-                        <h5 className="text-white font-bold text-sm group-hover:text-primary transition-colors">{rp.title}</h5>
-                        <p className="text-gray-500 text-xs line-clamp-1 mt-1">{rp.description}</p>
+                        <h5 className="text-white font-bold text-sm group-hover:text-primary transition-colors">
+                          {rp.title}
+                        </h5>
+                        <p className="text-gray-500 text-xs line-clamp-1 mt-1">
+                          {rp.description}
+                        </p>
                       </div>
                     </Link>
                   ))}
                 </div>
               </div>
             )}
-            
+
             {/* Suggest general alternative items list */}
             {recentProjects.length > 0 && (
               <div className="bg-slate-900/50 p-6 rounded-3xl border border-white/5">
                 <h4 className="text-white font-bold mb-6 flex items-center gap-2">
-                  <ChevronRight size={18} className="text-white" /> Other Projects
+                  <ChevronRight size={18} className="text-white" /> Other
+                  Projects
                 </h4>
                 <div className="space-y-4">
-                  {recentProjects.map(rp => (
-                    <Link 
-                      key={rp.id} 
+                  {recentProjects.map((rp) => (
+                    <Link
+                      key={rp.id}
                       to={`/project/${rp.id}`}
                       className="group flex gap-4 p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5"
                     >
                       <div className="w-16 h-16 rounded-xl overflow-hidden bg-black shrink-0">
-                        <img src={rp.imageUrl} alt={rp.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <img
+                          src={rp.imageUrl}
+                          alt={rp.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
                       </div>
                       <div className="flex flex-col justify-center">
-                        <h5 className="text-white font-bold text-sm group-hover:text-secondary transition-colors">{rp.title}</h5>
-                        <p className="text-gray-500 text-xs line-clamp-1 mt-1">{rp.description}</p>
+                        <h5 className="text-white font-bold text-sm group-hover:text-secondary transition-colors">
+                          {rp.title}
+                        </h5>
+                        <p className="text-gray-500 text-xs line-clamp-1 mt-1">
+                          {rp.description}
+                        </p>
                       </div>
                     </Link>
                   ))}
                 </div>
               </div>
             )}
-            
           </motion.div>
-          
         </div>
       </div>
     </div>
