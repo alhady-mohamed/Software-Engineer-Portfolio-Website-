@@ -6,6 +6,7 @@ import Home from './components/Home';
 import About from './components/About';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
+import FormsManager from './components/FormsManager';
 import Footer from './components/Footer';
 import ProjectDetail from './components/ProjectDetail';
 
@@ -30,6 +31,8 @@ const AnimatedRoutes: React.FC = () => {
         <Route path="/project/:id" element={<ProjectDetail />} />
         {/* Lead contact query form with structured inquiry capture */}
         <Route path="/contact" element={<Contact />} />
+        {/* Google Forms manager section */}
+        <Route path="/forms" element={<FormsManager />} />
       </Routes>
     </AnimatePresence>
   );
