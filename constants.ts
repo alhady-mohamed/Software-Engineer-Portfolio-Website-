@@ -12,7 +12,6 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'About', href: '/about' },
   { label: 'Projects', href: '/projects' },
   { label: 'Contact', href: '/contact' },
-  { label: 'Forms', href: '/forms' },
 ];
 
 // Normalized proficiency levels plotted on radial charts to visualize core developer domains
