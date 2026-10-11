@@ -16,30 +16,25 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
+import { useSiteData } from "../src/context/SiteDataContext";
+import { useLanguage } from "../src/context/LanguageContext";
+
 // Fixed categorizations defining portfolio filters
 const Categories = ["All", "Web App", "Mobile", "AI/ML"];
 
-/**
- * Projects Component
- * Renders the full showcase portfolio screen.
- * Modules:
- * - Page Header describing visual/engineering mindset.
- * - Spotlight Card highlighting of the top/first project.
- * - Filter criteria buttons.
- * - Interactive multi-column responsive grid with animated cards.
- * - Impact stats.
- * - Open Source contribution repositories.
- * - Callouts leading to the main GitHub profile.
- */
 const Projects: React.FC = () => {
+  const { projects: dynamicProjects } = useSiteData();
+  const { t } = useLanguage();
+  const allProjects = dynamicProjects.length > 0 ? dynamicProjects : PROJECTS;
+
   // Navigation active tab index setting
   const [activeCategory, setActiveCategory] = useState("All");
 
-  // Dynamic filter query scanning metadata fields fromconstants list
+  // Dynamic filter query scanning metadata fields
   const filteredProjects =
     activeCategory === "All"
-      ? PROJECTS
-      : PROJECTS.filter((p) => p.category === activeCategory);
+      ? allProjects
+      : allProjects.filter((p) => p.category === activeCategory);
 
   return (
     <div className="pt-32 pb-24 min-h-screen bg-dark">
@@ -52,13 +47,10 @@ const Projects: React.FC = () => {
         >
           <div className="flex items-center gap-2 text-primary font-medium tracking-wider text-sm uppercase mb-4">
             <LayoutGrid size={16} />
-            <span>Portfolio</span>
+            <span>{t('projects_badge')}</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            Featured{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-              Work
-            </span>
+            {t('projects_title')}
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl leading-relaxed mb-8">
             A curated selection of my recent projects. Each project represents a

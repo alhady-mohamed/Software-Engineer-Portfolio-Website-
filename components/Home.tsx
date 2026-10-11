@@ -1,25 +1,32 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Code2, Palette, Zap, LayoutGrid, Github, ExternalLink, Video, Megaphone } from 'lucide-react';
+import { ArrowRight, Code2, Palette, Zap, LayoutGrid, Github, ExternalLink, Video, Megaphone, Star, MessageSquareQuote } from 'lucide-react';
 import Hero from './Hero';
 import { PROJECTS, EXPERIENCE } from '../constants';
+import { useSiteData } from '../src/context/SiteDataContext';
 
-/**
- * Home Component
- * Functions as the main dashboard of the index site space.
- * Features:
- * - Dynamic Hero segment framing visual consultant branding.
- * - Horizontal scrolling tech stack marquee.
- * - Dynamic Services grid mapping capabilities.
- * - Interactive custom lists projecting leading work pieces.
- * - Summary timeline tracking professional journeys.
- * - Prominent footer CTAs.
- */
 const Home: React.FC = () => {
-  // Slices data sources to present prominent teaser lists for performance scaling
-  const featuredProjects = PROJECTS.slice(0, 3);
-  const featuredExperience = EXPERIENCE.slice(0, 2);
+  const { projects: dynamicProjects, testimonials, timelines } = useSiteData();
+  const allProjects = dynamicProjects.length > 0 ? dynamicProjects : PROJECTS;
+
+  // Prioritize featured projects from CMS, fallback to top 3
+  const cmsFeatured = allProjects.filter((p) => p.featured);
+  const featuredProjects = cmsFeatured.length > 0 ? cmsFeatured.slice(0, 3) : allProjects.slice(0, 3);
+
+  // Dynamic experiences from CMS
+  const dynamicExp = timelines.filter((t) => t.type === 'experience');
+  const featuredExperience = dynamicExp.length > 0
+    ? dynamicExp.slice(0, 2).map((e) => ({
+        id: e.id,
+        role: e.title,
+        company: e.institution,
+        period: e.period,
+        description: e.description,
+      }))
+    : EXPERIENCE.slice(0, 2);
+
+  const approvedTestimonials = testimonials.filter((t) => t.isApproved);
 
   return (
     <div className="bg-dark min-h-screen">
@@ -386,6 +393,75 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Client Testimonials Section from CMS */}
+      {approvedTestimonials.length > 0 && (
+        <section className="py-24 relative overflow-hidden bg-slate-900/20 border-b border-white/5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-400 text-xs font-bold tracking-wider uppercase mb-3">
+                <Star size={14} className="fill-amber-400" />
+                <span>Client Feedback & Recommendations</span>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+                What Clients <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500">Say</span>
+              </h2>
+              <p className="text-gray-400 text-base">
+                Real feedback and recommendations from industry founders, directors, and collaborative partners.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {approvedTestimonials.map((t, idx) => (
+                <motion.div
+                  key={t.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.15 }}
+                  className="p-8 rounded-3xl bg-slate-900/60 border border-white/5 hover:border-amber-500/30 transition-all flex flex-col justify-between space-y-6 shadow-xl relative group"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-1 text-amber-400">
+                      {Array.from({ length: 5 }).map((_, sIdx) => (
+                        <Star
+                          key={sIdx}
+                          size={15}
+                          className={sIdx < t.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-700'}
+                        />
+                      ))}
+                    </div>
+
+                    <p className="text-gray-300 text-sm leading-relaxed italic">
+                      "{t.content}"
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/5 flex items-center gap-3.5">
+                    {t.avatarUrl ? (
+                      <img
+                        src={t.avatarUrl}
+                        alt={t.clientName}
+                        className="w-11 h-11 rounded-full object-cover border border-white/10"
+                      />
+                    ) : (
+                      <div className="w-11 h-11 rounded-full bg-slate-800 text-amber-400 font-bold flex items-center justify-center text-sm">
+                        {t.clientName.charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <h4 className="text-sm font-bold text-white">{t.clientName}</h4>
+                      <p className="text-xs text-gray-400">
+                        {t.clientRole} {t.company ? `• ${t.company}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Hero CTA section directing leads to connection form interfaces */}
       <section className="py-24 relative">

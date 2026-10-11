@@ -1,5 +1,5 @@
-import React from 'react';
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
@@ -9,53 +9,133 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ProjectDetail from './components/ProjectDetail';
 
+// Context Providers
+import { SiteDataProvider } from './src/context/SiteDataContext';
+import { AdminAuthProvider } from './src/context/AdminAuthContext';
+import { LanguageProvider } from './src/context/LanguageContext';
+
+// Admin CMS Components
+import { AdminLogin } from './components/admin/AdminLogin';
+import { AdminLayout } from './components/admin/AdminLayout';
+import { AdminRouteGuard } from './components/admin/AdminRouteGuard';
+import { AdminOverview } from './components/admin/AdminOverview';
+import { AdminProjects } from './components/admin/AdminProjects';
+import { AdminTimeline } from './components/admin/AdminTimeline';
+import { AdminTestimonials } from './components/admin/AdminTestimonials';
+import { AdminMessages } from './components/admin/AdminMessages';
+import { AdminSettings } from './components/admin/AdminSettings';
+import { AdminAppearance } from './components/admin/AdminAppearance';
+
 /**
  * AnimatedRoutes Component
- * Wraps all application screen links with Framer Motion transitions.
- * useLocation pathname keys prevent component recycling, causing safe crossfade animation on nav change.
+ * Handles routing for both the public portfolio screens and the secure Admin CMS portal.
  */
 const AnimatedRoutes: React.FC = () => {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        {/* Landing Home page displaying current overview, stacks, and featured services */}
+      <Routes location={location} key={location.pathname.startsWith('/admin') ? 'admin-zone' : location.pathname}>
+        {/* Public Portfolio Routes */}
         <Route path="/" element={<Home />} />
-        {/* About profile detailing skills, bio timeline, and proficiency charts */}
         <Route path="/about" element={<About />} />
-        {/* Comprehensive filtered lists of all build projects */}
         <Route path="/projects" element={<Projects />} />
-        {/* Dynamic deep dive project case detail pages */}
         <Route path="/project/:id" element={<ProjectDetail />} />
-        {/* Lead contact query form with structured inquiry capture */}
         <Route path="/contact" element={<Contact />} />
+
+        {/* Admin Authentication Route & WordPress-Style URL Direct Access */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/wp-admin" element={<Navigate to="/admin" replace />} />
+        <Route path="/wp-login" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/login" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
+
+        {/* Secure Admin CMS Dashboard Routes */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRouteGuard>
+              <AdminLayout />
+            </AdminRouteGuard>
+          }
+        >
+          <Route index element={<AdminOverview />} />
+          <Route path="appearance" element={<AdminAppearance />} />
+          <Route path="projects" element={<AdminProjects />} />
+          <Route path="timeline" element={<AdminTimeline />} />
+          <Route path="testimonials" element={<AdminTestimonials />} />
+          <Route path="messages" element={<AdminMessages />} />
+          <Route path="settings" element={<AdminSettings />} />
+        </Route>
       </Routes>
     </AnimatePresence>
   );
 };
 
 /**
- * Main App Entry Component
- * Bootstraps standard reactive router systems, consistent header and footer zones,
- * global styling classes, and selection colors.
+ * Main Layout Shell
+ * Hides public navigation and footer when viewing the admin CMS dashboard or login portal.
  */
-const App: React.FC = () => {
-  return (
-    <Router>
-      <div className="bg-dark min-h-screen text-slate-200 selection:bg-primary selection:text-white flex flex-col">
-        {/* Sticky Header Nav system with reactive mobile menu drawer */}
-        <Navbar />
-        
-        {/* Standard viewport layout area scaling responsive screen files */}
+const AppShell: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isAdminRoute =
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/wp-admin') ||
+    location.pathname.startsWith('/wp-login');
+
+  // Discreet keyboard shortcut (Alt + A or Ctrl + Shift + A) to enter admin dashboard from anywhere on the site
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+      if ((e.altKey && (e.key === 'a' || e.key === 'A')) || (e.ctrlKey && e.shiftKey && (e.key === 'a' || e.key === 'A'))) {
+        e.preventDefault();
+        navigate('/admin');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [navigate]);
+
+  if (isAdminRoute) {
+    return (
+      <div className="bg-slate-950 min-h-screen text-slate-200 selection:bg-primary selection:text-white flex flex-col">
         <main className="flex-grow">
           <AnimatedRoutes />
         </main>
-        
-        {/* Terminal footer zone with legal details and social connection links */}
-        <Footer />
       </div>
-    </Router>
+    );
+  }
+
+  return (
+    <div className="bg-dark min-h-screen text-slate-200 selection:bg-primary selection:text-white flex flex-col">
+      <Navbar />
+      <main className="flex-grow">
+        <AnimatedRoutes />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+/**
+ * Main App Entry Component
+ * Bootstraps providers, router, and styling layers.
+ */
+const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <SiteDataProvider>
+        <AdminAuthProvider>
+          <Router>
+            <AppShell />
+          </Router>
+        </AdminAuthProvider>
+      </SiteDataProvider>
+    </LanguageProvider>
   );
 };
 

@@ -24,13 +24,18 @@ import ProjectComments from "./ProjectComments";
  * - Digital metrics scoreboard of achievements.
  * - Sidebar of applied technologies, plus matching suggestions.
  */
+import { useSiteData } from "../src/context/SiteDataContext";
+
 const ProjectDetail: React.FC = () => {
-  // Extracts the project numeric identifier directly from route path variable context
+  // Extracts the project identifier directly from route path variable context
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { projects: dynamicProjects } = useSiteData();
 
-  // Searches static mock database arrays to match ID parameters
-  const project = PROJECTS.find((p) => p.id === Number(id));
+  const allProjects = dynamicProjects.length > 0 ? dynamicProjects : PROJECTS;
+
+  // Searches dynamic context first, then constants
+  const project = allProjects.find((p) => String(p.id) === String(id));
 
   useEffect(() => {
     // Scroll coordinates back to top index on route transition events

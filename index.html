@@ -22,8 +22,8 @@
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              primary: '#facc15', // Yellow 400
-              secondary: '#22c55e', // Green 500
+              primary: 'var(--color-primary, #facc15)',
+              secondary: 'var(--color-secondary, #22c55e)',
               // Dynamic Theme Colors mapped to CSS Variables
               dark: 'rgb(var(--color-bg-base) / <alpha-value>)', 
               white: 'rgb(var(--color-text-base) / <alpha-value>)',
@@ -44,6 +44,8 @@
     </script>
     <style>
       :root {
+        --color-primary: #facc15;
+        --color-secondary: #22c55e;
         /* Dark Mode (Dark Green & Yellow) */
         --color-bg-base: 2 15 10;       /* Deep Dark Green */
         --color-bg-card: 6 36 24;       /* Slightly lighter Dark Green */

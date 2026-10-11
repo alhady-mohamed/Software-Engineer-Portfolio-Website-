@@ -3,6 +3,9 @@ import { Menu, X, Code2, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NavLink, Link } from 'react-router-dom';
 import { NAV_ITEMS } from '../constants';
+import { useSiteData } from '../src/context/SiteDataContext';
+import { useLanguage } from '../src/context/LanguageContext';
+import { LanguageSelector } from './LanguageSelector';
 
 /**
  * Global Header Navbar Component
@@ -10,6 +13,9 @@ import { NAV_ITEMS } from '../constants';
  * Fully responsive across devices with optimal absolute blur layer integration.
  */
 const Navbar: React.FC = () => {
+  const { settings } = useSiteData();
+  const branding = settings.branding;
+
   // tracks standard vertical window scroll height to add design borders and blur depth on downscroll
   const [isScrolled, setIsScrolled] = useState(false);
   // controls show/hide state of mobile drop down links
@@ -48,6 +54,15 @@ const Navbar: React.FC = () => {
 
   const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
+  const { t } = useLanguage();
+
+  const navLinks = [
+    { label: t('nav_home'), href: '/' },
+    { label: t('nav_about'), href: '/about' },
+    { label: t('nav_projects'), href: '/projects' },
+    { label: t('nav_contact'), href: '/contact' },
+  ];
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -59,19 +74,23 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         {/* Brand Logo - Wraps back to top of root page */}
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-tr from-primary to-secondary rounded-lg group-hover:scale-110 transition-transform">
-            <span className="text-white font-bold text-sm tracking-widest">M&A</span>
+          <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-tr from-primary to-secondary rounded-lg group-hover:scale-110 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/20">
+            {branding?.logoType === 'image' && branding?.logoImageUrl ? (
+              <img src={branding.logoImageUrl} alt={branding.siteName} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white font-bold text-sm tracking-widest">{branding?.logoText || 'M&A'}</span>
+            )}
           </div>
           <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-            Mohamed Alhady
+            {branding?.siteName || 'Mohamed Alhady'}
           </span>
         </Link>
 
         {/* Desktop Navigation Links */}
-        <div className="hidden md:flex items-center gap-8">
-          {NAV_ITEMS.map((item) => (
+        <div className="hidden md:flex items-center gap-6">
+          {navLinks.map((item) => (
             <NavLink
-              key={item.label}
+              key={item.href}
               to={item.href}
               className={({ isActive }) =>
                 `text-sm font-medium relative group transition-colors ${
@@ -92,11 +111,14 @@ const Navbar: React.FC = () => {
               )}
             </NavLink>
           ))}
-          
+
+          {/* Language Switcher Dropdown (English, Somali, Arabic) */}
+          <LanguageSelector variant="public" />
+
           {/* Light/Dark Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+            className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
             aria-label="Toggle theme"
           >
             {isDark ? <Sun size={20} /> : <Moon size={20} />}
@@ -104,17 +126,18 @@ const Navbar: React.FC = () => {
 
           {/* Action Call for custom engagement */}
           <a
-            href="https://wa.link/cs6dy4"
+            href={settings.whatsappNumber || "https://wa.link/cs6dy4"}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-sm font-medium text-white"
+            className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-sm font-medium text-white shadow-sm"
           >
-            Hire Me
+            {t('nav_hire_me')}
           </a>
         </div>
 
         {/* Mobile Toolbar Trigger Controls */}
-        <div className="flex items-center gap-4 md:hidden">
+        <div className="flex items-center gap-3 md:hidden">
+          <LanguageSelector variant="public" compact />
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
@@ -141,9 +164,9 @@ const Navbar: React.FC = () => {
             className="md:hidden bg-dark/95 backdrop-blur-xl border-b border-white/10 overflow-hidden shadow-2xl"
           >
             <div className="px-4 py-6 flex flex-col gap-4">
-              {NAV_ITEMS.map((item) => (
+              {navLinks.map((item) => (
                 <NavLink
-                  key={item.label}
+                  key={item.href}
                   to={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
@@ -155,14 +178,18 @@ const Navbar: React.FC = () => {
                   {item.label}
                 </NavLink>
               ))}
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                <span className="text-xs text-slate-400 font-medium">Luqadda / Language:</span>
+                <LanguageSelector variant="public" />
+              </div>
               <a
-                href="https://wa.link/cs6dy4"
+                href={settings.whatsappNumber || "https://wa.link/cs6dy4"}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="mt-4 text-center px-5 py-3 rounded-lg bg-primary text-dark font-bold hover:bg-yellow-400 transition-colors"
+                className="mt-2 text-center px-5 py-3 rounded-lg bg-primary text-dark font-bold hover:opacity-90 transition-colors"
               >
-                Let's Talk
+                {t('nav_hire_me')}
               </a>
             </div>
           </motion.div>

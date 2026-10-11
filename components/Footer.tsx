@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Github, Twitter, Linkedin, Mail, Code2, ArrowRight, Facebook, Youtube, Instagram, Video } from 'lucide-react';
+import { useSiteData } from '../src/context/SiteDataContext';
+import { useLanguage } from '../src/context/LanguageContext';
 
 /**
  * Global Page Footer Component
@@ -8,6 +10,10 @@ import { Github, Twitter, Linkedin, Mail, Code2, ArrowRight, Facebook, Youtube, 
  * in-app routes, and interactive external resource links inside a multi-column template.
  */
 const Footer: React.FC = () => {
+  const { settings } = useSiteData();
+  const { t } = useLanguage();
+  const branding = settings.branding;
+
   return (
     <footer className="bg-slate-900 border-t border-white/10 pt-16 pb-8 relative overflow-hidden">
       {/* Decorative center accent line gradient to frame the zone */}
@@ -19,15 +25,19 @@ const Footer: React.FC = () => {
           {/* Brand Column: Title, summary details, and direct developer connection links */}
           <div className="lg:col-span-4">
             <Link to="/" className="flex items-center gap-2 mb-6 w-fit group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-                <span className="text-white font-bold text-sm tracking-widest">M&A</span>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform overflow-hidden shrink-0">
+                {branding?.logoType === 'image' && branding?.logoImageUrl ? (
+                  <img src={branding.logoImageUrl} alt={branding.siteName} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white font-bold text-sm tracking-widest">{branding?.logoText || 'M&A'}</span>
+                )}
               </div>
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                Mohamed Alhady
+                {branding?.siteName || 'Mohamed Alhady'}
               </span>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6 pr-4">
-              Building high-performance web applications with a focus on exceptional user experiences, robust architecture, and clean code. Located in Hargeisa, Somaliland.
+              {branding?.footerBio || 'Building high-performance web applications with a focus on exceptional user experiences, robust architecture, and clean code. Located in Hargeisa, Somaliland.'}
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <a href="https://github.com/alhady-mohamed" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="GitHub">
@@ -50,26 +60,26 @@ const Footer: React.FC = () => {
 
           {/* Quick links: Routed application links */}
           <div className="lg:col-span-2 lg:col-start-6">
-            <h4 className="text-white font-bold mb-6">Navigation</h4>
+            <h4 className="text-white font-bold mb-6">{t('footer_quick_links')}</h4>
             <ul className="space-y-4">
               <li>
                 <Link to="/" className="text-gray-400 text-sm hover:text-primary transition-colors flex items-center gap-2 group">
-                  <span className="w-1 h-1 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" /> Home
+                  <span className="w-1 h-1 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" /> {t('nav_home')}
                 </Link>
               </li>
               <li>
                 <Link to="/about" className="text-gray-400 text-sm hover:text-primary transition-colors flex items-center gap-2 group">
-                  <span className="w-1 h-1 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" /> About
+                  <span className="w-1 h-1 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" /> {t('nav_about')}
                 </Link>
               </li>
               <li>
                 <Link to="/projects" className="text-gray-400 text-sm hover:text-primary transition-colors flex items-center gap-2 group">
-                  <span className="w-1 h-1 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" /> Portfolio
+                  <span className="w-1 h-1 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" /> {t('nav_projects')}
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="text-gray-400 text-sm hover:text-primary transition-colors flex items-center gap-2 group">
-                  <span className="w-1 h-1 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" /> Contact
+                  <span className="w-1 h-1 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" /> {t('nav_contact')}
                 </Link>
               </li>
             </ul>
@@ -117,11 +127,12 @@ const Footer: React.FC = () => {
         {/* Bottom Bar: Copyright protection and compliance links */}
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-gray-500 text-sm text-center md:text-left">
-            © {new Date().getFullYear()} Mohamed Alhady. All rights reserved.
+            © {new Date().getFullYear()} {branding?.copyrightName || branding?.siteName || 'Mohamed Alhady'}. {t('footer_rights')}
           </p>
-          <div className="flex gap-6">
-            <a href="#" className="text-gray-500 text-sm hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="text-gray-500 text-sm hover:text-white transition-colors">Terms of Service</a>
+          <div className="flex items-center gap-6">
+            <Link to="/admin" className="text-gray-500 text-xs hover:text-primary transition-colors flex items-center gap-1 font-mono">
+              <span>{t('footer_admin_access')}</span>
+            </Link>
           </div>
         </div>
       </div>
@@ -129,4 +140,4 @@ const Footer: React.FC = () => {
   );
 };
 
-export default Footer;;
+export default Footer;
