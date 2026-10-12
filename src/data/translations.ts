@@ -301,9 +301,19 @@ export const translations = {
     ar: 'الموقع المباشر',
   },
   admin_logout: {
-    en: 'Logout',
-    so: 'Ka Bax',
+    en: 'Sign Out',
+    so: 'Ka Bax (Sign Out)',
     ar: 'تسجيل الخروج',
+  },
+  admin_collapse_sidebar: {
+    en: 'Collapse Sidebar',
+    so: 'Laab Dhinaca (Collapse)',
+    ar: 'طي الشريط الجانبي',
+  },
+  admin_expand_sidebar: {
+    en: 'Expand Sidebar',
+    so: 'Balaadhi Dhinaca (Expand)',
+    ar: 'توسيع الشريط الجانبي',
   },
   admin_modules: {
     en: 'Content Modules',

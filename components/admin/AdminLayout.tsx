@@ -20,6 +20,10 @@ import {
   CheckCircle2,
   Palette,
   Layers,
+  ChevronLeft,
+  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -29,6 +33,23 @@ export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('admin_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('admin_sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   const unreadMessagesCount = messages.filter((m) => !m.isRead).length;
 
@@ -145,9 +166,11 @@ export const AdminLayout: React.FC = () => {
       <aside
         className={`fixed md:sticky top-0 ${
           isRTL ? 'right-0' : 'left-0'
-        } h-screen w-64 bg-slate-900 ${
+        } h-screen ${
+          isCollapsed ? 'md:w-20' : 'md:w-64'
+        } w-64 bg-slate-900 ${
           isRTL ? 'border-l' : 'border-r'
-        } border-slate-800 flex flex-col justify-between z-50 transition-transform duration-200 backdrop-blur-xl ${
+        } border-slate-800 flex flex-col justify-between z-50 transition-all duration-300 backdrop-blur-xl shrink-0 ${
           sidebarOpen
             ? 'translate-x-0'
             : isRTL
@@ -155,58 +178,108 @@ export const AdminLayout: React.FC = () => {
             : '-translate-x-full md:translate-x-0'
         }`}
       >
-        <div className="flex flex-col h-full overflow-y-auto">
-          {/* Logo Zone */}
-          <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white shadow-md shadow-primary/25">
+        <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden">
+          {/* Logo Zone & Collapse Button */}
+          <div
+            className={`border-b border-slate-800 flex items-center transition-all ${
+              isCollapsed
+                ? 'p-3 flex-col gap-2 justify-center'
+                : 'p-4 justify-between'
+            }`}
+          >
+            <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
+              <div
+                className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white shadow-md shadow-primary/25 shrink-0"
+                title={t('admin_portal')}
+              >
                 <ShieldCheck size={20} />
               </div>
-              <div>
-                <h1 className="font-bold text-white text-sm tracking-tight">{t('admin_portal')}</h1>
-                <p className="text-[10px] text-slate-400 font-mono">CMS Control Panel</p>
-              </div>
+              {!isCollapsed && (
+                <div className="truncate">
+                  <h1 className="font-bold text-white text-sm tracking-tight truncate">{t('admin_portal')}</h1>
+                  <p className="text-[10px] text-slate-400 font-mono truncate">CMS Control Panel</p>
+                </div>
+              )}
             </div>
 
-            {/* Close button on mobile */}
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white"
-            >
-              <X size={18} />
-            </button>
+            <div className="flex items-center gap-1">
+              {/* Desktop Collapse / Expand Toggle Button */}
+              <button
+                onClick={toggleCollapse}
+                className="hidden md:flex items-center justify-center p-1.5 rounded-lg text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 hover:border-slate-600 transition-all cursor-pointer shadow-sm active:scale-95"
+                title={isCollapsed ? t('admin_expand_sidebar') : t('admin_collapse_sidebar')}
+                aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              >
+                {isCollapsed ? (
+                  isRTL ? <ChevronLeft size={17} /> : <ChevronRight size={17} />
+                ) : (
+                  isRTL ? <ChevronRight size={17} /> : <ChevronLeft size={17} />
+                )}
+              </button>
+
+              {/* Close button on mobile */}
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white"
+                aria-label="Close Navigation"
+              >
+                <X size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Compact Connection Indicator */}
-          <div className="px-4 pt-3 pb-1">
-            <div
-              className={`px-3 py-1.5 rounded-xl border text-[11px] flex items-center justify-between ${
-                isSupabaseConnected
-                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
-                  : 'bg-slate-800/60 border-slate-700/60 text-slate-400'
-              }`}
-            >
-              <div className="flex items-center gap-2 truncate">
-                <Database size={13} className="shrink-0 text-primary" />
-                <span className="truncate font-medium">
-                  {isSupabaseConnected ? 'Database: Synced' : 'Storage: Browser Mode'}
-                </span>
-              </div>
-              <span
-                className={`w-2 h-2 rounded-full shrink-0 ${
-                  isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+          <div className={isCollapsed ? 'px-2 pt-3 pb-1 flex justify-center' : 'px-4 pt-3 pb-1'}>
+            {isCollapsed ? (
+              <div
+                className={`w-10 h-10 rounded-xl border flex items-center justify-center relative cursor-help transition-all ${
+                  isSupabaseConnected
+                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
+                    : 'bg-slate-800/60 border-slate-700/60 text-slate-400'
                 }`}
-              />
-            </div>
+                title={isSupabaseConnected ? 'Database: Synced' : 'Storage: Browser Mode'}
+              >
+                <Database size={16} className="shrink-0 text-primary" />
+                <span
+                  className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
+                    isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                  }`}
+                />
+              </div>
+            ) : (
+              <div
+                className={`px-3 py-1.5 rounded-xl border text-[11px] flex items-center justify-between ${
+                  isSupabaseConnected
+                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
+                    : 'bg-slate-800/60 border-slate-700/60 text-slate-400'
+                }`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Database size={13} className="shrink-0 text-primary" />
+                  <span className="truncate font-medium">
+                    {isSupabaseConnected ? 'Database: Synced' : 'Storage: Browser Mode'}
+                  </span>
+                </div>
+                <span
+                  className={`w-2 h-2 rounded-full shrink-0 ${
+                    isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                  }`}
+                />
+              </div>
+            )}
           </div>
 
           {/* Grouped Navigation Links */}
-          <nav className="p-3 space-y-4 flex-1">
+          <nav className={`space-y-4 flex-1 ${isCollapsed ? 'p-2' : 'p-3'}`}>
             {navSections.map((section, sIdx) => (
               <div key={sIdx} className="space-y-1">
-                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  {section.title}
-                </p>
+                {!isCollapsed ? (
+                  <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    {section.title}
+                  </p>
+                ) : (
+                  sIdx > 0 && <div className="my-2 border-t border-slate-800 mx-2" />
+                )}
                 {section.items.map((item) => {
                   const Icon = item.icon;
                   return (
@@ -215,22 +288,42 @@ export const AdminLayout: React.FC = () => {
                       to={item.to}
                       end={item.exact}
                       onClick={() => setSidebarOpen(false)}
+                      title={item.label}
                       className={({ isActive }) =>
-                        `flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                          isActive
-                            ? 'bg-primary text-white font-semibold shadow-md shadow-primary/25'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                        }`
+                        isCollapsed
+                          ? `flex items-center justify-center w-11 h-11 mx-auto rounded-xl transition-all relative ${
+                              isActive
+                                ? 'bg-primary text-white font-semibold shadow-md shadow-primary/25'
+                                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                            }`
+                          : `flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                              isActive
+                                ? 'bg-primary text-white font-semibold shadow-md shadow-primary/25'
+                                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                            }`
                       }
                     >
-                      <div className="flex items-center gap-2.5 truncate">
-                        <Icon size={16} className="shrink-0" />
-                        <span className="truncate">{item.label}</span>
-                      </div>
-                      {item.badge !== undefined && (
-                        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950">
-                          {item.badge}
-                        </span>
+                      {isCollapsed ? (
+                        <>
+                          <Icon size={18} className="shrink-0" />
+                          {item.badge !== undefined && (
+                            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[9px] font-bold bg-amber-500 text-slate-950 flex items-center justify-center shadow">
+                              {item.badge}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2.5 truncate">
+                            <Icon size={16} className="shrink-0" />
+                            <span className="truncate">{item.label}</span>
+                          </div>
+                          {item.badge !== undefined && (
+                            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950">
+                              {item.badge}
+                            </span>
+                          )}
+                        </>
                       )}
                     </NavLink>
                   );
@@ -239,24 +332,59 @@ export const AdminLayout: React.FC = () => {
             ))}
           </nav>
 
-          {/* User Account Bar */}
-          <div className="p-3 border-t border-slate-800 bg-slate-950/50">
-            <div className="flex items-center justify-between px-2 py-1">
-              <div className="truncate mr-2">
-                <p className="text-xs font-medium text-white truncate">{user?.email || 'Admin'}</p>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  {user?.isDemo ? 'Demo Mode' : 'Verified Admin'}
-                </span>
+          {/* User Account & Unified Sign Out Zone */}
+          <div
+            className={`border-t border-slate-800 bg-slate-950/70 ${
+              isCollapsed ? 'p-2 space-y-2 flex flex-col items-center' : 'p-3 space-y-2.5'
+            }`}
+          >
+            {/* User Account Info */}
+            {isCollapsed ? (
+              <div
+                className="relative cursor-default"
+                title={`${user?.email || 'Admin'} • ${user?.isDemo ? 'Demo Mode' : 'Verified Admin'}`}
+              >
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                  {user?.email ? user.email.slice(0, 2).toUpperCase() : 'AD'}
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-slate-950" />
               </div>
+            ) : (
+              <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-slate-900/70 border border-slate-800/80">
+                <div className="relative shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                    {user?.email ? user.email.slice(0, 2).toUpperCase() : 'AD'}
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-slate-950" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold text-white truncate leading-tight">{user?.email || 'Admin'}</p>
+                  <span className="text-[10px] text-slate-400 font-mono block leading-tight">
+                    {user?.isDemo ? 'Demo Mode' : 'Verified Admin'}
+                  </span>
+                </div>
+              </div>
+            )}
 
+            {/* Single Unified Professional Sign Out Button */}
+            {isCollapsed ? (
               <button
                 onClick={handleLogout}
                 title={t('admin_logout')}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                aria-label={t('admin_logout')}
+                className="w-10 h-10 flex items-center justify-center rounded-xl text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
               >
                 <LogOut size={16} />
               </button>
-            </div>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 transition-all duration-200 cursor-pointer shadow-sm group active:scale-[0.98]"
+              >
+                <LogOut size={15} className="transition-transform group-hover:-translate-x-0.5" />
+                <span>{t('admin_logout')}</span>
+              </button>
+            )}
           </div>
         </div>
       </aside>
@@ -265,13 +393,25 @@ export const AdminLayout: React.FC = () => {
       <main className="flex-1 min-h-screen bg-slate-950 flex flex-col overflow-x-hidden">
         {/* Clean, High-Polish Top Bar on Desktop */}
         <div className="hidden md:flex items-center justify-between px-8 py-3.5 border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md sticky top-0 z-30">
-          {/* Breadcrumb Indicator */}
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <span className="font-semibold text-slate-500">{t('admin_portal')}</span>
-            <span className="text-slate-600">/</span>
-            <div className="flex items-center gap-1.5 text-white font-bold bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-700/60">
-              <ActiveIcon size={14} className="text-primary" />
-              <span>{activeBreadcrumb.title}</span>
+          <div className="flex items-center gap-3">
+            {/* Quick Topbar Collapse/Expand Button */}
+            <button
+              onClick={toggleCollapse}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-white bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 transition-colors cursor-pointer flex items-center justify-center"
+              title={isCollapsed ? t('admin_expand_sidebar') : t('admin_collapse_sidebar')}
+              aria-label="Toggle Sidebar Collapse"
+            >
+              {isCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+            </button>
+
+            {/* Breadcrumb Indicator */}
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="font-semibold text-slate-500">{t('admin_portal')}</span>
+              <span className="text-slate-600">/</span>
+              <div className="flex items-center gap-1.5 text-white font-bold bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-700/60">
+                <ActiveIcon size={14} className="text-primary" />
+                <span>{activeBreadcrumb.title}</span>
+              </div>
             </div>
           </div>
 
@@ -291,6 +431,16 @@ export const AdminLayout: React.FC = () => {
               <ExternalLink size={13} />
               <span>{t('admin_live_site')}</span>
             </Link>
+
+            {/* Quick Sign Out Action */}
+            <button
+              onClick={handleLogout}
+              title={t('admin_logout')}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 px-3 py-1.5 rounded-xl transition-all shadow-sm cursor-pointer"
+            >
+              <LogOut size={13} />
+              <span className="hidden sm:inline">{t('admin_logout')}</span>
+            </button>
           </div>
         </div>
 
