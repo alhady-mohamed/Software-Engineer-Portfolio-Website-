@@ -37,7 +37,7 @@ export const AdminLayout: React.FC = () => {
     navigate('/admin/login');
   };
 
-  // Grouped Navigation structure to prevent clutter
+  // Clean grouped navigation structure without repetitive single-item categories
   const navSections = [
     {
       title: t('admin_overview'),
@@ -48,11 +48,6 @@ export const AdminLayout: React.FC = () => {
           icon: LayoutDashboard,
           exact: true,
         },
-      ],
-    },
-    {
-      title: t('admin_appearance'),
-      items: [
         {
           to: '/admin/appearance',
           label: t('admin_appearance'),
@@ -150,8 +145,8 @@ export const AdminLayout: React.FC = () => {
       <aside
         className={`fixed md:sticky top-0 ${
           isRTL ? 'right-0' : 'left-0'
-        } h-screen w-64 bg-slate-900 border-${
-          isRTL ? 'l' : 'r'
+        } h-screen w-64 bg-slate-900 ${
+          isRTL ? 'border-l' : 'border-r'
         } border-slate-800 flex flex-col justify-between z-50 transition-transform duration-200 backdrop-blur-xl ${
           sidebarOpen
             ? 'translate-x-0'

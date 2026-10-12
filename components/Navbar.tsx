@@ -63,6 +63,25 @@ const Navbar: React.FC = () => {
     { label: t('nav_contact'), href: '/contact' },
   ];
 
+  const isFullLogo = branding?.logoType === 'full';
+  const showSiteName = !isFullLogo && (branding?.showSiteName !== false);
+  const logoOrientation = branding?.logoOrientation || 'auto';
+
+  // Responsive styling according to orientation
+  const getNavbarLogoClass = () => {
+    switch (logoOrientation) {
+      case 'landscape':
+        return 'h-9 sm:h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain';
+      case 'square':
+        return 'h-9 w-9 sm:h-10 sm:w-10 object-contain';
+      case 'vertical':
+        return 'h-10 sm:h-11 w-auto max-w-[120px] object-contain';
+      case 'auto':
+      default:
+        return 'h-9 sm:h-10 w-auto max-w-[220px] object-contain';
+    }
+  };
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -73,17 +92,34 @@ const Navbar: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         {/* Brand Logo - Wraps back to top of root page */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-tr from-primary to-secondary rounded-lg group-hover:scale-110 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/20">
-            {branding?.logoType === 'image' && branding?.logoImageUrl ? (
-              <img src={branding.logoImageUrl} alt={branding.siteName} className="w-full h-full object-cover" />
-            ) : (
+        <Link to="/" className="flex items-center gap-2.5 group">
+          {isFullLogo && branding?.logoImageUrl ? (
+            <div className="flex items-center group-hover:opacity-90 transition-opacity shrink-0">
+              <img
+                src={branding.logoImageUrl}
+                alt={branding.siteName}
+                className={getNavbarLogoClass()}
+              />
+            </div>
+          ) : branding?.logoType === 'image' && branding?.logoImageUrl ? (
+            <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-tr from-primary/10 to-secondary/10 border border-white/10 rounded-xl group-hover:scale-105 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/10 p-1">
+              <img
+                src={branding.logoImageUrl}
+                alt={branding.siteName}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-tr from-primary to-secondary rounded-xl group-hover:scale-105 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/20">
               <span className="text-white font-bold text-sm tracking-widest">{branding?.logoText || 'M&A'}</span>
-            )}
-          </div>
-          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-            {branding?.siteName || 'Mohamed Alhady'}
-          </span>
+            </div>
+          )}
+
+          {showSiteName && (
+            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+              {branding?.siteName || 'Mohamed Alhady'}
+            </span>
+          )}
         </Link>
 
         {/* Desktop Navigation Links */}

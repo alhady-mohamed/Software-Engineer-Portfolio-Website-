@@ -102,14 +102,23 @@ export interface HeroSettings {
   imageFit?: 'contain' | 'cover';
   showOverlay?: boolean;
   showWidgets?: boolean;
+  aspectRatio?: 'auto' | '1:1' | '4:5';
+  autoScale?: boolean;
+  qrCodeLink?: string;
+  qrCodeTitle?: string;
+  qrCodeSubtitle?: string;
+  showQrCodeWidget?: boolean;
 }
 
 // Brand Identity & Logo configuration
 export interface BrandingSettings {
   siteName: string;
-  logoType: 'text' | 'image';
+  logoType: 'text' | 'image' | 'full';
   logoText: string;
   logoImageUrl?: string;
+  logoOrientation?: 'auto' | 'landscape' | 'square' | 'vertical';
+  showSiteName?: boolean;
+  logoHeight?: number;
   tagline: string;
   footerBio: string;
   copyrightName: string;

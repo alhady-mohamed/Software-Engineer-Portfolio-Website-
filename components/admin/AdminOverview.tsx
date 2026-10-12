@@ -84,7 +84,7 @@ export const AdminOverview: React.FC = () => {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-black text-white">{projects.length}</span>
-            <span className="text-[11px] text-slate-400">({featuredProjects.length} featured)</span>
+            <span className="text-[11px] text-slate-400">({featuredProjects.length} {t('admin_featured')})</span>
           </div>
         </Link>
 
@@ -103,7 +103,7 @@ export const AdminOverview: React.FC = () => {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-black text-white">{timelines.length}</span>
-            <span className="text-[11px] text-slate-400">items</span>
+            <span className="text-[11px] text-slate-400">{t('admin_items')}</span>
           </div>
         </Link>
 
@@ -123,7 +123,7 @@ export const AdminOverview: React.FC = () => {
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-black text-white">{testimonials.length}</span>
             <span className="text-[11px] text-emerald-400">
-              ({testimonials.filter((t) => t.isApproved).length} approved)
+              ({testimonials.filter((t) => t.isApproved).length} {t('admin_approved')})
             </span>
           </div>
         </Link>
@@ -166,7 +166,7 @@ export const AdminOverview: React.FC = () => {
               to="/admin/messages"
               className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
             >
-              <span>{messages.length} total</span>
+              <span>{messages.length} {t('admin_total')}</span>
               <ArrowRight size={12} />
             </Link>
           </div>
@@ -174,7 +174,7 @@ export const AdminOverview: React.FC = () => {
           <div className="space-y-2.5">
             {messages.length === 0 ? (
               <p className="text-xs text-slate-500 py-8 text-center font-mono">
-                No inquiries recorded yet.
+                {t('admin_no_messages')}
               </p>
             ) : (
               messages.slice(0, 4).map((msg) => (
@@ -212,7 +212,7 @@ export const AdminOverview: React.FC = () => {
               to="/admin/projects"
               className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
             >
-              <span>Manage</span>
+              <span>{t('admin_manage')}</span>
               <ArrowRight size={12} />
             </Link>
           </div>

@@ -74,9 +74,34 @@ export const translations = {
     ar: 'الحالة',
   },
   hero_scan_connect: {
-    en: 'SCAN TO CONNECT',
-    so: 'ISKAAN GARAY SI AAD ULA XIRIIRTO',
-    ar: 'امسح للتواصل السريع',
+    en: 'Quick Connect',
+    so: 'Xiriir Degdeg Ah',
+    ar: 'تواصل سريع',
+  },
+  hero_badge_fullstack: {
+    en: 'Full-Stack Dev',
+    so: 'Horumariye Web',
+    ar: 'مطور برمجيات',
+  },
+  hero_badge_clean_code: {
+    en: 'Clean Architecture',
+    so: 'Barnaamij Nidaamsan',
+    ar: 'بنية برمجية نظيفة',
+  },
+  hero_badge_ui_ux: {
+    en: 'Creative Tech',
+    so: 'Hal-abuur Dijitaal',
+    ar: 'تقنيات إبداعية',
+  },
+  hero_badge_scalable_apps: {
+    en: 'High Performance',
+    so: 'Xawaare & Tayo Sare',
+    ar: 'أداء عالي وسريع',
+  },
+  hero_badge_cloud_api: {
+    en: 'Cloud & Systems',
+    so: 'Nidaamyada Cloud',
+    ar: 'أنظمة سحابية',
   },
   hero_lets_begin: {
     en: "LET'S BEGIN",
@@ -345,4 +370,145 @@ export const translations = {
     so: 'Kaydi Isbeddelka',
     ar: 'حفظ التغييرات',
   },
+  admin_no_messages: {
+    en: 'No inquiries recorded yet.',
+    so: 'Wali ma jiraan farriimo soo dhacay.',
+    ar: 'لا توجد رسائل واردة حتى الآن.',
+  },
+  admin_manage: {
+    en: 'Manage',
+    so: 'Maamul',
+    ar: 'إدارة',
+  },
+  admin_items: {
+    en: 'items',
+    so: 'qodob',
+    ar: 'عنصر',
+  },
+  admin_featured: {
+    en: 'featured',
+    so: 'la doortay',
+    ar: 'مميز',
+  },
+  admin_approved: {
+    en: 'approved',
+    so: 'la ansixiyay',
+    ar: 'معتمد',
+  },
+  admin_aspect_ratio: {
+    en: 'Image Scale & Ratio',
+    so: 'Cabbirka & Auto-Scale',
+    ar: 'أبعاد الصورة والتحجيم التلقائي',
+  },
+  admin_total: {
+    en: 'total',
+    so: 'wadarta',
+    ar: 'الإجمالي',
+  },
+  admin_logo_mode_full: {
+    en: 'Full Logo (Icon + Name)',
+    so: 'Full Logo (Astaan + Magac)',
+    ar: 'شعار كامل (أيقونة + اسم)',
+  },
+  admin_logo_mode_icon: {
+    en: 'Logo Icon Only',
+    so: 'Logo Icon Kaliya',
+    ar: 'أيقونة الشعار فقط',
+  },
+  admin_logo_mode_text: {
+    en: 'Initials & Text',
+    so: 'Qoraal / Xuruuf (Initials)',
+    ar: 'أحرف أولية ونص',
+  },
+  admin_logo_orientation: {
+    en: 'Logo Shape & Orientation',
+    so: 'Qaabka & Jiheynta Logada',
+    ar: 'أبعاد واتجاه الشعار',
+  },
+  admin_logo_auto_fit: {
+    en: 'Auto Fit (Adaptive)',
+    so: 'Auto Fit (Isku Habeeya)',
+    ar: 'تحجيم تلقائي متكيف',
+  },
+  admin_logo_landscape: {
+    en: 'Landscape / Horizontal',
+    so: 'Jiif (Landscape)',
+    ar: 'أفقي (عريض)',
+  },
+  admin_logo_square: {
+    en: 'Square (1:1)',
+    so: 'Labajibbaar (1:1)',
+    ar: 'مربع (1:1)',
+  },
+  admin_logo_vertical: {
+    en: 'Vertical / Stacked',
+    so: 'Taagan (Vertical)',
+    ar: 'رأسي (مكدس)',
+  },
+  admin_logo_show_site_name: {
+    en: 'Show Site Name beside Logo',
+    so: 'Tus Magaca Websaytka Logada Dhinaceeda',
+    ar: 'إظهار اسم الموقع بجانب الشعار',
+  },
+  admin_logo_full_tip: {
+    en: 'When Full Logo is chosen, the separate text name is automatically hidden in Header and Footer to avoid repetition.',
+    so: 'Marka Full Logo la doorto, magaca qoraalka ah si toos ah ayaa looga qarinayaa Header-ka iyo Footer-ka si looga fogaado is-ku-noqnoqosho.',
+    ar: 'عند اختيار الشعار الكامل، يتم إخفاء الاسم النصي تلقائياً من الهيدر والفوتر لتجنب التكرار.',
+  },
+  hero_qr_modal_title: {
+    en: 'Scan QR Code',
+    so: 'Sawir QR Code-ka',
+    ar: 'امسح رمز الاستجابة السريعة QR',
+  },
+  hero_qr_modal_desc: {
+    en: 'Point your phone camera at this QR code to connect instantly or open the destination link.',
+    so: 'Kamaradda taleefankaaga ku toosi QR Code-kan si aad toos ugu xidhiidho.',
+    ar: 'وجّه كاميرا هاتفك إلى هذا الرمز للتواصل الفوري أو فتح الرابط.',
+  },
+  hero_qr_open_link: {
+    en: 'Open Link Directly',
+    so: 'Toos u fur Link-ga',
+    ar: 'فتح الرابط مباشرة',
+  },
+  hero_qr_copy_link: {
+    en: 'Copy Link',
+    so: 'Nuqul ka qaad Link-ga',
+    ar: 'نسخ الرابط',
+  },
+  hero_qr_copied: {
+    en: 'Copied!',
+    so: 'Waa la koobiyay!',
+    ar: 'تم النسخ!',
+  },
+  admin_qr_section_title: {
+    en: 'Hero QR Code Widget & Link',
+    so: 'QR Code-ka Hero-ga & Link-giisa',
+    ar: 'أداة ورابط رمز QR في واجهة Hero',
+  },
+  admin_qr_section_desc: {
+    en: 'Configure the link encoded in the QR code widget on the hero section. Visitors can scan it with their phone camera or click to open.',
+    so: 'Halkan ka geli link-ga uu furayo QR Code-ka Hero Section-ka. Dadku kamarad ayay ku sawiran karaan ama toos ayay u riixi karaan.',
+    ar: 'اضبط الرابط المدمج في رمز QR على واجهة الهيرو. يمكن للزوار مسحه بكاميرا الهاتف أو النقر للفتح.',
+  },
+  admin_qr_link_label: {
+    en: 'QR Code Destination Link (URL)',
+    so: 'Link-ga QR Code-ku Furaayo (URL)',
+    ar: 'رابط وجهة رمز QR (URL)',
+  },
+  admin_qr_title_label: {
+    en: 'Widget Title Text',
+    so: 'Qoraalka Badhanka QR-ka',
+    ar: 'نص عنوان أداة QR',
+  },
+  admin_qr_subtitle_label: {
+    en: 'Widget Subtitle / Badge',
+    so: 'Qoraalka Sare ee Badhanka',
+    ar: 'النص الفرعي / الشارة',
+  },
+  admin_qr_show_widget: {
+    en: 'Show QR Code Widget in Hero Section',
+    so: 'Muuji Badhanka QR Code-ka ee Hero-ga',
+    ar: 'إظهار أداة رمز QR في واجهة الهيرو',
+  },
 };
+

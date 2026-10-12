@@ -13,6 +13,23 @@ const Footer: React.FC = () => {
   const { settings } = useSiteData();
   const { t } = useLanguage();
   const branding = settings.branding;
+  const isFullLogo = branding?.logoType === 'full';
+  const showSiteName = !isFullLogo && (branding?.showSiteName !== false);
+  const logoOrientation = branding?.logoOrientation || 'auto';
+
+  const getFooterLogoClass = () => {
+    switch (logoOrientation) {
+      case 'landscape':
+        return 'h-9 sm:h-11 w-auto max-w-[220px] sm:max-w-[260px] object-contain';
+      case 'square':
+        return 'h-10 w-10 sm:h-11 sm:w-11 object-contain';
+      case 'vertical':
+        return 'h-11 sm:h-12 w-auto max-w-[130px] object-contain';
+      case 'auto':
+      default:
+        return 'h-9 sm:h-11 w-auto max-w-[240px] object-contain';
+    }
+  };
 
   return (
     <footer className="bg-slate-900 border-t border-white/10 pt-16 pb-8 relative overflow-hidden">
@@ -24,17 +41,34 @@ const Footer: React.FC = () => {
           
           {/* Brand Column: Title, summary details, and direct developer connection links */}
           <div className="lg:col-span-4">
-            <Link to="/" className="flex items-center gap-2 mb-6 w-fit group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform overflow-hidden shrink-0">
-                {branding?.logoType === 'image' && branding?.logoImageUrl ? (
-                  <img src={branding.logoImageUrl} alt={branding.siteName} className="w-full h-full object-cover" />
-                ) : (
+            <Link to="/" className="flex items-center gap-2.5 mb-6 w-fit group">
+              {isFullLogo && branding?.logoImageUrl ? (
+                <div className="flex items-center group-hover:opacity-90 transition-opacity shrink-0">
+                  <img
+                    src={branding.logoImageUrl}
+                    alt={branding.siteName}
+                    className={getFooterLogoClass()}
+                  />
+                </div>
+              ) : branding?.logoType === 'image' && branding?.logoImageUrl ? (
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-white/10 flex items-center justify-center shadow-lg shadow-primary/10 group-hover:scale-105 transition-transform overflow-hidden shrink-0 p-1">
+                  <img
+                    src={branding.logoImageUrl}
+                    alt={branding.siteName}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform overflow-hidden shrink-0">
                   <span className="text-white font-bold text-sm tracking-widest">{branding?.logoText || 'M&A'}</span>
-                )}
-              </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                {branding?.siteName || 'Mohamed Alhady'}
-              </span>
+                </div>
+              )}
+
+              {showSiteName && (
+                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                  {branding?.siteName || 'Mohamed Alhady'}
+                </span>
+              )}
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6 pr-4">
               {branding?.footerBio || 'Building high-performance web applications with a focus on exceptional user experiences, robust architecture, and clean code. Located in Hargeisa, Somaliland.'}
@@ -124,16 +158,11 @@ const Footer: React.FC = () => {
           
         </div>
 
-        {/* Bottom Bar: Copyright protection and compliance links */}
+        {/* Bottom Bar: Copyright protection */}
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-gray-500 text-sm text-center md:text-left">
             © {new Date().getFullYear()} {branding?.copyrightName || branding?.siteName || 'Mohamed Alhady'}. {t('footer_rights')}
           </p>
-          <div className="flex items-center gap-6">
-            <Link to="/admin" className="text-gray-500 text-xs hover:text-primary transition-colors flex items-center gap-1 font-mono">
-              <span>{t('footer_admin_access')}</span>
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

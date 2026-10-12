@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Globe, Check, ChevronDown } from 'lucide-react';
+import { Languages as LanguagesIcon, Globe, Check, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../src/context/LanguageContext';
 import { Language } from '../src/data/translations';
 
@@ -12,7 +12,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   variant = 'public',
   compact = false,
 }) => {
-  const { language, setLanguage, languages } = useLanguage();
+  const { language, setLanguage, languages, isRTL } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -37,21 +37,22 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
-      {/* Trigger Button */}
+      {/* Trigger Button with International Translation Icon */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
+        title="Change Language / Dooro Luqadda / تغيير اللغة"
         aria-label="Switch Language / Dooro Luqadda / تغيير اللغة"
-        className={`flex items-center gap-2 rounded-xl transition-all cursor-pointer font-medium select-none ${
+        className={`flex items-center gap-2 rounded-xl transition-all cursor-pointer font-medium select-none shadow-sm ${
           isPublic
-            ? 'px-3 py-2 text-xs text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10'
-            : 'px-3 py-2 text-xs text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700'
+            ? 'px-3 py-2 text-xs text-gray-200 hover:text-white bg-white/5 hover:bg-white/10 border border-white/15 hover:border-primary/40'
+            : 'px-3 py-2 text-xs text-slate-200 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-primary/40'
         }`}
       >
-        <Globe size={15} className={isPublic ? 'text-primary' : 'text-primary'} />
+        <LanguagesIcon size={16} className="text-primary shrink-0" />
         <span className="text-sm leading-none">{activeLang.flag}</span>
         {!compact && (
-          <span className="font-semibold uppercase tracking-wider text-[11px]">
+          <span className="font-bold uppercase tracking-wider text-[11px] text-white">
             {activeLang.code}
           </span>
         )}
@@ -66,7 +67,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className={`absolute right-0 mt-2 w-48 rounded-2xl shadow-2xl border py-1.5 z-50 backdrop-blur-xl animate-fadeIn ${
+          className={`absolute ${isRTL ? 'left-0' : 'right-0'} mt-2 w-52 rounded-2xl shadow-2xl border py-1.5 z-50 backdrop-blur-xl animate-fadeIn ${
             isPublic
               ? 'bg-dark/95 border-white/15 shadow-black/60'
               : 'bg-slate-900 border-slate-700/80 shadow-black/80'

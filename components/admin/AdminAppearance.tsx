@@ -20,33 +20,14 @@ import {
   Layout,
   Layers,
   ArrowRight,
+  QrCode,
+  Link as LinkIcon,
+  Smartphone,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ImageUploader } from './ImageUploader';
 
-// Sample curated portraits for quick 1-click selection
-const PORTRAIT_PRESETS = [
-  {
-    name: 'Current Studio Portrait',
-    url: '/src/assets/images/hero_portrait_1781209944400.jpg',
-    desc: 'Original generated high-fidelity studio engineer photo',
-  },
-  {
-    name: 'Tech Architect (Dark Minimal)',
-    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
-    desc: 'Modern sleek creative architect portrait',
-  },
-  {
-    name: 'Software Engineer (Cyber Neon)',
-    url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
-    desc: 'Confident executive developer in dark ambient studio',
-  },
-  {
-    name: 'Digital Strategist (Monochrome Studio)',
-    url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
-    desc: 'High contrast professional portrait lighting',
-  },
-];
+
 
 // Curated primary accent colors
 const ACCENT_COLOR_PRESETS = [
@@ -275,38 +256,7 @@ export const AdminAppearance: React.FC = () => {
                 recommendedSize="Cabirka ugu wanaagsan: 800x1000px (4:5 ratio)"
               />
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
-                  Dooro Sawir Diyaarsan (Presets):
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {PORTRAIT_PRESETS.map((preset, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setHeroForm({ ...heroForm, imageUrl: preset.url })}
-                      className={`p-3 rounded-xl border text-left transition-all flex items-start gap-3 ${
-                        heroForm.imageUrl === preset.url
-                          ? 'bg-primary/10 border-primary text-white'
-                          : 'bg-slate-950/40 border-slate-800 hover:border-slate-700 text-slate-300'
-                      }`}
-                    >
-                      <img
-                        src={preset.url}
-                        alt={preset.name}
-                        className="w-10 h-12 rounded-lg object-cover shrink-0 border border-slate-700"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/src/assets/images/hero_portrait_1781209944400.jpg';
-                        }}
-                      />
-                      <div className="truncate">
-                        <p className="text-xs font-bold truncate">{preset.name}</p>
-                        <p className="text-[10px] text-slate-400 line-clamp-1">{preset.desc}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
@@ -379,6 +329,73 @@ export const AdminAppearance: React.FC = () => {
                       Muuji Badhanka Contact Widget (Scan to Connect)
                     </label>
                   </div>
+                </div>
+              </div>
+
+              {/* XAJMIGA SAWIRKA & AUTO-SCALE (1:1 Square Auto-Fit) */}
+              <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1 rounded bg-secondary/20 text-secondary">
+                      <Sparkles size={14} />
+                    </span>
+                    <p className="text-xs font-bold text-white uppercase tracking-wider">
+                      Auto-Scale & Cabbirka Sawirka (1:1 Ratio)
+                    </p>
+                  </div>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono font-semibold">
+                    1:1 Auto-Scale
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Marka aad sawir 1:1 (labajibbaar) soo geliso, nidaamku wuxuu si toos ah u yeelayaa cabbirka 1:1 auto-scale si sawirku uusan u dhimin, uusan u dhuubanin, ama boos maran uga harin.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setHeroForm({ ...heroForm, aspectRatio: 'auto', autoScale: true })}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      heroForm.aspectRatio === 'auto' || !heroForm.aspectRatio
+                        ? 'bg-primary/10 border-primary text-white ring-1 ring-primary/40'
+                        : 'bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300'
+                    }`}
+                  >
+                    <p className="text-xs font-bold text-primary">⚡ Auto Scale (Toos ah)</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      Wuxuu si toos ah u cabbirayaa sawirka 1:1 ama 4:5 sidiisa dabiiciga ah.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setHeroForm({ ...heroForm, aspectRatio: '1:1', autoScale: true })}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      heroForm.aspectRatio === '1:1'
+                        ? 'bg-primary/10 border-primary text-white ring-1 ring-primary/40'
+                        : 'bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300'
+                    }`}
+                  >
+                    <p className="text-xs font-bold text-white">⬛ 1:1 Labajibbaar (Square)</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      Ku qasbaya cabbirka 1:1 (Square), aad ugu habboon sawirrada labajibbaaran.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setHeroForm({ ...heroForm, aspectRatio: '4:5', autoScale: false })}
+                    className={`p-3 rounded-xl border text-left transition-all ${
+                      heroForm.aspectRatio === '4:5'
+                        ? 'bg-primary/10 border-primary text-white ring-1 ring-primary/40'
+                        : 'bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300'
+                    }`}
+                  >
+                    <p className="text-xs font-bold text-white">📱 4:5 Taagnaa (Portrait)</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      Cabbirka caadiga ah ee studio-ga ee taagan.
+                    </p>
+                  </button>
                 </div>
               </div>
             </div>
@@ -554,6 +571,169 @@ export const AdminAppearance: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* 4. Hero QR Code Widget & Link (Scan to Connect) */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-5">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2.5 text-white font-bold text-sm">
+                  <QrCode size={18} className="text-primary" />
+                  <span>4. QR Code-ka Hero-ga & Link-giisa (Scan to Connect)</span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-primary/20 text-primary font-mono font-semibold">
+                  Scannable Link
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Halkan ka maamul link-ga uu furayo badhanka QR Code-ka ee ku yaalla geeska sawirka hero-ga. Qofka bogga soo booqda wuxuu taleefankiisa ku sawiran karaa QR-kan ama toos ayuu u riixi karaa.
+              </p>
+
+              {/* Show / Hide QR Widget Toggle */}
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
+                <div>
+                  <p className="text-xs font-semibold text-white">Muuji Badhanka QR Code-ka ee Hero-ga</p>
+                  <p className="text-[11px] text-slate-400">Ku muuji badhanka Scan to Connect sawirka hero-ga hoostiisa</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={heroForm.showQrCodeWidget !== false}
+                    onChange={(e) => setHeroForm({ ...heroForm, showQrCodeWidget: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+
+              {/* Destination Link Input */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    Link-ga QR Code-ku Furaayo (Destination Link / URL)
+                  </label>
+                  {heroForm.qrCodeLink && (
+                    <a
+                      href={heroForm.qrCodeLink}
+                      target={heroForm.qrCodeLink.startsWith('http') ? '_blank' : '_self'}
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+                    >
+                      <span>Tijaabi Link-ga</span>
+                      <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <LinkIcon size={15} />
+                  </div>
+                  <input
+                    type="text"
+                    value={heroForm.qrCodeLink ?? ''}
+                    onChange={(e) => setHeroForm({ ...heroForm, qrCodeLink: e.target.value })}
+                    placeholder="https://wa.link/cs6dy4 ama /contact ama https://..."
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-white text-xs font-mono placeholder-slate-500 focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                {/* Quick Presets */}
+                <div className="pt-1">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1.5">
+                    Ku dar degdeg ah (Quick Presets):
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setHeroForm({ ...heroForm, qrCodeLink: settings.whatsappNumber || 'https://wa.link/cs6dy4' })}
+                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                    >
+                      💬 WhatsApp Link
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHeroForm({ ...heroForm, qrCodeLink: '/contact' })}
+                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-sky-400 hover:text-sky-300 font-medium transition-colors"
+                    >
+                      ✉️ Bogga Contact-ka (/contact)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHeroForm({ ...heroForm, qrCodeLink: '/projects' })}
+                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-amber-400 hover:text-amber-300 font-medium transition-colors"
+                    >
+                      📁 Mashaariicda (/projects)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHeroForm({ ...heroForm, qrCodeLink: window.location.origin })}
+                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-primary hover:text-yellow-300 font-medium transition-colors"
+                    >
+                      🌐 Bogga Hore (Home URL)
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Title & Subtitle labels */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                    Cinwaanka Badhanka (Title Text)
+                  </label>
+                  <input
+                    type="text"
+                    value={heroForm.qrCodeTitle ?? ''}
+                    onChange={(e) => setHeroForm({ ...heroForm, qrCodeTitle: e.target.value })}
+                    placeholder="Scan to Connect"
+                    className="w-full px-3.5 py-2 bg-slate-950/70 border border-slate-700/80 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-primary"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">Tusaale: Scan to Connect, WhatsApp, iwm.</span>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                    Qoraalka Sare (Subtitle / Badge)
+                  </label>
+                  <input
+                    type="text"
+                    value={heroForm.qrCodeSubtitle ?? ''}
+                    onChange={(e) => setHeroForm({ ...heroForm, qrCodeSubtitle: e.target.value })}
+                    placeholder="Quick Connect"
+                    className="w-full px-3.5 py-2 bg-slate-950/70 border border-slate-700/80 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-primary"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">Tusaale: Contact, Quick Scan, WhatsApp</span>
+                </div>
+              </div>
+
+              {/* Live QR Code Preview & Test in Admin */}
+              <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row items-center gap-5">
+                <div className="w-32 h-32 p-2 rounded-xl bg-white shadow-md flex items-center justify-center shrink-0">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(
+                      heroForm.qrCodeLink && heroForm.qrCodeLink.startsWith('http')
+                        ? heroForm.qrCodeLink
+                        : typeof window !== 'undefined'
+                        ? `${window.location.origin}${heroForm.qrCodeLink?.startsWith('/') ? heroForm.qrCodeLink : `/${heroForm.qrCodeLink || 'contact'}`}`
+                        : 'https://wa.link/cs6dy4'
+                    )}&bgcolor=ffffff&color=020617&margin=6&format=svg`}
+                    alt="Admin QR Code Preview"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="text-center sm:text-left space-y-1.5 flex-1">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">
+                    <Smartphone size={12} />
+                    <span>Tijaabi Hadda (Live Scan)</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-white">
+                    Kamaradda taleefankaaga ku fiiq QR Code-kan
+                  </h4>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    QR-kan wuxuu si toos ah u furayaa: <span className="text-primary font-mono font-semibold break-all">{heroForm.qrCodeLink || 'https://wa.link/cs6dy4'}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Live Preview Card */}
@@ -597,8 +777,12 @@ export const AdminAppearance: React.FC = () => {
                   </span>
                 </div>
 
-                {/* Portrait preview card */}
-                <div className={`relative mx-auto mt-4 max-w-[220px] aspect-[4/5] flex items-end justify-center transition-all ${
+                {/* Portrait preview card with 1:1 Auto Scale */}
+                <div className={`relative mx-auto mt-4 max-w-[220px] transition-all ${
+                  heroForm.aspectRatio === '1:1'
+                    ? 'aspect-square flex items-center justify-center'
+                    : 'aspect-[4/5] flex items-end justify-center'
+                } ${
                   heroForm.isTransparentImage !== false
                     ? 'bg-transparent border-0 shadow-none'
                     : 'rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-black'
@@ -608,7 +792,9 @@ export const AdminAppearance: React.FC = () => {
                     alt="Preview"
                     className={`w-full h-full ${
                       heroForm.isTransparentImage !== false
-                        ? 'object-contain object-bottom drop-shadow-lg'
+                        ? heroForm.aspectRatio === '1:1'
+                          ? 'object-contain object-center drop-shadow-lg'
+                          : 'object-contain object-bottom drop-shadow-lg'
                         : 'object-cover'
                     }`}
                     onError={(e) => {
@@ -621,6 +807,16 @@ export const AdminAppearance: React.FC = () => {
                   {heroForm.verticalBadgeText && (
                     <div className="absolute right-1 top-1/2 -translate-y-1/2 py-2 px-1 bg-primary text-black rounded-full font-bold text-[7px] [writing-mode:vertical-lr]">
                       {heroForm.verticalBadgeText}
+                    </div>
+                  )}
+                  {heroForm.showWidgets !== false && heroForm.showQrCodeWidget !== false && (
+                    <div className="absolute bottom-2 left-2 px-2 py-1 rounded-xl bg-slate-950/90 border border-white/10 flex items-center gap-1.5 shadow-lg backdrop-blur-md">
+                      <div className="w-4 h-4 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+                        <QrCode size={10} />
+                      </div>
+                      <span className="text-[8px] font-bold text-white whitespace-nowrap">
+                        {heroForm.qrCodeTitle || 'Scan to Connect'}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -708,40 +904,131 @@ export const AdminAppearance: React.FC = () => {
 
             {/* Logo Customization Card */}
             <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-5">
-              <div className="flex items-center gap-2 text-white font-bold text-sm border-b border-slate-800/80 pb-3">
-                <Layout size={18} className="text-primary" />
-                <span>Habka Logada (Logo Customization)</span>
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2 text-white font-bold text-sm">
+                  <Layout size={18} className="text-primary" />
+                  <span>Habka Logada & Astaanta (Logo Customization)</span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-mono font-medium">
+                  Auto-Fit & Responsive
+                </span>
               </div>
 
-              {/* Logo Type Selector */}
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setBrandingForm({ ...brandingForm, logoType: 'text' })}
-                  className={`p-3.5 rounded-xl border text-center transition-all ${
-                    brandingForm.logoType === 'text'
-                      ? 'bg-primary/10 border-primary text-white font-bold'
-                      : 'bg-slate-950/50 border-slate-800 text-slate-400'
-                  }`}
-                >
-                  <p className="text-sm">Qoraal / Xuruuf (Initials)</p>
-                  <p className="text-[10px] text-slate-400 mt-1">Tusaale: M&A</p>
-                </button>
+              {/* Logo Mode Selector - 3 Modes */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                  Dooro Nooca Logada (Logo Format):
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {/* Option 1: Full Logo */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBrandingForm({
+                        ...brandingForm,
+                        logoType: 'full',
+                        showSiteName: false,
+                      })
+                    }
+                    className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                      brandingForm.logoType === 'full'
+                        ? 'bg-primary/15 border-primary text-white shadow-lg shadow-primary/10'
+                        : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <Sparkles size={13} className="text-primary" />
+                        Full Logo
+                      </span>
+                      {brandingForm.logoType === 'full' && (
+                        <Check size={14} className="text-primary" />
+                      )}
+                    </div>
+                    <p className="text-[11px] font-medium text-slate-300 leading-tight">
+                      Astaan + Magac (Icon & Name)
+                    </p>
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      Magaca qoraalka wuu ka baxayaa Header & Footer
+                    </p>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setBrandingForm({ ...brandingForm, logoType: 'image' })}
-                  className={`p-3.5 rounded-xl border text-center transition-all ${
-                    brandingForm.logoType === 'image'
-                      ? 'bg-primary/10 border-primary text-white font-bold'
-                      : 'bg-slate-950/50 border-slate-800 text-slate-400'
-                  }`}
-                >
-                  <p className="text-sm">Sawir Logo ah (Image URL)</p>
-                  <p className="text-[10px] text-slate-400 mt-1">PNG ama SVG astaan ah</p>
-                </button>
+                  {/* Option 2: Logo Icon Only */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBrandingForm({
+                        ...brandingForm,
+                        logoType: 'image',
+                        showSiteName: true,
+                      })
+                    }
+                    className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                      brandingForm.logoType === 'image'
+                        ? 'bg-primary/15 border-primary text-white shadow-lg shadow-primary/10'
+                        : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-white">Logo Icon Kaliya</span>
+                      {brandingForm.logoType === 'image' && (
+                        <Check size={14} className="text-primary" />
+                      )}
+                    </div>
+                    <p className="text-[11px] font-medium text-slate-300 leading-tight">
+                      Astaan yar oo kaliya (Icon)
+                    </p>
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      Magaca qoraalka ah ayaa barbar soconaya
+                    </p>
+                  </button>
+
+                  {/* Option 3: Text / Initials */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBrandingForm({
+                        ...brandingForm,
+                        logoType: 'text',
+                        showSiteName: true,
+                      })
+                    }
+                    className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                      brandingForm.logoType === 'text'
+                        ? 'bg-primary/15 border-primary text-white shadow-lg shadow-primary/10'
+                        : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-white">Qoraal / Xuruuf</span>
+                      {brandingForm.logoType === 'text' && (
+                        <Check size={14} className="text-primary" />
+                      )}
+                    </div>
+                    <p className="text-[11px] font-medium text-slate-300 leading-tight">
+                      Initials (e.g. M&A)
+                    </p>
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      Xuruuf gaagaaban oo sanduuq ku jira
+                    </p>
+                  </button>
+                </div>
               </div>
 
+              {/* Informational callout for Full Logo */}
+              {brandingForm.logoType === 'full' && (
+                <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/20 flex items-start gap-3">
+                  <Sparkles size={16} className="text-primary mt-0.5 shrink-0" />
+                  <div className="text-xs text-slate-300 leading-relaxed">
+                    <span className="font-semibold text-white">Full Logo Mode:</span> Magaca qoraalka ah ee
+                    websaytka (<span className="text-primary font-mono">{brandingForm.siteName || 'Magaca'}</span>)
+                    si toos ah ayaa looga qariyay Header-ka iyo Footer-ka sababtoo ah sawirka ayaa horay ugu
+                    jira magaca. Logadu waxay si toos ah u samaynaysaa <span className="text-white font-semibold">Auto-Fit</span>.
+                  </div>
+                </div>
+              )}
+
+              {/* Detail fields based on logoType */}
               {brandingForm.logoType === 'text' ? (
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
@@ -755,19 +1042,137 @@ export const AdminAppearance: React.FC = () => {
                     placeholder="M&A"
                     className="w-36 px-4 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-white text-base font-bold tracking-widest text-center focus:outline-none focus:border-primary"
                   />
+                  <p className="text-[11px] text-slate-500 mt-1.5">
+                    Xuruuftan waxay ku dhex muuqan doonaan sanduuqa naqshadaysan ee Header-ka iyo Footer-ka.
+                  </p>
                 </div>
               ) : (
-                <div className="pt-1">
+                <div className="space-y-4 pt-1">
+                  {/* Image uploader */}
                   <ImageUploader
-                    label="Sawirka Logada (Upload Logo PNG/SVG ama URL)"
+                    label={
+                      brandingForm.logoType === 'full'
+                        ? 'Sawirka Full Logo-ga (Upload PNG/SVG ama URL)'
+                        : 'Sawirka Logo Icon-ka (Upload PNG/SVG ama URL)'
+                    }
                     value={brandingForm.logoImageUrl || ''}
                     onChange={(newUrl) => setBrandingForm({ ...brandingForm, logoImageUrl: newUrl })}
                     placeholder="https://.../logo.png"
-                    helperText="Soo upload garee sawirka logada (PNG transparent ama SVG ayaa ugu fiican). Waxay toos ugu muuqanaysaa Navbar-ka iyo Footer-ka."
+                    helperText={
+                      brandingForm.logoType === 'full'
+                        ? 'Soo upload-garee Full Logo-gaaga (Astaan + Magac oo isku jira). PNG transparent ama SVG vector ayaa ugu wanaagsan.'
+                        : 'Soo upload-garee Icon-ka logada (PNG transparent ama SVG). Waxay u ekaanaysaa astaan yar oo magacu barbar yaalo.'
+                    }
                     bucketName="portfolio-media"
                     folderPath="logos"
-                    recommendedSize="Cabirka lagu talinayo: 200x200px ama SVG vector"
+                    recommendedSize={
+                      brandingForm.logoType === 'full'
+                        ? 'Cabirka lagu talinayo: 300x80px / 400x120px (Landscape) ama SVG'
+                        : 'Cabirka lagu talinayo: 200x200px (Square 1:1) ama SVG'
+                    }
                   />
+
+                  {/* Orientation & Aspect Ratio support (Vertical, Landscape, Square, Auto-Fit) */}
+                  <div className="p-4 rounded-xl bg-slate-950/50 border border-slate-800/80 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                        Nooca & Qaabka Logada (Orientation & Auto-Fit):
+                      </label>
+                      <span className="text-[11px] font-mono text-primary font-medium">
+                        {brandingForm.logoOrientation || 'auto'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {/* Auto Fit */}
+                      <button
+                        type="button"
+                        onClick={() => setBrandingForm({ ...brandingForm, logoOrientation: 'auto' })}
+                        className={`p-2.5 rounded-lg border text-center transition-all ${
+                          (brandingForm.logoOrientation || 'auto') === 'auto'
+                            ? 'bg-primary/20 border-primary text-white font-bold'
+                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                        }`}
+                      >
+                        <p className="text-xs">⚡ Auto-Fit</p>
+                        <p className="text-[9px] text-slate-400 mt-0.5">Isku habeyn toos ah</p>
+                      </button>
+
+                      {/* Landscape / Jiif */}
+                      <button
+                        type="button"
+                        onClick={() => setBrandingForm({ ...brandingForm, logoOrientation: 'landscape' })}
+                        className={`p-2.5 rounded-lg border text-center transition-all ${
+                          brandingForm.logoOrientation === 'landscape'
+                            ? 'bg-primary/20 border-primary text-white font-bold'
+                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                        }`}
+                      >
+                        <p className="text-xs">↔ Jiif (Landscape)</p>
+                        <p className="text-[9px] text-slate-400 mt-0.5">Ballaaran / Horizontal</p>
+                      </button>
+
+                      {/* Square / Labajibbaar */}
+                      <button
+                        type="button"
+                        onClick={() => setBrandingForm({ ...brandingForm, logoOrientation: 'square' })}
+                        className={`p-2.5 rounded-lg border text-center transition-all ${
+                          brandingForm.logoOrientation === 'square'
+                            ? 'bg-primary/20 border-primary text-white font-bold'
+                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                        }`}
+                      >
+                        <p className="text-xs">⊞ Square (1:1)</p>
+                        <p className="text-[9px] text-slate-400 mt-0.5">Labajibbaar siman</p>
+                      </button>
+
+                      {/* Vertical / Taagan */}
+                      <button
+                        type="button"
+                        onClick={() => setBrandingForm({ ...brandingForm, logoOrientation: 'vertical' })}
+                        className={`p-2.5 rounded-lg border text-center transition-all ${
+                          brandingForm.logoOrientation === 'vertical'
+                            ? 'bg-primary/20 border-primary text-white font-bold'
+                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                        }`}
+                      >
+                        <p className="text-xs">↕ Taagan (Vertical)</p>
+                        <p className="text-[9px] text-slate-400 mt-0.5">Stacked / Dheer</p>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Name Visibility Toggle */}
+                  <div className="p-3.5 rounded-xl bg-slate-950/50 border border-slate-800/80 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-white">
+                        Muuji Magaca Qoraalka ah (Site Name in Header & Footer)
+                      </p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        {brandingForm.logoType === 'full'
+                          ? 'Dami haddii aad doonayso in kaliya Full Logo-gu muuqdo (lagula taliyay)'
+                          : 'Daar si magacu u barbar yaalo icon-ka logada'}
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-3">
+                      <input
+                        type="checkbox"
+                        checked={
+                          brandingForm.logoType === 'full'
+                            ? brandingForm.showSiteName === true
+                            : brandingForm.showSiteName !== false
+                        }
+                        onChange={(e) =>
+                          setBrandingForm({
+                            ...brandingForm,
+                            showSiteName: e.target.checked,
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
                 </div>
               )}
             </div>
@@ -785,21 +1190,58 @@ export const AdminAppearance: React.FC = () => {
 
               {/* Mini Navbar Preview */}
               <div className="p-4 rounded-2xl bg-dark/95 border border-white/10 space-y-3">
-                <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">
-                  Header Navbar Preview
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">
+                    Header Navbar Preview
+                  </span>
+                  <span className="text-[10px] text-primary font-mono uppercase">
+                    {brandingForm.logoType === 'full'
+                      ? 'Full Logo'
+                      : brandingForm.showSiteName === false
+                      ? 'No Name Text'
+                      : 'Icon + Name'}
+                  </span>
+                </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold text-xs shadow-md shadow-primary/20 overflow-hidden">
-                      {brandingForm.logoType === 'image' && brandingForm.logoImageUrl ? (
-                        <img src={brandingForm.logoImageUrl} alt="Logo" className="w-full h-full object-cover" />
-                      ) : (
+                    {brandingForm.logoType === 'full' && brandingForm.logoImageUrl ? (
+                      <div className="flex items-center">
+                        <img
+                          src={brandingForm.logoImageUrl}
+                          alt="Full Logo"
+                          className={
+                            brandingForm.logoOrientation === 'landscape'
+                              ? 'h-8 sm:h-9 w-auto max-w-[190px] object-contain'
+                              : brandingForm.logoOrientation === 'square'
+                              ? 'h-9 w-9 object-contain'
+                              : brandingForm.logoOrientation === 'vertical'
+                              ? 'h-10 w-auto max-w-[100px] object-contain'
+                              : 'h-8 sm:h-9 w-auto max-w-[190px] object-contain'
+                          }
+                        />
+                      </div>
+                    ) : brandingForm.logoType === 'image' && brandingForm.logoImageUrl ? (
+                      <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-primary/10 to-secondary/10 border border-white/10 flex items-center justify-center overflow-hidden shrink-0 shadow-md p-1">
+                        <img
+                          src={brandingForm.logoImageUrl}
+                          alt="Logo"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold text-xs shadow-md shadow-primary/20 overflow-hidden shrink-0">
                         <span>{brandingForm.logoText || 'M&A'}</span>
-                      )}
-                    </div>
-                    <span className="text-sm font-bold text-white">
-                      {brandingForm.siteName || 'Mohamed Alhady'}
-                    </span>
+                      </div>
+                    )}
+
+                    {/* Show site name only if NOT full logo, or if explicitly enabled */}
+                    {(brandingForm.logoType === 'full'
+                      ? brandingForm.showSiteName === true
+                      : brandingForm.showSiteName !== false) && (
+                      <span className="text-sm font-bold text-white">
+                        {brandingForm.siteName || 'Mohamed Alhady'}
+                      </span>
+                    )}
                   </div>
                   <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium">
                     Hire Me
@@ -808,10 +1250,49 @@ export const AdminAppearance: React.FC = () => {
               </div>
 
               {/* Mini Footer Preview */}
-              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
                 <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">
                   Footer Preview
                 </span>
+                <div className="flex items-center gap-2.5">
+                  {brandingForm.logoType === 'full' && brandingForm.logoImageUrl ? (
+                    <div className="flex items-center">
+                      <img
+                        src={brandingForm.logoImageUrl}
+                        alt="Full Logo"
+                        className={
+                          brandingForm.logoOrientation === 'landscape'
+                            ? 'h-8 sm:h-9 w-auto max-w-[190px] object-contain'
+                            : brandingForm.logoOrientation === 'square'
+                            ? 'h-9 w-9 object-contain'
+                            : brandingForm.logoOrientation === 'vertical'
+                            ? 'h-10 w-auto max-w-[100px] object-contain'
+                            : 'h-8 sm:h-9 w-auto max-w-[190px] object-contain'
+                        }
+                      />
+                    </div>
+                  ) : brandingForm.logoType === 'image' && brandingForm.logoImageUrl ? (
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-primary/10 to-secondary/10 border border-white/10 flex items-center justify-center overflow-hidden shrink-0 shadow-md p-1">
+                      <img
+                        src={brandingForm.logoImageUrl}
+                        alt="Logo"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold text-xs shadow-md shadow-primary/20 overflow-hidden shrink-0">
+                      <span>{brandingForm.logoText || 'M&A'}</span>
+                    </div>
+                  )}
+
+                  {(brandingForm.logoType === 'full'
+                    ? brandingForm.showSiteName === true
+                    : brandingForm.showSiteName !== false) && (
+                    <span className="text-sm font-bold text-white">
+                      {brandingForm.siteName || 'Mohamed Alhady'}
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-slate-400 line-clamp-2">
                   {brandingForm.footerBio || 'Building high-performance web applications...'}
                 </p>
