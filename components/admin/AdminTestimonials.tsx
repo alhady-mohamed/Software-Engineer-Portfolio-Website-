@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSiteData } from '../../src/context/SiteDataContext';
+import { useLanguage } from '../../src/context/LanguageContext';
 import { TestimonialItem } from '../../types';
 import {
   Star,
@@ -16,6 +17,7 @@ import { ImageUploader } from './ImageUploader';
 
 export const AdminTestimonials: React.FC = () => {
   const { testimonials, addTestimonial, updateTestimonial, deleteTestimonial } = useSiteData();
+  const { t } = useLanguage();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<TestimonialItem | null>(null);
@@ -88,10 +90,10 @@ export const AdminTestimonials: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
             <Star className="text-amber-400 fill-amber-400" size={24} />
-            <span>Marag-furka Macaamiisha (Testimonials CMS)</span>
+            <span>{t('admin_testimonials_title')}</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            Maamul ra'yiga iyo qoraallada amaanta ah ee macaamiishu kaga hadlayaan shaqadaada.
+            {t('admin_testimonials_subtitle')}
           </p>
         </div>
 
@@ -100,7 +102,7 @@ export const AdminTestimonials: React.FC = () => {
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20 transition-all self-start sm:self-auto"
         >
           <Plus size={16} />
-          <span>Ku Dar Marag-fur Cusub</span>
+          <span>{t('admin_add_testimonial')}</span>
         </button>
       </div>
 

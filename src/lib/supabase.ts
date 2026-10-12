@@ -4,6 +4,9 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 const STORAGE_KEY_URL = 'portfolio_supabase_url';
 const STORAGE_KEY_ANON = 'portfolio_supabase_anon_key';
 
+const DEFAULT_SUPABASE_URL = 'https://scecfrqsvrihariunevm.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_hXGaaZR9_HGX_exWLfaN7Q_391rhOZI';
+
 /**
  * Retrieves the configured Supabase URL from environment or localStorage.
  */
@@ -12,7 +15,11 @@ export const getSupabaseUrl = (): string => {
   if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
     return envUrl.trim();
   }
-  return localStorage.getItem(STORAGE_KEY_URL) || '';
+  const local = localStorage.getItem(STORAGE_KEY_URL);
+  if (local && local.trim().length > 0) {
+    return local.trim();
+  }
+  return DEFAULT_SUPABASE_URL;
 };
 
 /**
@@ -23,7 +30,11 @@ export const getSupabaseAnonKey = (): string => {
   if (envKey && typeof envKey === 'string' && envKey.trim().length > 0) {
     return envKey.trim();
   }
-  return localStorage.getItem(STORAGE_KEY_ANON) || '';
+  const local = localStorage.getItem(STORAGE_KEY_ANON);
+  if (local && local.trim().length > 0) {
+    return local.trim();
+  }
+  return DEFAULT_SUPABASE_ANON_KEY;
 };
 
 /**

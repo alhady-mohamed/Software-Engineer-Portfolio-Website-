@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSiteData } from '../../src/context/SiteDataContext';
+import { useLanguage } from '../../src/context/LanguageContext';
 import { Project } from '../../types';
 import {
   FolderGit2,
@@ -19,6 +20,7 @@ import { ImageUploader } from './ImageUploader';
 
 export const AdminProjects: React.FC = () => {
   const { projects, addProject, updateProject, deleteProject } = useSiteData();
+  const { t } = useLanguage();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -134,10 +136,10 @@ export const AdminProjects: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
             <FolderGit2 className="text-primary" size={26} />
-            <span>Maamulka Mashaariicda (Projects CMS)</span>
+            <span>{t('admin_projects_title')}</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            Ku dar, wax ka beddel, ama tirtir mashaariicda ka muuqanaya websaytkaaga.
+            {t('admin_projects_subtitle')}
           </p>
         </div>
 
@@ -146,7 +148,7 @@ export const AdminProjects: React.FC = () => {
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold shadow-lg shadow-primary/25 transition-all self-start sm:self-auto"
         >
           <Plus size={16} />
-          <span>Ku Dar Mashruuc Cusub</span>
+          <span>{t('admin_add_project')}</span>
         </button>
       </div>
 
@@ -157,7 +159,7 @@ export const AdminProjects: React.FC = () => {
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Raadi mashruuc, sharraxaad, ama tech stack..."
+            placeholder={t('admin_search_projects_ph')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white placeholder-slate-500 text-xs focus:outline-none focus:border-primary transition-all"
@@ -176,7 +178,7 @@ export const AdminProjects: React.FC = () => {
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
-              {cat}
+              {cat === 'All' ? t('projects_all') : cat}
             </button>
           ))}
         </div>

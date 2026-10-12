@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSiteData } from '../../src/context/SiteDataContext';
+import { useLanguage } from '../../src/context/LanguageContext';
 import { ContactMessage } from '../../types';
 import {
   MessageSquare,
@@ -17,6 +18,7 @@ import {
 
 export const AdminMessages: React.FC = () => {
   const { messages, markMessageRead, deleteMessage } = useSiteData();
+  const { t } = useLanguage();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterState, setFilterState] = useState<'all' | 'unread' | 'read'>('all');
@@ -47,7 +49,7 @@ export const AdminMessages: React.FC = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (window.confirm(`Ma hubtaa inaad tirtirto farriinta uu soo diray "${name}"?`)) {
+    if (window.confirm(`Delete message from "${name}"?`)) {
       await deleteMessage(id);
       if (selectedMessage?.id === id) {
         setSelectedMessage(null);
@@ -67,19 +69,19 @@ export const AdminMessages: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
             <MessageSquare className="text-indigo-400" size={26} />
-            <span>Sanduuqa Farriimaha (Inquiries Inbox)</span>
+            <span>{t('admin_messages_title')}</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            Dhammaan farriimaha iyo codsiyada shaqo ee dadku kasoo diraan qaybta Contact-ka.
+            {t('admin_messages_subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
-            Wadarta: <strong>{messages.length}</strong>
+            {t('admin_total')}: <strong>{messages.length}</strong>
           </span>
           <span className="px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs font-mono text-indigo-400">
-            Aan la akhrin: <strong>{messages.filter((m) => !m.isRead).length}</strong>
+            {t('admin_unread')}: <strong>{messages.filter((m) => !m.isRead).length}</strong>
           </span>
         </div>
       </div>
@@ -90,7 +92,7 @@ export const AdminMessages: React.FC = () => {
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Raadi magac, email, mawduuc, ama qoraal..."
+            placeholder={t('admin_search_messages_ph')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-400 transition-all"
@@ -106,7 +108,7 @@ export const AdminMessages: React.FC = () => {
                 : 'text-slate-400 hover:text-white hover:bg-slate-900'
             }`}
           >
-            Dhammaan ({messages.length})
+            {t('projects_all')} ({messages.length})
           </button>
           <button
             onClick={() => setFilterState('unread')}
@@ -116,7 +118,7 @@ export const AdminMessages: React.FC = () => {
                 : 'text-slate-400 hover:text-white hover:bg-slate-900'
             }`}
           >
-            Aan la akhrin ({messages.filter((m) => !m.isRead).length})
+            {t('admin_unread')} ({messages.filter((m) => !m.isRead).length})
           </button>
           <button
             onClick={() => setFilterState('read')}
@@ -126,7 +128,7 @@ export const AdminMessages: React.FC = () => {
                 : 'text-slate-400 hover:text-white hover:bg-slate-900'
             }`}
           >
-            La akhriyey ({messages.filter((m) => m.isRead).length})
+            {t('admin_read')} ({messages.filter((m) => m.isRead).length})
           </button>
         </div>
       </div>

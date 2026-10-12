@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSiteData } from '../../src/context/SiteDataContext';
+import { useLanguage } from '../../src/context/LanguageContext';
 import { TimelineItem } from '../../types';
 import {
   GraduationCap,
@@ -15,6 +16,7 @@ import {
 
 export const AdminTimeline: React.FC = () => {
   const { timelines, addTimeline, updateTimeline, deleteTimeline } = useSiteData();
+  const { t } = useLanguage();
 
   const [filterType, setFilterType] = useState<'all' | 'education' | 'experience'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,10 +110,10 @@ export const AdminTimeline: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
             <GraduationCap className="text-secondary" size={26} />
-            <span>Taariikhda & Waxbarashada (Timeline CMS)</span>
+            <span>{t('admin_timeline_title')}</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            Maamul darajooyinka jaamacadda (Degree) iyo waayo-aragnimada shaqo ee ka muuqata bogga About.
+            {t('admin_timeline_subtitle')}
           </p>
         </div>
 
@@ -121,14 +123,14 @@ export const AdminTimeline: React.FC = () => {
             className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-secondary/15 hover:bg-secondary/25 text-secondary border border-secondary/30 text-xs font-semibold transition-all"
           >
             <Plus size={15} />
-            <span>+ Ku Dar Waxbarasho</span>
+            <span>{t('admin_add_education')}</span>
           </button>
           <button
             onClick={() => handleOpenAdd('experience')}
             className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold shadow-lg shadow-primary/25 transition-all"
           >
             <Plus size={15} />
-            <span>+ Ku Dar Shaqo</span>
+            <span>{t('admin_add_experience')}</span>
           </button>
         </div>
       </div>

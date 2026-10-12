@@ -22,13 +22,11 @@ import {
   Layers,
   ChevronLeft,
   ChevronRight,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAdminAuth();
-  const { messages, isSupabaseConnected } = useSiteData();
+  const { messages, isSupabaseConnected, settings } = useSiteData();
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,6 +48,21 @@ export const AdminLayout: React.FC = () => {
       return next;
     });
   };
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || (e.target as HTMLElement)?.isContentEditable) {
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        toggleCollapse();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const unreadMessagesCount = messages.filter((m) => !m.isRead).length;
 
@@ -143,8 +156,8 @@ export const AdminLayout: React.FC = () => {
             <ShieldCheck size={18} />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white leading-tight">Admin CMS</h2>
-            <span className="text-[10px] text-slate-400 font-mono">Portfolio Control</span>
+            <h2 className="text-sm font-bold text-white leading-tight">{t('admin_portal')}</h2>
+            <span className="text-[10px] text-slate-400 font-mono">{t('admin_control_center')}</span>
           </div>
         </div>
 
@@ -178,54 +191,73 @@ export const AdminLayout: React.FC = () => {
             : '-translate-x-full md:translate-x-0'
         }`}
       >
-        <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden">
+        {/* Floating Circular Edge Toggle Button (Mounted on border) */}
+        <button
+          type="button"
+          onClick={toggleCollapse}
+          className={`hidden md:flex absolute top-6 ${
+            isRTL ? '-left-3.5' : '-right-3.5'
+          } z-30 w-7 h-7 rounded-full bg-slate-900 border border-slate-700/80 hover:border-rose-500 text-slate-300 hover:text-white items-center justify-center shadow-xl shadow-black/50 hover:shadow-[0_0_12px_rgba(225,29,72,0.35)] transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer group`}
+          title={isCollapsed ? `${t('admin_expand_sidebar')} (Ctrl+B)` : `${t('admin_collapse_sidebar')} (Ctrl+B)`}
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {isCollapsed ? (
+            isRTL ? (
+              <ChevronLeft size={14} className="group-hover:text-rose-400 transition-transform group-hover:-translate-x-0.5" />
+            ) : (
+              <ChevronRight size={14} className="group-hover:text-rose-400 transition-transform group-hover:translate-x-0.5" />
+            )
+          ) : (
+            isRTL ? (
+              <ChevronRight size={14} className="group-hover:text-rose-400 transition-transform group-hover:translate-x-0.5" />
+            ) : (
+              <ChevronLeft size={14} className="group-hover:text-rose-400 transition-transform group-hover:-translate-x-0.5" />
+            )
+          )}
+        </button>
+
+        <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden relative">
           {/* Logo Zone & Collapse Button */}
           <div
-            className={`border-b border-slate-800 flex items-center transition-all ${
+            className={`border-b border-slate-800 flex items-center transition-all duration-300 ${
               isCollapsed
-                ? 'p-3 flex-col gap-2 justify-center'
-                : 'p-4 justify-between'
+                ? 'p-3 flex-col gap-2.5 justify-center items-center'
+                : 'p-4 justify-between items-center'
             }`}
           >
-            <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
-              <div
-                className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white shadow-md shadow-primary/25 shrink-0"
-                title={t('admin_portal')}
-              >
-                <ShieldCheck size={20} />
-              </div>
+            <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center w-full' : 'min-w-0'}`}>
+              {settings?.branding?.logoImageUrl ? (
+                <img
+                  src={settings.branding.logoImageUrl}
+                  alt={settings?.branding?.siteName || 'Logo'}
+                  className="w-10 h-10 rounded-full object-cover border border-slate-700/80 shadow-md shrink-0"
+                />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#8b151b] via-rose-700 to-rose-600 flex items-center justify-center text-white shadow-md shadow-rose-950/40 shrink-0 font-bold text-sm ring-2 ring-rose-500/20"
+                  title={settings?.branding?.siteName || t('admin_portal')}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+              )}
               {!isCollapsed && (
-                <div className="truncate">
-                  <h1 className="font-bold text-white text-sm tracking-tight truncate">{t('admin_portal')}</h1>
-                  <p className="text-[10px] text-slate-400 font-mono truncate">CMS Control Panel</p>
+                <div className="truncate min-w-0">
+                  <h1 className="font-bold text-white text-sm tracking-tight truncate">
+                    {settings?.branding?.siteName || t('admin_portal')}
+                  </h1>
+                  <p className="text-[10px] text-slate-400 font-mono truncate">{t('admin_control_center')}</p>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center gap-1">
-              {/* Desktop Collapse / Expand Toggle Button */}
-              <button
-                onClick={toggleCollapse}
-                className="hidden md:flex items-center justify-center p-1.5 rounded-lg text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 hover:border-slate-600 transition-all cursor-pointer shadow-sm active:scale-95"
-                title={isCollapsed ? t('admin_expand_sidebar') : t('admin_collapse_sidebar')}
-                aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              >
-                {isCollapsed ? (
-                  isRTL ? <ChevronLeft size={17} /> : <ChevronRight size={17} />
-                ) : (
-                  isRTL ? <ChevronRight size={17} /> : <ChevronLeft size={17} />
-                )}
-              </button>
-
-              {/* Close button on mobile */}
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white"
-                aria-label="Close Navigation"
-              >
-                <X size={18} />
-              </button>
-            </div>
+            {/* Close button on mobile */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white"
+              aria-label="Close Navigation"
+            >
+              <X size={18} />
+            </button>
           </div>
 
           {/* Compact Connection Indicator */}
@@ -239,7 +271,7 @@ export const AdminLayout: React.FC = () => {
                 }`}
                 title={isSupabaseConnected ? 'Database: Synced' : 'Storage: Browser Mode'}
               >
-                <Database size={16} className="shrink-0 text-primary" />
+                <Database size={16} className="shrink-0 text-slate-300" />
                 <span
                   className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
                     isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
@@ -255,7 +287,7 @@ export const AdminLayout: React.FC = () => {
                 }`}
               >
                 <div className="flex items-center gap-2 truncate">
-                  <Database size={13} className="shrink-0 text-primary" />
+                  <Database size={13} className="shrink-0 text-slate-300" />
                   <span className="truncate font-medium">
                     {isSupabaseConnected ? 'Database: Synced' : 'Storage: Browser Mode'}
                   </span>
@@ -288,43 +320,70 @@ export const AdminLayout: React.FC = () => {
                       to={item.to}
                       end={item.exact}
                       onClick={() => setSidebarOpen(false)}
-                      title={item.label}
+                      title={isCollapsed ? undefined : item.label}
                       className={({ isActive }) =>
                         isCollapsed
-                          ? `flex items-center justify-center w-11 h-11 mx-auto rounded-xl transition-all relative ${
+                          ? `group relative flex items-center justify-center w-11 h-11 mx-auto rounded-xl transition-all duration-200 ${
                               isActive
-                                ? 'bg-primary text-white font-semibold shadow-md shadow-primary/25'
-                                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                                ? 'bg-[#8b151b] text-white font-semibold shadow-lg shadow-[#8b151b]/35 ring-1 ring-rose-500/40'
+                                : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
                             }`
-                          : `flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                          : `group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
                               isActive
-                                ? 'bg-primary text-white font-semibold shadow-md shadow-primary/25'
-                                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                                ? 'bg-[#8b151b] text-white font-semibold shadow-lg shadow-[#8b151b]/30 ring-1 ring-rose-500/40'
+                                : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
                             }`
                       }
                     >
-                      {isCollapsed ? (
-                        <>
-                          <Icon size={18} className="shrink-0" />
-                          {item.badge !== undefined && (
-                            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[9px] font-bold bg-amber-500 text-slate-950 flex items-center justify-center shadow">
-                              {item.badge}
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <div className="flex items-center gap-2.5 truncate">
-                            <Icon size={16} className="shrink-0" />
-                            <span className="truncate">{item.label}</span>
-                          </div>
-                          {item.badge !== undefined && (
-                            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950">
-                              {item.badge}
-                            </span>
-                          )}
-                        </>
-                      )}
+                      {({ isActive }) =>
+                        isCollapsed ? (
+                          <>
+                            <Icon size={19} className="shrink-0 transition-transform group-hover:scale-105" />
+                            {item.badge !== undefined && (
+                              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[9px] font-bold bg-amber-500 text-slate-950 flex items-center justify-center shadow">
+                                {item.badge}
+                              </span>
+                            )}
+                            {/* Hover Flyout Tooltip in Collapsed Mode */}
+                            <div
+                              className={`hidden md:flex items-center gap-2 absolute ${
+                                isRTL ? 'right-full mr-3.5' : 'left-full ml-3.5'
+                              } px-3 py-1.5 rounded-lg bg-slate-900/95 text-white text-xs font-semibold shadow-2xl border border-slate-700/80 pointer-events-none whitespace-nowrap z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-150 backdrop-blur-md`}
+                            >
+                              <span>{item.label}</span>
+                              {item.badge !== undefined && (
+                                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-500 text-slate-950">
+                                  {item.badge}
+                                </span>
+                              )}
+                              <div
+                                className={`absolute top-1/2 -translate-y-1/2 ${
+                                  isRTL ? '-right-1 border-l-slate-700 border-l-[4px]' : '-left-1 border-r-slate-700 border-r-[4px]'
+                                } border-y-transparent border-y-[4px] border-solid`}
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-2.5 truncate">
+                              <Icon
+                                size={17}
+                                className={`shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+                                  isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
+                                }`}
+                              />
+                              <span className="truncate">{item.label}</span>
+                            </div>
+                            {item.badge !== undefined ? (
+                              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950">
+                                {item.badge}
+                              </span>
+                            ) : isActive ? (
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-300 ring-2 ring-rose-400/50 shrink-0" />
+                            ) : null}
+                          </>
+                        )
+                      }
                     </NavLink>
                   );
                 })}
@@ -394,28 +453,14 @@ export const AdminLayout: React.FC = () => {
         {/* Clean, High-Polish Top Bar on Desktop */}
         <div className="hidden md:flex items-center justify-between px-8 py-3.5 border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md sticky top-0 z-30">
           <div className="flex items-center gap-3">
-            {/* Quick Topbar Collapse/Expand Button */}
-            <button
-              onClick={toggleCollapse}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-white bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 transition-colors cursor-pointer flex items-center justify-center"
-              title={isCollapsed ? t('admin_expand_sidebar') : t('admin_collapse_sidebar')}
-              aria-label="Toggle Sidebar Collapse"
-            >
-              {isCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
-            </button>
-
-            {/* Breadcrumb Indicator */}
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <span className="font-semibold text-slate-500">{t('admin_portal')}</span>
-              <span className="text-slate-600">/</span>
-              <div className="flex items-center gap-1.5 text-white font-bold bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-700/60">
-                <ActiveIcon size={14} className="text-primary" />
-                <span>{activeBreadcrumb.title}</span>
-              </div>
+            {/* Active Screen Indicator */}
+            <div className="flex items-center gap-1.5 text-white font-bold bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/60 shadow-sm text-xs">
+              <ActiveIcon size={14} className="text-primary" />
+              <span>{activeBreadcrumb.title}</span>
             </div>
           </div>
 
-          {/* Header Actions: Language Switcher, Live Site, Quick User Actions */}
+          {/* Header Actions: Language Switcher, Live Site */}
           <div className="flex items-center gap-3">
             {/* Multi-language Selector (English, Somali, Arabic) */}
             <LanguageSelector variant="admin" />
@@ -431,16 +476,6 @@ export const AdminLayout: React.FC = () => {
               <ExternalLink size={13} />
               <span>{t('admin_live_site')}</span>
             </Link>
-
-            {/* Quick Sign Out Action */}
-            <button
-              onClick={handleLogout}
-              title={t('admin_logout')}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 px-3 py-1.5 rounded-xl transition-all shadow-sm cursor-pointer"
-            >
-              <LogOut size={13} />
-              <span className="hidden sm:inline">{t('admin_logout')}</span>
-            </button>
           </div>
         </div>
 

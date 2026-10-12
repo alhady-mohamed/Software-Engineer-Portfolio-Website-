@@ -254,11 +254,11 @@ export const translations = {
     ar: 'جميع الحقوق محفوظة.',
   },
 
-  // Admin Dashboard
+  // Admin Dashboard & Navigation
   admin_portal: {
     en: 'Admin Portal',
     so: 'Xarunta Maamulka',
-    ar: 'لوحة تحكم الموقع',
+    ar: 'لوحة التحكم',
   },
   admin_overview: {
     en: 'Dashboard Overview',
@@ -267,52 +267,52 @@ export const translations = {
   },
   admin_appearance: {
     en: 'Appearance & Hero',
-    so: 'Muuqaalka & Hero-ga',
-    ar: 'التصميم وواجهة البداية',
+    so: 'Muuqaalka & Madaxa',
+    ar: 'المظهر والواجهة',
   },
   admin_projects: {
     en: 'Manage Projects',
-    so: 'Mashaariicda (Projects)',
+    so: 'Mashaariicda',
     ar: 'إدارة المشاريع',
   },
   admin_timeline: {
     en: 'Timeline & Career',
-    so: 'Taariikhda & Shaqada',
+    so: 'Shaqada & Waxbarashada',
     ar: 'المسار المهني والتعليم',
   },
   admin_testimonials: {
     en: 'Client Reviews',
-    so: 'Marag-furka (Reviews)',
+    so: 'Aragtiyada Macaamiisha',
     ar: 'آراء وتقييمات العملاء',
   },
   admin_messages: {
     en: 'Inbox Messages',
-    so: 'Farriimaha Soo Dhaca',
+    so: 'Sanduuqa Farriimaha',
     ar: 'الرسائل الواردة',
   },
   admin_settings: {
     en: 'Database & Sync',
-    so: 'Habeynta Supabase',
+    so: 'Kaydka & Isku-xirka',
     ar: 'إعدادات قاعدة البيانات',
   },
   admin_live_site: {
     en: 'Live Site',
-    so: 'Eeg Websaytka',
+    so: 'Websaytka Tooska ah',
     ar: 'الموقع المباشر',
   },
   admin_logout: {
     en: 'Sign Out',
-    so: 'Ka Bax (Sign Out)',
+    so: 'Ka Bax',
     ar: 'تسجيل الخروج',
   },
   admin_collapse_sidebar: {
     en: 'Collapse Sidebar',
-    so: 'Laab Dhinaca (Collapse)',
+    so: 'Laab Dhinaca',
     ar: 'طي الشريط الجانبي',
   },
   admin_expand_sidebar: {
     en: 'Expand Sidebar',
-    so: 'Balaadhi Dhinaca (Expand)',
+    so: 'Balaadhi Dhinaca',
     ar: 'توسيع الشريط الجانبي',
   },
   admin_modules: {
@@ -325,39 +325,194 @@ export const translations = {
     so: 'Nidaamka & Qalabka',
     ar: 'النظام والأدوات',
   },
+  admin_control_center: {
+    en: 'Portfolio Control Center',
+    so: 'Xarunta Maamulka Websaytka',
+    ar: 'مركز إدارة البورتفوليو',
+  },
   admin_welcome_title: {
     en: 'Welcome to your Portfolio CMS',
-    so: 'Ku soo dhowaw Xarunta Maamulka (CMS)',
-    ar: 'مرحباً بك في لوحة إدارة محتوى البورتفوليو',
+    so: 'Ku soo dhowaw Xarunta Maamulka',
+    ar: 'مرحباً بك في لوحة تحكم الموقع',
   },
   admin_welcome_subtitle: {
     en: 'Easily update hero images, brand logos, colors, projects, reviews, and client inquiries.',
-    so: 'Halkan waxaad si fudud uga maamuli kartaa sawirka hero-ga, logada, midabada, mashaariicda, iyo farriimaha.',
-    ar: 'يمكنك هنا إدارة صور البداية، الشعار، الألوان، المشاريع، التقييمات، والرسائل الواردة بكل سهولة.',
+    so: 'Halkan waxaad si fudud uga maamuli kartaa sawirka madaxa, sumadda, midabbada, mashaariicda, aragtiyada, iyo farriimaha.',
+    ar: 'يمكنك هنا إدارة صور الواجهة، الشعار، الألوان، المشاريع، التقييمات، والرسائل الواردة بكل سهولة.',
   },
   admin_stats_projects: {
     en: 'Total Projects',
-    so: 'Mashaariicda Guud',
+    so: 'Wadarta Mashaariicda',
     ar: 'إجمالي المشاريع',
   },
   admin_stats_timeline: {
     en: 'Career & Degree',
-    so: 'Taariikhda & Degree',
+    so: 'Shaqada & Shahaadooyinka',
     ar: 'المسار والشهادات',
   },
   admin_stats_reviews: {
     en: 'Client Reviews',
-    so: 'Marag-furka Macaamiisha',
+    so: 'Aragtiyada Macaamiisha',
     ar: 'تقييمات العملاء',
   },
   admin_stats_messages: {
     en: 'Contact Messages',
-    so: 'Farriimaha Contact-ka',
+    so: 'Farriimaha Xiriirka',
     ar: 'رسائل التواصل',
+  },
+  admin_key_metrics: {
+    en: 'Key Performance Metrics',
+    so: 'Halbeegyada Waxqabadka Ugu Muhiimsan',
+    ar: 'مؤشرات الأداء الرئيسية',
+  },
+  admin_metrics_realtime: {
+    en: 'Real-time performance analytics',
+    so: 'Falanqaynta tooska ah ee waxqabadka',
+    ar: 'تحليلات الأداء المباشرة',
+  },
+  admin_metrics_visitors: {
+    en: 'Visitor Count',
+    so: 'Tirada Booqdayaasha',
+    ar: 'عدد الزوار',
+  },
+  admin_metrics_total_projects: {
+    en: 'Total Projects',
+    so: 'Wadarta Mashaariicda',
+    ar: 'إجمالي المشاريع',
+  },
+  admin_metrics_pending_messages: {
+    en: 'Pending Messages',
+    so: 'Farriimaha Sugaya',
+    ar: 'الرسائل المعلقة',
+  },
+  admin_metrics_approval_rate: {
+    en: 'Client Satisfaction',
+    so: 'Qanacsanaanta Macaamiisha',
+    ar: 'رضا العملاء',
+  },
+  admin_metric_today: {
+    en: 'today',
+    so: 'maanta',
+    ar: 'اليوم',
+  },
+  admin_metric_per_day: {
+    en: '/day',
+    so: '/maalintii',
+    ar: '/يوم',
+  },
+  admin_visitors_label: {
+    en: 'visitors',
+    so: 'booqde',
+    ar: 'زائر',
+  },
+  admin_categories: {
+    en: 'categories',
+    so: 'qaybood',
+    ar: 'تصنيفات',
+  },
+  admin_live_portfolio_label: {
+    en: 'Live portfolio',
+    so: 'Websaytka tooska ah',
+    ar: 'معرض الأعمال المباشر',
+  },
+  admin_traffic_trends_30d: {
+    en: 'Visitor Traffic Trends (Last 30 Days)',
+    so: 'Dhaqdhaqaaqa Booqdayaasha (30-kii Maalmood)',
+    ar: 'مؤشرات حركة الزوار (آخر 30 يوماً)',
+  },
+  admin_thirty_days_badge: {
+    en: '30 Days',
+    so: '30 Maalmood',
+    ar: '30 يوماً',
+  },
+  admin_traffic_subtitle: {
+    en: 'Daily engagement analysis of portfolio visits and page views',
+    so: 'Falanqaynta maalinlaha ah ee booqashooyinka iyo daawashada bogagga',
+    ar: 'تحليل يومي لحركة الزوار ومشاهدات صفحات البورتفوليو',
+  },
+  admin_visitors_unique: {
+    en: 'Unique Visitors',
+    so: 'Booqdayaasha Gaarka ah',
+    ar: 'الزوار الفريدون',
+  },
+  admin_page_views: {
+    en: 'Page Views',
+    so: 'Daawashada Bogagga',
+    ar: 'مشاهدات الصفحات',
+  },
+  admin_visitors_30d: {
+    en: 'Visitors (30d)',
+    so: 'Booqdayaasha (30 Maalmood)',
+    ar: 'الزوار (30 يوماً)',
+  },
+  admin_page_views_30d: {
+    en: 'Page Views (30d)',
+    so: 'Daawashada Bogagga (30 Maalmood)',
+    ar: 'مشاهدات الصفحات (30 يوماً)',
+  },
+  admin_per_visit: {
+    en: '/ visit',
+    so: '/ booqashadiiba',
+    ar: '/ زيارة',
+  },
+  admin_peak_day: {
+    en: 'Peak Traffic Day',
+    so: 'Maalinta Ugu Mashquulka Badan',
+    ar: 'أعلى يوم زيارات',
+  },
+  admin_daily_avg: {
+    en: 'Daily Average',
+    so: 'Celceliska Maalinlaha ah',
+    ar: 'المعدل اليومي',
+  },
+  admin_visitors_per_day: {
+    en: 'visitors/day',
+    so: 'booqde/maalintii',
+    ar: 'زائر/يوم',
+  },
+  admin_all_metrics: {
+    en: 'Combined Overview',
+    so: 'Dhammaan',
+    ar: 'نظرة شاملة',
+  },
+  admin_growth_rate: {
+    en: '30-Day Growth',
+    so: 'Kobaca 30-ka Maalmood',
+    ar: 'النمو خلال 30 يوماً',
+  },
+  admin_trend_label: {
+    en: '30-Day Trend',
+    so: 'Isbeddelka 30-ka Maalmood',
+    ar: 'اتجاه 30 يوماً',
+  },
+  admin_telemetry_updated: {
+    en: 'Updated with live visit telemetry',
+    so: 'Waxaa lagu cusbooneysiiyay xogta tooska ah',
+    ar: 'محدّث ببيانات الزوار الحية',
+  },
+  admin_needs_reply: {
+    en: 'Awaiting Response',
+    so: 'Jawaab Sugaya',
+    ar: 'بانتظار الرد',
+  },
+  admin_all_replied: {
+    en: 'All Replied',
+    so: 'Waa La Wada Jawaabay',
+    ar: 'تم الرد بالكامل',
+  },
+  admin_total_inquiries: {
+    en: 'total client inquiries',
+    so: 'wadarta codsiyada macaamiisha',
+    ar: 'إجمالي استفسارات العملاء',
+  },
+  admin_inquiry_activity: {
+    en: 'Inquiry activity',
+    so: 'Dhaqdhaqaaqa farriimaha',
+    ar: 'نشاط الاستفسارات',
   },
   admin_recent_messages: {
     en: 'Recent Inquiries',
-    so: 'Farriimihii ugu dambeeyay',
+    so: 'Farriimihii Ugu Dambeeyay',
     ar: 'أحدث الرسائل الواردة',
   },
   admin_active_projects: {
@@ -405,9 +560,24 @@ export const translations = {
     so: 'la ansixiyay',
     ar: 'معتمد',
   },
+  admin_reviews_count_label: {
+    en: 'reviews',
+    so: 'aragtiyood',
+    ar: 'تقييمات',
+  },
+  admin_positive_feedback: {
+    en: 'positive feedback',
+    so: 'aragtiyo togan',
+    ar: 'آراء إيجابية',
+  },
+  admin_rating_label: {
+    en: 'Rating',
+    so: 'Qiimeynta',
+    ar: 'التقييم',
+  },
   admin_aspect_ratio: {
     en: 'Image Scale & Ratio',
-    so: 'Cabbirka & Auto-Scale',
+    so: 'Cabbirka & Saamiga Sawirka',
     ar: 'أبعاد الصورة والتحجيم التلقائي',
   },
   admin_total: {
@@ -417,32 +587,32 @@ export const translations = {
   },
   admin_logo_mode_full: {
     en: 'Full Logo (Icon + Name)',
-    so: 'Full Logo (Astaan + Magac)',
+    so: 'Astaan Buuxda (Astaanta + Magaca)',
     ar: 'شعار كامل (أيقونة + اسم)',
   },
   admin_logo_mode_icon: {
     en: 'Logo Icon Only',
-    so: 'Logo Icon Kaliya',
+    so: 'Astaanta Kaliya',
     ar: 'أيقونة الشعار فقط',
   },
   admin_logo_mode_text: {
     en: 'Initials & Text',
-    so: 'Qoraal / Xuruuf (Initials)',
+    so: 'Qoraal & Xuruuf',
     ar: 'أحرف أولية ونص',
   },
   admin_logo_orientation: {
     en: 'Logo Shape & Orientation',
-    so: 'Qaabka & Jiheynta Logada',
+    so: 'Qaabka & Jiheynta Astaanta',
     ar: 'أبعاد واتجاه الشعار',
   },
   admin_logo_auto_fit: {
     en: 'Auto Fit (Adaptive)',
-    so: 'Auto Fit (Isku Habeeya)',
+    so: 'Isku-habeyn Toos ah',
     ar: 'تحجيم تلقائي متكيف',
   },
   admin_logo_landscape: {
     en: 'Landscape / Horizontal',
-    so: 'Jiif (Landscape)',
+    so: 'Jiif (Toosan)',
     ar: 'أفقي (عريض)',
   },
   admin_logo_square: {
@@ -452,37 +622,37 @@ export const translations = {
   },
   admin_logo_vertical: {
     en: 'Vertical / Stacked',
-    so: 'Taagan (Vertical)',
+    so: 'Taagan (Dabaqsan)',
     ar: 'رأسي (مكدس)',
   },
   admin_logo_show_site_name: {
     en: 'Show Site Name beside Logo',
-    so: 'Tus Magaca Websaytka Logada Dhinaceeda',
+    so: 'Tus Magaca Websaytka Astaanta Dhinaceeda',
     ar: 'إظهار اسم الموقع بجانب الشعار',
   },
   admin_logo_full_tip: {
     en: 'When Full Logo is chosen, the separate text name is automatically hidden in Header and Footer to avoid repetition.',
-    so: 'Marka Full Logo la doorto, magaca qoraalka ah si toos ah ayaa looga qarinayaa Header-ka iyo Footer-ka si looga fogaado is-ku-noqnoqosho.',
+    so: 'Marka Astaanta Buuxda la doorto, magaca qoraalka ah si toos ah ayaa looga qarinayaa madaxa iyo salka si looga fogaado ku-noqnoqosho.',
     ar: 'عند اختيار الشعار الكامل، يتم إخفاء الاسم النصي تلقائياً من الهيدر والفوتر لتجنب التكرار.',
   },
   hero_qr_modal_title: {
     en: 'Scan QR Code',
-    so: 'Sawir QR Code-ka',
+    so: 'Sawir Koodhka QR',
     ar: 'امسح رمز الاستجابة السريعة QR',
   },
   hero_qr_modal_desc: {
     en: 'Point your phone camera at this QR code to connect instantly or open the destination link.',
-    so: 'Kamaradda taleefankaaga ku toosi QR Code-kan si aad toos ugu xidhiidho.',
+    so: 'Kamaradda taleefankaaga ku toosi koodhkan QR si aad toos ugu xidhiidho.',
     ar: 'وجّه كاميرا هاتفك إلى هذا الرمز للتواصل الفوري أو فتح الرابط.',
   },
   hero_qr_open_link: {
     en: 'Open Link Directly',
-    so: 'Toos u fur Link-ga',
+    so: 'Toos u fur Xiriiriyaha',
     ar: 'فتح الرابط مباشرة',
   },
   hero_qr_copy_link: {
     en: 'Copy Link',
-    so: 'Nuqul ka qaad Link-ga',
+    so: 'Nuqul ka qaad Xiriiriyaha',
     ar: 'نسخ الرابط',
   },
   hero_qr_copied: {
@@ -492,33 +662,165 @@ export const translations = {
   },
   admin_qr_section_title: {
     en: 'Hero QR Code Widget & Link',
-    so: 'QR Code-ka Hero-ga & Link-giisa',
+    so: 'Koodhka QR ee Bogga Hore & Xiriiriyaha',
     ar: 'أداة ورابط رمز QR في واجهة Hero',
   },
   admin_qr_section_desc: {
     en: 'Configure the link encoded in the QR code widget on the hero section. Visitors can scan it with their phone camera or click to open.',
-    so: 'Halkan ka geli link-ga uu furayo QR Code-ka Hero Section-ka. Dadku kamarad ayay ku sawiran karaan ama toos ayay u riixi karaan.',
+    so: 'Halkan ka geli xiriiriyaha uu furayo koodhka QR ee bogga hore. Dadku kamarad ayay ku sawiri karaan ama toos ayay u riixi karaan.',
     ar: 'اضبط الرابط المدمج في رمز QR على واجهة الهيرو. يمكن للزوار مسحه بكاميرا الهاتف أو النقر للفتح.',
   },
   admin_qr_link_label: {
     en: 'QR Code Destination Link (URL)',
-    so: 'Link-ga QR Code-ku Furaayo (URL)',
+    so: 'Xiriiriyaha Koodhka QR Furaayo (URL)',
     ar: 'رابط وجهة رمز QR (URL)',
   },
   admin_qr_title_label: {
     en: 'Widget Title Text',
-    so: 'Qoraalka Badhanka QR-ka',
+    so: 'Cinwaanka Koodhka QR',
     ar: 'نص عنوان أداة QR',
   },
   admin_qr_subtitle_label: {
     en: 'Widget Subtitle / Badge',
-    so: 'Qoraalka Sare ee Badhanka',
+    so: 'Qoraalka Hoose / Calaamadda',
     ar: 'النص الفرعي / الشارة',
   },
   admin_qr_show_widget: {
     en: 'Show QR Code Widget in Hero Section',
-    so: 'Muuji Badhanka QR Code-ka ee Hero-ga',
+    so: 'Muuji Koodhka QR ee Bogga Hore',
     ar: 'إظهار أداة رمز QR في واجهة الهيرو',
+  },
+
+  // Additional Admin Screens Clean Translations
+  admin_messages_title: {
+    en: 'Inquiries & Messages Inbox',
+    so: 'Sanduuqa Farriimaha & Codsiyada',
+    ar: 'صندوق الرسائل والاستفسارات',
+  },
+  admin_messages_subtitle: {
+    en: 'All incoming messages and project proposals sent through the contact form.',
+    so: 'Dhammaan farriimaha iyo codsiyada shaqo ee laga soo diray foomka xiriirka.',
+    ar: 'جميع الرسائل الواردة وطلبات المشاريع المرسلة عبر نموذج التواصل.',
+  },
+  admin_unread: {
+    en: 'Unread',
+    so: 'Aan La Akhriyin',
+    ar: 'غير مقروءة',
+  },
+  admin_read: {
+    en: 'Read',
+    so: 'La Akhriyay',
+    ar: 'مقروءة',
+  },
+  admin_search_messages_ph: {
+    en: 'Search by name, email, subject, or message...',
+    so: 'Raadi magac, email, mawduuc, ama qoraal...',
+    ar: 'ابحث بالاسم أو البريد أو الموضوع أو الرسالة...',
+  },
+  admin_projects_title: {
+    en: 'Projects Portfolio Management',
+    so: 'Maamulka Mashaariicda',
+    ar: 'إدارة مشاريع البورتفوليو',
+  },
+  admin_projects_subtitle: {
+    en: 'Add, update, or remove showcase projects appearing on your website.',
+    so: 'Ku dar, wax ka beddel, ama tirtir mashaariicda ka muuqanaya websaytkaaga.',
+    ar: 'إضافة وتعديل وحذف المشاريع المعروضة في موقعك.',
+  },
+  admin_add_project: {
+    en: 'Add New Project',
+    so: 'Ku Dar Mashruuc Cusub',
+    ar: 'إضافة مشروع جديد',
+  },
+  admin_search_projects_ph: {
+    en: 'Search project, description, or tech stack...',
+    so: 'Raadi mashruuc, sharraxaad, ama qalabka la adeegsaday...',
+    ar: 'ابحث عن مشروع بالعنوان أو الوصف أو التقنيات...',
+  },
+  admin_timeline_title: {
+    en: 'Career & Education Timeline',
+    so: 'Taariikhda Shaqada & Waxbarashada',
+    ar: 'المسار المهني والتعليمي',
+  },
+  admin_timeline_subtitle: {
+    en: 'Manage university degrees, certifications, and work experience on the About page.',
+    so: 'Maamul shahaadooyinka jaamacadda iyo waayo-aragnimada shaqada ee bogga About.',
+    ar: 'إدارة الشهادات الجامعية والخبرات المهنية المعروضة في صفحة من أنا.',
+  },
+  admin_add_education: {
+    en: 'Add Education',
+    so: 'Ku Dar Waxbarasho',
+    ar: 'إضافة مؤهل تعليمي',
+  },
+  admin_add_experience: {
+    en: 'Add Experience',
+    so: 'Ku Dar Shaqo',
+    ar: 'إضافة خبرة عمل',
+  },
+  admin_testimonials_title: {
+    en: 'Client Reviews & Testimonials',
+    so: 'Aragtiyada Macaamiisha',
+    ar: 'آراء وتقييمات العملاء',
+  },
+  admin_testimonials_subtitle: {
+    en: 'Manage and approve client testimonials displayed on your portfolio.',
+    so: 'Maamul oo ansixi aragtiyada macaamiisha ee ka muuqanaya websaytka.',
+    ar: 'إدارة واعتماد تقييمات وآراء العملاء المعروضة على الموقع.',
+  },
+  admin_add_testimonial: {
+    en: 'Add New Review',
+    so: 'Ku Dar Aragti Cusub',
+    ar: 'إضافة تقييم جديد',
+  },
+  admin_settings_title: {
+    en: 'Database & System Settings',
+    so: 'Kaydka Xogta & Habaynta Nidaamka',
+    ar: 'إعدادات قاعدة البيانات والنظام',
+  },
+  admin_settings_subtitle: {
+    en: 'Configure cloud database synchronization, SQL schema exports, and data backups.',
+    so: 'Halkan ku habee kaydka xogta daruuriga ah, nuqul ka qaado SQL, ama qaado kayd buuxa.',
+    ar: 'إعداد مزامنة قاعدة البيانات السحابية، تصدير SQL، والنسخ الاحتياطي.',
+  },
+  admin_appearance_title: {
+    en: 'Design, Hero & Brand Identity',
+    so: 'Muuqaalka, Madaxa & Sumadda',
+    ar: 'التصميم والواجهة والهوية',
+  },
+  admin_appearance_desc: {
+    en: 'Manage hero banner, website title, branding logo, and primary colors.',
+    so: 'Halkan ka maamul sawirka madaxa, qoraallada, magaca websaytka, sumadda, iyo midabbada.',
+    ar: 'إدارة صورة الواجهة، النصوص، اسم الموقع، الشعار، والألوان الرئيسية.',
+  },
+  admin_saving_btn: {
+    en: 'Saving changes...',
+    so: 'Waa la badbaadinayaa...',
+    ar: 'جارٍ الحفظ...',
+  },
+  admin_saved_btn: {
+    en: 'Changes Saved!',
+    so: 'Waa la badbaadiyay!',
+    ar: 'تم الحفظ بنجاح!',
+  },
+  admin_save_changes_btn: {
+    en: 'Save Changes',
+    so: 'Badbaadi Isbeddelka',
+    ar: 'حفظ التغييرات',
+  },
+  admin_tab_hero: {
+    en: '1. Hero Section & Media',
+    so: '1. Qaybta Madaxa & Sawirka',
+    ar: '1. واجهة البداية والصور',
+  },
+  admin_tab_branding: {
+    en: '2. Branding & Site Logo',
+    so: '2. Sumadda & Astaanta',
+    ar: '2. الشعار وهوية الموقع',
+  },
+  admin_tab_theme: {
+    en: '3. Theme Colors & Styling',
+    so: '3. Midabbada & Qaab-dhismeedka',
+    ar: '3. ألوان المظهر والتنسيق',
   },
 };
 

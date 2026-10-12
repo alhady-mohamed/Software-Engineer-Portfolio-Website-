@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSiteData } from '../../src/context/SiteDataContext';
+import { useLanguage } from '../../src/context/LanguageContext';
 import {
   Settings,
   Database,
@@ -75,20 +76,29 @@ CREATE TABLE IF NOT EXISTS public.contact_messages (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 6. POLICIES (RLS)
+-- 6. POLICIES (Row Level Security)
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.timelines ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public Read Projects" ON public.projects;
+DROP POLICY IF EXISTS "Public Read Timelines" ON public.timelines;
+DROP POLICY IF EXISTS "Public Read Approved Testimonials" ON public.testimonials;
+DROP POLICY IF EXISTS "Public Insert Messages" ON public.contact_messages;
+DROP POLICY IF EXISTS "Full Access Projects" ON public.projects;
+DROP POLICY IF EXISTS "Full Access Timelines" ON public.timelines;
+DROP POLICY IF EXISTS "Full Access Testimonials" ON public.testimonials;
+DROP POLICY IF EXISTS "Full Access Messages" ON public.contact_messages;
+
 CREATE POLICY "Public Read Projects" ON public.projects FOR SELECT USING (true);
 CREATE POLICY "Public Read Timelines" ON public.timelines FOR SELECT USING (true);
 CREATE POLICY "Public Read Approved Testimonials" ON public.testimonials FOR SELECT USING (true);
 CREATE POLICY "Public Insert Messages" ON public.contact_messages FOR INSERT WITH CHECK (true);
-CREATE POLICY "Auth Full Access Projects" ON public.projects FOR ALL USING (true);
-CREATE POLICY "Auth Full Access Timelines" ON public.timelines FOR ALL USING (true);
-CREATE POLICY "Auth Full Access Testimonials" ON public.testimonials FOR ALL USING (true);
-CREATE POLICY "Auth Full Access Messages" ON public.contact_messages FOR ALL USING (true);`;
+CREATE POLICY "Full Access Projects" ON public.projects FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Full Access Timelines" ON public.timelines FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Full Access Testimonials" ON public.testimonials FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Full Access Messages" ON public.contact_messages FOR ALL USING (true) WITH CHECK (true);`;
 
 export const AdminSettings: React.FC = () => {
   const {
@@ -103,6 +113,7 @@ export const AdminSettings: React.FC = () => {
     testimonials,
     messages,
   } = useSiteData();
+  const { t } = useLanguage();
 
   const [url, setUrl] = useState(settings.supabaseUrl || '');
   const [anonKey, setAnonKey] = useState(settings.supabaseAnonKey || '');
@@ -117,7 +128,7 @@ export const AdminSettings: React.FC = () => {
   const handleSaveCredentials = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsTesting(true);
-    setTestingStatus('Hubinta xiriirka Supabase...');
+    setTestingStatus('Checking connection...');
 
     const res = await updateSettings({
       supabaseUrl: url.trim(),
@@ -134,7 +145,7 @@ export const AdminSettings: React.FC = () => {
 
   const handleTestNow = async () => {
     setIsTesting(true);
-    setTestingStatus('Tijaabinaya xiriirka...');
+    setTestingStatus('Testing connection...');
     const res = await checkSupabaseStatus();
     setIsTesting(false);
     setTestingStatus(res.message);
@@ -165,9 +176,8 @@ export const AdminSettings: React.FC = () => {
   };
 
   const handleResetDefaults = () => {
-    if (window.confirm('Ma hubtaa inaad dib ugu celiso xogta dhammaan qaybihii hore (Factory Defaults)?')) {
+    if (window.confirm('Reset all portfolio data to defaults?')) {
       resetToDefaults();
-      alert('Xogtii asalka ahayd waa la soo celiyay!');
     }
   };
 
@@ -177,10 +187,10 @@ export const AdminSettings: React.FC = () => {
       <div className="pb-6 border-b border-slate-800">
         <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
           <Settings className="text-primary" size={26} />
-          <span>Habeynta Supabase & Nidaamka (Settings)</span>
+          <span>{t('admin_settings_title')}</span>
         </h1>
         <p className="text-slate-400 text-sm mt-1">
-          Halkan waxaad ku xiri kartaa Supabase Cloud Database, ku koobiyeysan kartaa SQL Schema-ka, ama ku qaadan kartaa backup.
+          {t('admin_settings_subtitle')}
         </p>
       </div>
 

@@ -26,6 +26,8 @@ import { AdminMessages } from './components/admin/AdminMessages';
 import { AdminSettings } from './components/admin/AdminSettings';
 import { AdminAppearance } from './components/admin/AdminAppearance';
 
+import { recordPageView } from './src/lib/analytics';
+
 /**
  * AnimatedRoutes Component
  * Handles routing for both the public portfolio screens and the secure Admin CMS portal.
@@ -33,9 +35,16 @@ import { AdminAppearance } from './components/admin/AdminAppearance';
 const AnimatedRoutes: React.FC = () => {
   const location = useLocation();
 
+  useEffect(() => {
+    if (!location.pathname.startsWith('/admin') && !location.pathname.startsWith('/wp-')) {
+      recordPageView();
+    }
+  }, [location.pathname]);
+
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname.startsWith('/admin') ? 'admin-zone' : location.pathname}>
+      <div key={location.pathname.startsWith('/admin') ? 'admin-zone' : location.pathname}>
+        <Routes location={location}>
         {/* Public Portfolio Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -68,6 +77,7 @@ const AnimatedRoutes: React.FC = () => {
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
+      </div>
     </AnimatePresence>
   );
 };

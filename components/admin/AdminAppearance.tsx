@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSiteData } from '../../src/context/SiteDataContext';
+import { useLanguage } from '../../src/context/LanguageContext';
 import { HeroSettings, BrandingSettings, ThemeSettings } from '../../types';
 import {
   Palette,
@@ -27,8 +28,6 @@ import {
 import { motion } from 'framer-motion';
 import { ImageUploader } from './ImageUploader';
 
-
-
 // Curated primary accent colors
 const ACCENT_COLOR_PRESETS = [
   { name: 'Cyber Gold (Original)', hex: '#facc15' },
@@ -53,6 +52,7 @@ const SECONDARY_COLOR_PRESETS = [
 
 export const AdminAppearance: React.FC = () => {
   const { settings, updateSettings } = useSiteData();
+  const { t } = useLanguage();
 
   // Local editable copies of Hero, Branding, and Theme
   const [activeTab, setActiveTab] = useState<'hero' | 'branding' | 'theme'>('hero');
@@ -120,14 +120,14 @@ export const AdminAppearance: React.FC = () => {
               <Palette size={18} />
             </span>
             <span className="text-xs font-mono uppercase tracking-wider text-primary font-bold">
-              CMS Customizer
+              {t('admin_control_center')}
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-            Naqshadda, Hero & Brand Identity
+            {t('admin_appearance_title')}
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Halkan ka maamul sawirka hero-ga, qoraallada, magaca websaytka, logada, iyo midabada asalka.
+            {t('admin_appearance_desc')}
           </p>
         </div>
 
@@ -139,7 +139,7 @@ export const AdminAppearance: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700 text-xs font-medium transition-all"
           >
             <Eye size={15} />
-            <span>Fiiri Websaytka (Live)</span>
+            <span>{t('admin_live_site')}</span>
           </a>
 
           <button
@@ -150,17 +150,17 @@ export const AdminAppearance: React.FC = () => {
             {saveStatus.type === 'saving' ? (
               <>
                 <span className="animate-spin text-sm">⏳</span>
-                <span>Waa la keydinayaa...</span>
+                <span>{t('admin_saving_btn')}</span>
               </>
             ) : saveStatus.type === 'saved' ? (
               <>
                 <Check size={16} />
-                <span>Waa la keydiyay!</span>
+                <span>{t('admin_saved_btn')}</span>
               </>
             ) : (
               <>
                 <Save size={16} />
-                <span>Badbaadi Isbeddelka</span>
+                <span>{t('admin_save_changes_btn')}</span>
               </>
             )}
           </button>
@@ -200,7 +200,7 @@ export const AdminAppearance: React.FC = () => {
           }`}
         >
           <ImageIcon size={18} className={activeTab === 'hero' ? 'text-primary' : 'text-slate-500'} />
-          <span>1. Hero Section & Sawirka</span>
+          <span>{t('admin_tab_hero')}</span>
         </button>
 
         <button
@@ -212,7 +212,7 @@ export const AdminAppearance: React.FC = () => {
           }`}
         >
           <Type size={18} className={activeTab === 'branding' ? 'text-primary' : 'text-slate-500'} />
-          <span>2. Magaca & Logada (Branding)</span>
+          <span>{t('admin_tab_branding')}</span>
         </button>
 
         <button
@@ -223,8 +223,8 @@ export const AdminAppearance: React.FC = () => {
               : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
           }`}
         >
-          <Palette size={18} className={activeTab === 'theme' ? 'text-primary' : 'text-slate-500'} />
-          <span>3. Midabada & Background-ka (Colors)</span>
+          <Sliders size={18} className={activeTab === 'theme' ? 'text-primary' : 'text-slate-500'} />
+          <span>{t('admin_tab_theme')}</span>
         </button>
       </div>
 

@@ -331,7 +331,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('projects').insert({
+        const { data: dbRes } = await client.from('projects').insert({
           title: newProject.title,
           category: newProject.category,
           summary: newProject.summary || '',
@@ -341,7 +341,11 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           live_url: newProject.link,
           github_url: newProject.githubUrl,
           featured: newProject.featured || false,
-        });
+        }).select().single();
+        if (dbRes && dbRes.id) {
+          newProject.id = String(dbRes.id);
+          setProjects(prev => prev.map(p => p.id === newId ? { ...p, id: String(dbRes.id) } : p));
+        }
       } catch (e) {
         console.warn('Supabase project insert failed:', e);
       }
@@ -403,14 +407,18 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('timelines').insert({
+        const { data: dbRes } = await client.from('timelines').insert({
           type: newItem.type,
           title: newItem.title,
           institution: newItem.institution,
           period: newItem.period,
           description: newItem.description,
           skills: newItem.skills || [],
-        });
+        }).select().single();
+        if (dbRes && dbRes.id) {
+          newItem.id = String(dbRes.id);
+          setTimelines(prev => prev.map(t => t.id === newId ? { ...t, id: String(dbRes.id) } : t));
+        }
       } catch (e) {
         console.warn('Supabase timeline insert failed:', e);
       }
@@ -461,7 +469,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('testimonials').insert({
+        const { data: dbRes } = await client.from('testimonials').insert({
           client_name: newItem.clientName,
           client_role: newItem.clientRole,
           company: newItem.company,
@@ -469,7 +477,11 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           rating: newItem.rating,
           content: newItem.content,
           is_approved: newItem.isApproved,
-        });
+        }).select().single();
+        if (dbRes && dbRes.id) {
+          newItem.id = String(dbRes.id);
+          setTestimonials(prev => prev.map(tm => tm.id === newId ? { ...tm, id: String(dbRes.id) } : tm));
+        }
       } catch (e) {
         console.warn('Supabase testimonial insert failed:', e);
       }
@@ -508,8 +520,9 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Contact Messages Actions
   const addMessage = async (msgData: { name: string; email: string; subject: string; message: string }): Promise<ContactMessage> => {
+    const newId = 'msg-' + Date.now();
     const newMsg: ContactMessage = {
-      id: 'msg-' + Date.now(),
+      id: newId,
       name: msgData.name,
       email: msgData.email,
       subject: msgData.subject,
@@ -524,13 +537,17 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('contact_messages').insert({
+        const { data: dbRes } = await client.from('contact_messages').insert({
           name: newMsg.name,
           email: newMsg.email,
           subject: newMsg.subject,
           message: newMsg.message,
           is_read: false,
-        });
+        }).select().single();
+        if (dbRes && dbRes.id) {
+          newMsg.id = String(dbRes.id);
+          setMessages(prev => prev.map(m => m.id === newId ? { ...m, id: String(dbRes.id) } : m));
+        }
       } catch (e) {
         console.warn('Supabase message insert failed:', e);
       }
