@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { Project, TimelineItem, TestimonialItem, ContactMessage, SiteSettings, ThemeSettings } from '../../types';
 import { INITIAL_PROJECTS, INITIAL_TIMELINES, INITIAL_TESTIMONIALS, INITIAL_MESSAGES, INITIAL_SETTINGS } from '../data/initialData';
 import { getSupabaseClient, getSupabaseUrl, getSupabaseAnonKey, saveSupabaseCredentials, testSupabaseConnection } from '../lib/supabase';
+import { db } from '../lib/firebase';
+import { collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from 'firebase/firestore';
 
 // Helper to convert hex to RGB components for Tailwind alpha blending
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
@@ -79,6 +81,7 @@ interface SiteDataContextType {
   settings: SiteSettings;
   isSupabaseConfigured: boolean;
   isSupabaseConnected: boolean;
+  isFirebaseConnected: boolean;
   isLoading: boolean;
   
   // Project Actions
@@ -104,6 +107,9 @@ interface SiteDataContextType {
   // Settings & DB Actions
   updateSettings: (newSettings: Partial<SiteSettings>) => Promise<{ success: boolean; message: string }>;
   checkSupabaseStatus: () => Promise<{ success: boolean; message: string }>;
+  syncAllToSupabase: () => Promise<{ success: boolean; message: string; counts?: { projects: number; timelines: number; testimonials: number } }>;
+  syncAllToFirebase: () => Promise<{ success: boolean; message: string; counts?: { projects: number; timelines: number; testimonials: number } }>;
+  loadFromSupabase: () => Promise<void>;
   resetToDefaults: () => void;
 }
 
@@ -163,6 +169,8 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return {
           ...INITIAL_SETTINGS,
           ...parsed,
+          supabaseUrl: parsed.supabaseUrl || INITIAL_SETTINGS.supabaseUrl,
+          supabaseAnonKey: parsed.supabaseAnonKey || INITIAL_SETTINGS.supabaseAnonKey,
           hero: { ...INITIAL_SETTINGS.hero, ...(parsed.hero || {}) },
           branding: { ...INITIAL_SETTINGS.branding, ...(parsed.branding || {}) },
           theme: { ...INITIAL_SETTINGS.theme, ...(parsed.theme || {}) },
@@ -176,6 +184,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean>(false);
+  const [isFirebaseConnected, setIsFirebaseConnected] = useState<boolean>(true);
 
   const isSupabaseConfigured = Boolean(settings.supabaseUrl && settings.supabaseAnonKey);
 
@@ -185,6 +194,116 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       applyThemeVariables(settings.theme);
     }
   }, [settings.theme]);
+
+  // Real-time synchronization with Firebase Firestore
+  useEffect(() => {
+    // 1. Projects
+    const unsubProjects = onSnapshot(collection(db, 'projects'), (snapshot) => {
+      if (!snapshot.empty) {
+        const remoteProjects: Project[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          remoteProjects.push({
+            id: docSnap.id,
+            title: data.title,
+            category: data.category,
+            summary: data.summary || data.description?.slice(0, 110),
+            description: data.description,
+            imageUrl: data.imageUrl,
+            galleryUrls: data.galleryUrls || [],
+            technologies: data.technologies || [],
+            link: data.link || '#',
+            githubUrl: data.githubUrl || '',
+            featured: Boolean(data.featured),
+            metrics: data.metrics,
+            createdAt: data.createdAt || new Date().toISOString(),
+          });
+        });
+        setProjects(remoteProjects);
+        setIsFirebaseConnected(true);
+      }
+    }, (err) => {
+      console.warn('Firestore projects listener:', err);
+    });
+
+    // 2. Timelines
+    const unsubTimelines = onSnapshot(collection(db, 'timelines'), (snapshot) => {
+      if (!snapshot.empty) {
+        const remoteTimelines: TimelineItem[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          remoteTimelines.push({
+            id: docSnap.id,
+            type: data.type,
+            title: data.title,
+            institution: data.institution,
+            period: data.period,
+            description: data.description,
+            skills: data.skills || [],
+            displayOrder: data.displayOrder ?? 0,
+            createdAt: data.createdAt || new Date().toISOString(),
+          });
+        });
+        setTimelines(remoteTimelines);
+      }
+    }, (err) => {
+      console.warn('Firestore timelines listener:', err);
+    });
+
+    // 3. Testimonials
+    const unsubTestimonials = onSnapshot(collection(db, 'testimonials'), (snapshot) => {
+      if (!snapshot.empty) {
+        const remoteTestimonials: TestimonialItem[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          remoteTestimonials.push({
+            id: docSnap.id,
+            clientName: data.clientName,
+            clientRole: data.clientRole,
+            company: data.company,
+            avatarUrl: data.avatarUrl,
+            rating: data.rating ?? 5,
+            content: data.content,
+            isApproved: data.isApproved ?? true,
+            createdAt: data.createdAt || new Date().toISOString(),
+          });
+        });
+        setTestimonials(remoteTestimonials);
+      }
+    }, (err) => {
+      console.warn('Firestore testimonials listener:', err);
+    });
+
+    // 4. Contact messages
+    const unsubMessages = onSnapshot(collection(db, 'contact_messages'), (snapshot) => {
+      if (!snapshot.empty) {
+        const remoteMessages: ContactMessage[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          remoteMessages.push({
+            id: docSnap.id,
+            name: data.name,
+            email: data.email,
+            subject: data.subject || '',
+            message: data.message,
+            isRead: Boolean(data.isRead),
+            replied: Boolean(data.replied),
+            createdAt: data.createdAt || new Date().toISOString(),
+          });
+        });
+        setMessages(remoteMessages);
+      }
+    }, (err) => {
+      console.warn('Firestore messages listener:', err);
+    });
+
+    return () => {
+      unsubProjects();
+      unsubTimelines();
+      unsubTestimonials();
+      unsubMessages();
+    };
+  }, []);
 
   // Sync state changes to localStorage
   useEffect(() => {
@@ -315,6 +434,25 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     loadFromSupabase();
+
+    const client = getSupabaseClient();
+    if (!client) return;
+
+    // Realtime listener for live sync across all tables
+    const channel = client
+      .channel('public:realtime-sync')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public' },
+        () => {
+          loadFromSupabase();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
   }, [loadFromSupabase]);
 
   // Project Actions
@@ -327,6 +465,25 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     setProjects(prev => [newProject, ...prev]);
+
+    // Save to Firestore
+    try {
+      await setDoc(doc(db, 'projects', newId), {
+        title: newProject.title,
+        category: newProject.category,
+        summary: newProject.summary || '',
+        description: newProject.description,
+        imageUrl: newProject.imageUrl,
+        galleryUrls: newProject.galleryUrls || [],
+        technologies: newProject.technologies || [],
+        link: newProject.link || '#',
+        githubUrl: newProject.githubUrl || '',
+        featured: newProject.featured || false,
+        createdAt: newProject.createdAt,
+      });
+    } catch (e) {
+      console.warn('Firestore project insert:', e);
+    }
 
     const client = getSupabaseClient();
     if (client) {
@@ -344,7 +501,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }).select().single();
         if (dbRes && dbRes.id) {
           newProject.id = String(dbRes.id);
-          setProjects(prev => prev.map(p => p.id === newId ? { ...p, id: String(dbRes.id) } : p));
         }
       } catch (e) {
         console.warn('Supabase project insert failed:', e);
@@ -358,6 +514,13 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setProjects(prev =>
       prev.map(p => (String(p.id) === String(id) ? { ...p, ...updates } : p))
     );
+
+    // Update in Firestore
+    try {
+      await setDoc(doc(db, 'projects', String(id)), updates, { merge: true });
+    } catch (e) {
+      console.warn('Firestore project update:', e);
+    }
 
     const client = getSupabaseClient();
     if (client) {
@@ -383,6 +546,13 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const deleteProject = async (id: string | number) => {
     setProjects(prev => prev.filter(p => String(p.id) !== String(id)));
 
+    // Delete in Firestore
+    try {
+      await deleteDoc(doc(db, 'projects', String(id)));
+    } catch (e) {
+      console.warn('Firestore project delete:', e);
+    }
+
     const client = getSupabaseClient();
     if (client) {
       try {
@@ -404,6 +574,22 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setTimelines(prev => [newItem, ...prev]);
 
+    // Save to Firestore
+    try {
+      await setDoc(doc(db, 'timelines', newId), {
+        type: newItem.type,
+        title: newItem.title,
+        institution: newItem.institution,
+        period: newItem.period,
+        description: newItem.description,
+        skills: newItem.skills || [],
+        displayOrder: newItem.displayOrder || 0,
+        createdAt: newItem.createdAt,
+      });
+    } catch (e) {
+      console.warn('Firestore timeline insert:', e);
+    }
+
     const client = getSupabaseClient();
     if (client) {
       try {
@@ -417,7 +603,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }).select().single();
         if (dbRes && dbRes.id) {
           newItem.id = String(dbRes.id);
-          setTimelines(prev => prev.map(t => t.id === newId ? { ...t, id: String(dbRes.id) } : t));
         }
       } catch (e) {
         console.warn('Supabase timeline insert failed:', e);
@@ -432,6 +617,13 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       prev.map(t => (t.id === id ? { ...t, ...updates } : t))
     );
 
+    // Update in Firestore
+    try {
+      await setDoc(doc(db, 'timelines', id), updates, { merge: true });
+    } catch (e) {
+      console.warn('Firestore timeline update:', e);
+    }
+
     const client = getSupabaseClient();
     if (client) {
       try {
@@ -444,6 +636,13 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteTimeline = async (id: string) => {
     setTimelines(prev => prev.filter(t => t.id !== id));
+
+    // Delete in Firestore
+    try {
+      await deleteDoc(doc(db, 'timelines', id));
+    } catch (e) {
+      console.warn('Firestore timeline delete:', e);
+    }
 
     const client = getSupabaseClient();
     if (client) {
@@ -466,6 +665,22 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setTestimonials(prev => [newItem, ...prev]);
 
+    // Save to Firestore
+    try {
+      await setDoc(doc(db, 'testimonials', newId), {
+        clientName: newItem.clientName,
+        clientRole: newItem.clientRole,
+        company: newItem.company || '',
+        avatarUrl: newItem.avatarUrl,
+        rating: newItem.rating,
+        content: newItem.content,
+        isApproved: newItem.isApproved,
+        createdAt: newItem.createdAt,
+      });
+    } catch (e) {
+      console.warn('Firestore testimonial insert:', e);
+    }
+
     const client = getSupabaseClient();
     if (client) {
       try {
@@ -480,7 +695,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }).select().single();
         if (dbRes && dbRes.id) {
           newItem.id = String(dbRes.id);
-          setTestimonials(prev => prev.map(tm => tm.id === newId ? { ...tm, id: String(dbRes.id) } : tm));
         }
       } catch (e) {
         console.warn('Supabase testimonial insert failed:', e);
@@ -495,6 +709,13 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       prev.map(t => (t.id === id ? { ...t, ...updates } : t))
     );
 
+    // Update in Firestore
+    try {
+      await setDoc(doc(db, 'testimonials', id), updates, { merge: true });
+    } catch (e) {
+      console.warn('Firestore testimonial update:', e);
+    }
+
     const client = getSupabaseClient();
     if (client) {
       try {
@@ -507,6 +728,13 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteTestimonial = async (id: string) => {
     setTestimonials(prev => prev.filter(t => t.id !== id));
+
+    // Delete in Firestore
+    try {
+      await deleteDoc(doc(db, 'testimonials', id));
+    } catch (e) {
+      console.warn('Firestore testimonial delete:', e);
+    }
 
     const client = getSupabaseClient();
     if (client) {
@@ -534,6 +762,21 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setMessages(prev => [newMsg, ...prev]);
 
+    // Save to Firestore
+    try {
+      await setDoc(doc(db, 'contact_messages', newId), {
+        name: newMsg.name,
+        email: newMsg.email,
+        subject: newMsg.subject,
+        message: newMsg.message,
+        isRead: false,
+        replied: false,
+        createdAt: newMsg.createdAt,
+      });
+    } catch (e) {
+      console.warn('Firestore contact message insert:', e);
+    }
+
     const client = getSupabaseClient();
     if (client) {
       try {
@@ -546,7 +789,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }).select().single();
         if (dbRes && dbRes.id) {
           newMsg.id = String(dbRes.id);
-          setMessages(prev => prev.map(m => m.id === newId ? { ...m, id: String(dbRes.id) } : m));
         }
       } catch (e) {
         console.warn('Supabase message insert failed:', e);
@@ -561,6 +803,13 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       prev.map(m => (m.id === id ? { ...m, isRead } : m))
     );
 
+    // Update in Firestore
+    try {
+      await setDoc(doc(db, 'contact_messages', id), { isRead }, { merge: true });
+    } catch (e) {
+      console.warn('Firestore message markRead:', e);
+    }
+
     const client = getSupabaseClient();
     if (client) {
       try {
@@ -573,6 +822,13 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteMessage = async (id: string) => {
     setMessages(prev => prev.filter(m => m.id !== id));
+
+    // Delete in Firestore
+    try {
+      await deleteDoc(doc(db, 'contact_messages', id));
+    } catch (e) {
+      console.warn('Firestore message delete:', e);
+    }
 
     const client = getSupabaseClient();
     if (client) {
@@ -588,6 +844,21 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const updateSettings = async (newSettings: Partial<SiteSettings>): Promise<{ success: boolean; message: string }> => {
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
+
+    // Update site settings in Firestore
+    try {
+      await setDoc(doc(db, 'site_settings', 'current'), {
+        siteTitle: updated.siteTitle,
+        adminEmail: updated.adminEmail,
+        whatsappNumber: updated.whatsappNumber,
+        hero: updated.hero,
+        branding: updated.branding,
+        theme: updated.theme,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+    } catch (e) {
+      console.warn('Firestore settings update:', e);
+    }
 
     if (newSettings.supabaseUrl !== undefined || newSettings.supabaseAnonKey !== undefined) {
       saveSupabaseCredentials(updated.supabaseUrl, updated.supabaseAnonKey);
@@ -606,6 +877,165 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const res = await testSupabaseConnection();
     setIsSupabaseConnected(res.success);
     return res;
+  };
+
+  const syncAllToSupabase = async (): Promise<{ success: boolean; message: string; counts?: { projects: number; timelines: number; testimonials: number } }> => {
+    const client = getSupabaseClient();
+    if (!client) {
+      return {
+        success: false,
+        message: 'Supabase ma xirna. Fadlan hubi URL-ka iyo Anon Key-ga.',
+      };
+    }
+
+    try {
+      setIsLoading(true);
+
+      const projectsToPush = (projects && projects.length > 0 ? projects : INITIAL_PROJECTS).map((p, idx) => ({
+        title: p.title,
+        category: p.category,
+        summary: p.summary || p.description.slice(0, 110),
+        description: p.description,
+        image_url: p.imageUrl,
+        gallery_urls: p.galleryUrls || [],
+        tech_stack: p.technologies || [],
+        live_url: p.link || '#',
+        github_url: p.githubUrl || '',
+        featured: p.featured || false,
+        metrics: p.metrics || {},
+        display_order: idx,
+      }));
+
+      const timelinesToPush = (timelines && timelines.length > 0 ? timelines : INITIAL_TIMELINES).map((t, idx) => ({
+        type: t.type,
+        title: t.title,
+        institution: t.institution,
+        period: t.period,
+        description: t.description,
+        skills: t.skills || [],
+        display_order: idx,
+      }));
+
+      const testimonialsToPush = (testimonials && testimonials.length > 0 ? testimonials : INITIAL_TESTIMONIALS).map((tm) => ({
+        client_name: tm.clientName,
+        client_role: tm.clientRole,
+        company: tm.company || '',
+        avatar_url: tm.avatarUrl,
+        rating: tm.rating || 5,
+        content: tm.content,
+        is_approved: tm.isApproved ?? true,
+      }));
+
+      const { error: pErr } = await client.from('projects').insert(projectsToPush);
+      if (pErr) throw new Error(`Projects: ${pErr.message}`);
+
+      const { error: tErr } = await client.from('timelines').insert(timelinesToPush);
+      if (tErr) throw new Error(`Timelines: ${tErr.message}`);
+
+      const { error: tmErr } = await client.from('testimonials').insert(testimonialsToPush);
+      if (tmErr) throw new Error(`Testimonials: ${tmErr.message}`);
+
+      await loadFromSupabase();
+
+      return {
+        success: true,
+        message: `Dhammaan xogtii si toos ah ayaa loogu shubay Supabase! (${projectsToPush.length} Mashaariic, ${timelinesToPush.length} Timeline, ${testimonialsToPush.length} Testimonials)`,
+        counts: {
+          projects: projectsToPush.length,
+          timelines: timelinesToPush.length,
+          testimonials: testimonialsToPush.length,
+        },
+      };
+    } catch (err: any) {
+      console.error('Failed to sync all to Supabase:', err);
+      return {
+        success: false,
+        message: `Cilad xilliga shubista: ${err.message || 'Xogta lama shubi karin'}`,
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const syncAllToFirebase = async (): Promise<{ success: boolean; message: string; counts?: { projects: number; timelines: number; testimonials: number } }> => {
+    try {
+      setIsLoading(true);
+      const batch = writeBatch(db);
+
+      const projectsToPush = (projects && projects.length > 0 ? projects : INITIAL_PROJECTS);
+      projectsToPush.forEach((p, idx) => {
+        const id = p.id ? String(p.id) : `proj-${idx + 1}`;
+        const ref = doc(db, 'projects', id);
+        batch.set(ref, {
+          title: p.title,
+          category: p.category,
+          summary: p.summary || p.description.slice(0, 110),
+          description: p.description,
+          imageUrl: p.imageUrl,
+          galleryUrls: p.galleryUrls || [],
+          technologies: p.technologies || [],
+          link: p.link || '#',
+          githubUrl: p.githubUrl || '',
+          featured: p.featured || false,
+          metrics: p.metrics || {},
+          displayOrder: idx,
+          createdAt: p.createdAt || new Date().toISOString(),
+        });
+      });
+
+      const timelinesToPush = (timelines && timelines.length > 0 ? timelines : INITIAL_TIMELINES);
+      timelinesToPush.forEach((t, idx) => {
+        const id = t.id ? String(t.id) : `time-${idx + 1}`;
+        const ref = doc(db, 'timelines', id);
+        batch.set(ref, {
+          type: t.type,
+          title: t.title,
+          institution: t.institution,
+          period: t.period,
+          description: t.description,
+          skills: t.skills || [],
+          displayOrder: idx,
+          createdAt: t.createdAt || new Date().toISOString(),
+        });
+      });
+
+      const testimonialsToPush = (testimonials && testimonials.length > 0 ? testimonials : INITIAL_TESTIMONIALS);
+      testimonialsToPush.forEach((tm, idx) => {
+        const id = tm.id ? String(tm.id) : `test-${idx + 1}`;
+        const ref = doc(db, 'testimonials', id);
+        batch.set(ref, {
+          clientName: tm.clientName,
+          clientRole: tm.clientRole,
+          company: tm.company || '',
+          avatarUrl: tm.avatarUrl,
+          rating: tm.rating || 5,
+          content: tm.content,
+          isApproved: tm.isApproved ?? true,
+          createdAt: tm.createdAt || new Date().toISOString(),
+        });
+      });
+
+      await batch.commit();
+      setIsFirebaseConnected(true);
+
+      return {
+        success: true,
+        message: `Dhammaan xogtii si toos ah ayaa loogu shubay Firebase Firestore! (${projectsToPush.length} Mashaariic, ${timelinesToPush.length} Timeline, ${testimonialsToPush.length} Testimonials)`,
+        counts: {
+          projects: projectsToPush.length,
+          timelines: timelinesToPush.length,
+          testimonials: testimonialsToPush.length,
+        },
+      };
+    } catch (err: any) {
+      console.error('Failed to sync all to Firebase:', err);
+      return {
+        success: false,
+        message: `Cilad Firebase: ${err.message || 'Xogta lama shubi karin'}`,
+      };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resetToDefaults = () => {
@@ -629,6 +1059,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         settings,
         isSupabaseConfigured,
         isSupabaseConnected,
+        isFirebaseConnected,
         isLoading,
         addProject,
         updateProject,
@@ -644,6 +1075,9 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         deleteMessage,
         updateSettings,
         checkSupabaseStatus,
+        syncAllToSupabase,
+        syncAllToFirebase,
+        loadFromSupabase,
         resetToDefaults,
       }}
     >

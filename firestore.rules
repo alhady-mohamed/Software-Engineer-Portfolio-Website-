@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    // Projects: Public read, admin write
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Timelines: Public read, admin write
+    match /timelines/{timelineId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Testimonials: Public read, admin write
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Contact messages: Public insert (visitors send message), admin manage
+    match /contact_messages/{messageId} {
+      allow create: if request.resource.data.name is string 
+                    && request.resource.data.email is string 
+                    && request.resource.data.message is string;
+      allow read, update, delete: if true;
+    }
+
+    // Site settings: Public read, admin write
+    match /site_settings/{settingsId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

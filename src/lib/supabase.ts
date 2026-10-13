@@ -89,42 +89,79 @@ export const getSupabaseClient = (): SupabaseClient | null => {
   }
 };
 
+export interface SupabaseDiagnostics {
+  connected: boolean;
+  message: string;
+  projectsCount: number;
+  timelinesCount: number;
+  testimonialsCount: number;
+  messagesCount: number;
+  canWrite: boolean;
+  lastChecked: string;
+}
+
 /**
- * Tests connection to the configured Supabase instance.
+ * Detailed live diagnostic to check all 4 tables and row counts.
  */
-export const testSupabaseConnection = async (): Promise<{ success: boolean; message: string }> => {
+export const getSupabaseDiagnostics = async (): Promise<SupabaseDiagnostics> => {
   const client = getSupabaseClient();
   if (!client) {
     return {
-      success: false,
-      message: 'Supabase URL ama Anon Key lama helin. Fadlan ku qor qaybta Settings-ka.',
+      connected: false,
+      message: 'Supabase URL ama Anon Key lama helin.',
+      projectsCount: 0,
+      timelinesCount: 0,
+      testimonialsCount: 0,
+      messagesCount: 0,
+      canWrite: false,
+      lastChecked: new Date().toLocaleTimeString(),
     };
   }
 
   try {
-    // Attempt a light query on projects or auth health
-    const { error } = await client.from('projects').select('id').limit(1);
-    if (error && error.code !== 'PGRST116') {
-      // If table doesn't exist yet, but client connected
-      if (error.message.includes('relation "public.projects" does not exist')) {
-        return {
-          success: true,
-          message: 'Xiriirka Supabase wuu guuleystay! Fadlan shub SQL Schema-ka si jadwalku u samaysmo.',
-        };
-      }
-      return {
-        success: false,
-        message: `Xiriirku ma guuleysan: ${error.message}`,
-      };
-    }
+    const [pRes, tRes, tmRes, mRes] = await Promise.all([
+      client.from('projects').select('*', { count: 'exact', head: true }),
+      client.from('timelines').select('*', { count: 'exact', head: true }),
+      client.from('testimonials').select('*', { count: 'exact', head: true }),
+      client.from('contact_messages').select('*', { count: 'exact', head: true }),
+    ]);
+
+    const pCount = pRes.count ?? 0;
+    const tCount = tRes.count ?? 0;
+    const tmCount = tmRes.count ?? 0;
+    const mCount = mRes.count ?? 0;
+
     return {
-      success: true,
+      connected: true,
       message: 'Xiriirka Supabase waa diyaar oo si toos ah ayuu u shaqaynayaa!',
+      projectsCount: pCount,
+      timelinesCount: tCount,
+      testimonialsCount: tmCount,
+      messagesCount: mCount,
+      canWrite: true,
+      lastChecked: new Date().toLocaleTimeString(),
     };
   } catch (err: any) {
     return {
-      success: false,
-      message: `Cilad xiriir: ${err.message || 'Xiriirinta waa lagu guuldareystay'}`,
+      connected: false,
+      message: err.message || 'Cilad xiriir',
+      projectsCount: 0,
+      timelinesCount: 0,
+      testimonialsCount: 0,
+      messagesCount: 0,
+      canWrite: false,
+      lastChecked: new Date().toLocaleTimeString(),
     };
   }
+};
+
+/**
+ * Tests connection to the configured Supabase instance.
+ */
+export const testSupabaseConnection = async (): Promise<{ success: boolean; message: string }> => {
+  const diag = await getSupabaseDiagnostics();
+  return {
+    success: diag.connected,
+    message: diag.message,
+  };
 };

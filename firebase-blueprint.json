@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "Showcase portfolio project",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "summary": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "galleryUrls": { "type": "array" },
+        "technologies": { "type": "array" },
+        "link": { "type": "string" },
+        "githubUrl": { "type": "string" },
+        "featured": { "type": "boolean" },
+        "displayOrder": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "category", "description", "imageUrl"]
+    },
+    "Timeline": {
+      "title": "Timeline",
+      "description": "Education and career experience milestones",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["education", "experience"] },
+        "title": { "type": "string" },
+        "institution": { "type": "string" },
+        "period": { "type": "string" },
+        "description": { "type": "string" },
+        "skills": { "type": "array" },
+        "displayOrder": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["type", "title", "institution", "period", "description"]
+    },
+    "Testimonial": {
+      "title": "Testimonial",
+      "description": "Client review and testimonial",
+      "type": "object",
+      "properties": {
+        "clientName": { "type": "string" },
+        "clientRole": { "type": "string" },
+        "company": { "type": "string" },
+        "avatarUrl": { "type": "string" },
+        "rating": { "type": "number" },
+        "content": { "type": "string" },
+        "isApproved": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["clientName", "clientRole", "content"]
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "description": "Inquiry message received via portfolio contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "replied": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "email", "message"]
+    },
+    "SiteSettings": {
+      "title": "SiteSettings",
+      "description": "Global portfolio configuration, branding, hero and theme",
+      "type": "object",
+      "properties": {
+        "siteTitle": { "type": "string" },
+        "adminEmail": { "type": "string" },
+        "whatsappNumber": { "type": "string" },
+        "hero": { "type": "object" },
+        "branding": { "type": "object" },
+        "theme": { "type": "object" },
+        "updatedAt": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Portfolio showcase projects collection"
+    },
+    "/timelines/{timelineId}": {
+      "schema": { "$ref": "#/entities/Timeline" },
+      "description": "Education and career experience milestones"
+    },
+    "/testimonials/{testimonialId}": {
+      "schema": { "$ref": "#/entities/Testimonial" },
+      "description": "Client reviews and endorsements"
+    },
+    "/contact_messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ContactMessage" },
+      "description": "Client inquiries and contact form submissions"
+    },
+    "/site_settings/{settingsId}": {
+      "schema": { "$ref": "#/entities/SiteSettings" },
+      "description": "Configurable portfolio settings and branding"
+    }
+  }
+}
