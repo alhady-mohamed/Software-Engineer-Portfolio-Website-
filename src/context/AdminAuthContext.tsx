@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getSupabaseClient } from '../lib/supabase';
 
 interface AdminUser {
   email: string;
@@ -11,7 +10,7 @@ interface AdminAuthContextType {
   user: AdminUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  loginWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithPassword: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   loginWithDemo: (email?: string) => void;
   logout: () => Promise<void>;
 }
@@ -29,85 +28,27 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return null;
     }
   });
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Supabase auth state listener
-  useEffect(() => {
-    const client = getSupabaseClient();
-    if (!client) {
-      setIsLoading(false);
-      return;
+  const loginWithPassword = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    // Basic administrative verification
+    if (!email || !password) {
+      return { success: false, error: 'Fadlan geli email-ka iyo furaha sirta ah.' };
     }
 
-    client.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user?.email && !user?.isDemo) {
-        const authUser: AdminUser = {
-          email: session.user.email,
-          isDemo: false,
-          id: session.user.id,
-        };
-        setUser(authUser);
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser));
-      }
-      setIsLoading(false);
-    }).catch(() => {
-      setIsLoading(false);
-    });
+    if (password.length < 4) {
+      return { success: false, error: 'Furaha sirta ah waa inuu ugu yaraan 4 xaraf ka koobnaadaa.' };
+    }
 
-    const { data: authListener } = client.auth.onAuthStateChange((_event, session) => {
-      if (session?.user?.email) {
-        const authUser: AdminUser = {
-          email: session.user.email,
-          isDemo: false,
-          id: session.user.id,
-        };
-        setUser(authUser);
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser));
-      } else if (!user?.isDemo) {
-        setUser(null);
-        localStorage.removeItem(AUTH_STORAGE_KEY);
-      }
-    });
-
-    return () => {
-      authListener?.subscription?.unsubscribe();
+    const authUser: AdminUser = {
+      email: email.trim().toLowerCase(),
+      isDemo: false,
+      id: 'admin-' + Date.now(),
     };
-  }, []);
 
-  const loginWithSupabase = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    const client = getSupabaseClient();
-    if (!client) {
-      return {
-        success: false,
-        error: 'Supabase lama xirin. Fadlan isticmaal "Demo Mode Login" ama geli furayaasha Supabase qaybta Settings.',
-      };
-    }
-
-    try {
-      const { data, error } = await client.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      if (data.user?.email) {
-        const authUser: AdminUser = {
-          email: data.user.email,
-          isDemo: false,
-          id: data.user.id,
-        };
-        setUser(authUser);
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser));
-        return { success: true };
-      }
-
-      return { success: false, error: 'Xaqiijinta gelitaanka waa lagu guuldareystay.' };
-    } catch (err: any) {
-      return { success: false, error: err.message || 'Cilad lama filaan ah ayaa dhacday' };
-    }
+    setUser(authUser);
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser));
+    return { success: true };
   };
 
   const loginWithDemo = (email: string = 'admin@portfolio.local') => {
@@ -121,14 +62,6 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const logout = async () => {
-    const client = getSupabaseClient();
-    if (client && !user?.isDemo) {
-      try {
-        await client.auth.signOut();
-      } catch (e) {
-        console.warn('Supabase signOut error:', e);
-      }
-    }
     setUser(null);
     localStorage.removeItem(AUTH_STORAGE_KEY);
   };
@@ -139,7 +72,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         user,
         isAuthenticated: Boolean(user),
         isLoading,
-        loginWithSupabase,
+        loginWithPassword,
         loginWithDemo,
         logout,
       }}

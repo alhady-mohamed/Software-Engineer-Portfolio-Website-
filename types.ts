@@ -133,16 +133,15 @@ export interface ThemeSettings {
   customCardHex?: string;
 }
 
-// Configuration parameters for Supabase & Full Portfolio CMS
+// Configuration parameters for Portfolio CMS & Firebase
 export interface SiteSettings {
-  supabaseUrl: string;
-  supabaseAnonKey: string;
   siteTitle: string;
   adminEmail: string;
   whatsappNumber: string;
+  firebaseProjectId?: string;
   lastSyncedAt?: string;
 
-  // New modules requested by user:
+  // Visual modules:
   hero: HeroSettings;
   branding: BrandingSettings;
   theme: ThemeSettings;

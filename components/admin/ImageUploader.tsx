@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import { UploadCloud, CheckCircle2, AlertCircle, Loader2, Sparkles, Image as ImageIcon, Link as LinkIcon, Trash2 } from 'lucide-react';
-import { getSupabaseClient } from '../../src/lib/supabase';
 
 interface ImageUploaderProps {
   label: string;
@@ -15,7 +14,7 @@ interface ImageUploaderProps {
 }
 
 /**
- * Resizes and compresses image to web-optimized data URL or Supabase Storage upload.
+ * Resizes and compresses image to web-optimized data URL.
  */
 async function processAndCompressImage(
   file: File,
@@ -109,39 +108,15 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     setMessage(null);
 
     try {
-      const supabase = getSupabaseClient();
-
-      // Check if Supabase Storage is configured and reachable
-      if (supabase) {
-        const fileExt = file.name.split('.').pop() || 'jpg';
-        const fileName = `${folderPath}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-
-        const { data, error } = await supabase.storage
-          .from(bucketName)
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: true,
-          });
-
-        if (!error && data?.path) {
-          const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(data.path);
-          if (publicUrlData?.publicUrl) {
-            onChange(publicUrlData.publicUrl);
-            setMessage({ type: 'success', text: 'Sawirka si toos ah ayaa loogu shubay Supabase Storage!' });
-            setIsProcessing(false);
-            return;
-          }
-        }
-      }
-
-      // Fallback: Local High-Fidelity Data URL with Canvas Compression
+      // High-Fidelity Data URL with Canvas Compression
       const compressedDataUrl = await processAndCompressImage(file);
       onChange(compressedDataUrl);
       setMessage({
         type: 'success',
-        text: 'Sawirka waa la soo upload gareeyay (Saved locally & optimized)',
+        text: 'Sawirka waa la habeeyay oo si toos ah ayaa loo keydiyay!',
       });
     } catch (err: any) {
+
       console.error('Image upload failed:', err);
       setMessage({ type: 'error', text: 'Cilad baa dhacday marka sawirka la shubayay' });
     } finally {

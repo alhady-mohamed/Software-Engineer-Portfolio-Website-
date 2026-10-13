@@ -7,10 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed:firebase": "node scripts/seedToFirestore.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.117.3",
     "firebase": "^12.14.0",
     "framer-motion": "^12.24.0",
     "lucide-react": "^0.562.0",

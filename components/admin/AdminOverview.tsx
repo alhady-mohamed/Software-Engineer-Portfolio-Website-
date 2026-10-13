@@ -20,6 +20,10 @@ import {
   Activity,
   ArrowUpRight,
   CheckCircle2,
+  Database,
+  Upload,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -41,8 +45,43 @@ export const AdminOverview: React.FC = () => {
     timelines,
     testimonials,
     messages,
+    isFirebaseConnected,
+    syncAllToFirebase,
+    clearAllData,
   } = useSiteData();
   const { t } = useLanguage();
+
+  const [isFirebaseSyncing, setIsFirebaseSyncing] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+  const [firebaseFeedback, setFirebaseFeedback] = useState<string | null>(null);
+
+  const handleQuickSeed = async () => {
+    setIsFirebaseSyncing(true);
+    setFirebaseFeedback(null);
+    try {
+      const res = await syncAllToFirebase();
+      setFirebaseFeedback(res.message);
+    } catch (err: any) {
+      setFirebaseFeedback(`Cilad: ${err.message || 'Lama shubi karin'}`);
+    } finally {
+      setIsFirebaseSyncing(false);
+    }
+  };
+
+  const handleQuickClear = async () => {
+    if (window.confirm('Ma hubtaa inaad tirtirto dhammaan xogta dummy-ga ah ee koodhka ku jirta si aad mashaariicdaada dhabta ah u geliso?')) {
+      setIsClearing(true);
+      setFirebaseFeedback(null);
+      try {
+        const res = await clearAllData();
+        setFirebaseFeedback(res.message);
+      } catch (err: any) {
+        setFirebaseFeedback(`Cilad: ${err.message || 'Lama saari karin'}`);
+      } finally {
+        setIsClearing(false);
+      }
+    }
+  };
 
   const [trafficFilter, setTrafficFilter] = useState<TrafficFilter>('combined');
 
@@ -144,6 +183,55 @@ export const AdminOverview: React.FC = () => {
           </Link>
         </div>
       </div>
+
+      {/* FIREBASE FIRESTORE CLOUD DATABASE RIBBON */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/30 via-slate-900 to-slate-900/90 border border-amber-500/30 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
+            <Database size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-white">Firebase Firestore Database</span>
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                {isFirebaseConnected ? 'KUXIRAN (mohamed-kayga)' : 'CONNECTING...'}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Kaydka: {projects.length} Mashaariic · {timelines.length} Timelines · {testimonials.length} Marag-fur
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={handleQuickClear}
+            disabled={isClearing || isFirebaseSyncing}
+            className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/20 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+            title="Tirtir xogtii dummy-ga ahayd si aad adigu xogtaada dhabta ah u geliso"
+          >
+            {isClearing ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+            <span>Ka Saar Dummy Data</span>
+          </button>
+
+          <button
+            onClick={handleQuickSeed}
+            disabled={isFirebaseSyncing || isClearing}
+            className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 text-xs font-bold shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+            title="Dhammaan xogta toos ugu shub Firebase Firestore"
+          >
+            {isFirebaseSyncing ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+            <span>Ku Shub Firebase</span>
+          </button>
+        </div>
+      </div>
+
+      {firebaseFeedback && (
+        <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-200 flex items-center gap-2">
+          <Sparkles size={14} className="text-amber-400 shrink-0" />
+          <span>{firebaseFeedback}</span>
+        </div>
+      )}
 
       {/* SUMMARY CARDS SECTION USING RECHARTS (Key Metrics: Visitor Count, Total Projects, Pending Messages) */}
       <div className="space-y-3">

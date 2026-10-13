@@ -117,8 +117,7 @@ export const INITIAL_PROJECTS: Project[] = DEFAULT_PROJECTS.map((p, idx) => ({
 }));
 
 export const INITIAL_SETTINGS: SiteSettings = {
-  supabaseUrl: 'https://scecfrqsvrihariunevm.supabase.co',
-  supabaseAnonKey: 'sb_publishable_hXGaaZR9_HGX_exWLfaN7Q_391rhOZI',
+  firebaseProjectId: 'mohamed-kayga',
   siteTitle: 'Mohamed Alhady | Creative Strategist & Developer',
   adminEmail: 'admin@portfolio.local',
   whatsappNumber: 'https://wa.link/cs6dy4',

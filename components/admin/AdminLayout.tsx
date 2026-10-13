@@ -26,7 +26,7 @@ import {
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAdminAuth();
-  const { messages, isSupabaseConnected, settings } = useSiteData();
+  const { messages, isFirebaseConnected, settings } = useSiteData();
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -265,23 +265,23 @@ export const AdminLayout: React.FC = () => {
             {isCollapsed ? (
               <div
                 className={`w-10 h-10 rounded-xl border flex items-center justify-center relative cursor-help transition-all ${
-                  isSupabaseConnected
+                  isFirebaseConnected
                     ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
                     : 'bg-slate-800/60 border-slate-700/60 text-slate-400'
                 }`}
-                title={isSupabaseConnected ? 'Database: Synced' : 'Storage: Browser Mode'}
+                title={isFirebaseConnected ? 'Firebase: Synced' : 'Storage: Browser Mode'}
               >
                 <Database size={16} className="shrink-0 text-slate-300" />
                 <span
                   className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
-                    isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                    isFirebaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
                   }`}
                 />
               </div>
             ) : (
               <div
                 className={`px-3 py-1.5 rounded-xl border text-[11px] flex items-center justify-between ${
-                  isSupabaseConnected
+                  isFirebaseConnected
                     ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
                     : 'bg-slate-800/60 border-slate-700/60 text-slate-400'
                 }`}
@@ -289,12 +289,12 @@ export const AdminLayout: React.FC = () => {
                 <div className="flex items-center gap-2 truncate">
                   <Database size={13} className="shrink-0 text-slate-300" />
                   <span className="truncate font-medium">
-                    {isSupabaseConnected ? 'Database: Synced' : 'Storage: Browser Mode'}
+                    {isFirebaseConnected ? 'Firebase: Synced' : 'Storage: Browser Mode'}
                   </span>
                 </div>
                 <span
                   className={`w-2 h-2 rounded-full shrink-0 ${
-                    isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                    isFirebaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
                   }`}
                 />
               </div>

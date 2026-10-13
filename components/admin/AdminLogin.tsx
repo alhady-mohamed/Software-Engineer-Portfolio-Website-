@@ -6,8 +6,8 @@ import { ShieldCheck, Lock, Mail, ArrowLeft, Sparkles, Key, AlertCircle, Databas
 import { motion } from 'framer-motion';
 
 export const AdminLogin: React.FC = () => {
-  const { loginWithSupabase, loginWithDemo, isAuthenticated } = useAdminAuth();
-  const { isSupabaseConfigured, isSupabaseConnected } = useSiteData();
+  const { loginWithPassword, loginWithDemo, isAuthenticated } = useAdminAuth();
+  const { isFirebaseConnected } = useSiteData();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,12 +24,12 @@ export const AdminLogin: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSupabaseSubmit = async (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setIsSubmitting(true);
 
-    const result = await loginWithSupabase(email, password);
+    const result = await loginWithPassword(email, password);
     setIsSubmitting(false);
 
     if (result.success) {
@@ -71,17 +71,11 @@ export const AdminLogin: React.FC = () => {
             <ShieldCheck size={28} />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-white">Xarunta Maamulka (CMS)</h1>
-          <p className="text-sm text-slate-400 mt-1">Admin Dashboard & Supabase Content Manager</p>
+          <p className="text-sm text-slate-400 mt-1">Admin Dashboard & Firebase Content Manager</p>
 
           <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-slate-800/80 border border-slate-700/60 text-slate-300">
-            <Database size={12} className={isSupabaseConnected ? 'text-emerald-400' : 'text-amber-400'} />
-            <span>
-              {isSupabaseConnected
-                ? 'Supabase: Connected'
-                : isSupabaseConfigured
-                ? 'Supabase: Syncing'
-                : 'Backend: Local / Demo Mode'}
-            </span>
+            <Database size={12} className="text-amber-400" />
+            <span>Firebase Firestore: Active</span>
           </div>
         </div>
 
@@ -92,8 +86,8 @@ export const AdminLogin: React.FC = () => {
           </div>
         )}
 
-        {/* Supabase Account Form */}
-        <form onSubmit={handleSupabaseSubmit} className="space-y-4">
+        {/* Admin Login Form */}
+        <form onSubmit={handleLoginSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
               Email-ka Admin-ka
@@ -107,7 +101,7 @@ export const AdminLogin: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@example.com"
+                placeholder="admin@portfolio.local"
                 className="w-full pl-10 pr-4 py-3 bg-slate-950/60 border border-slate-700/70 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
               />
             </div>
@@ -138,7 +132,7 @@ export const AdminLogin: React.FC = () => {
             className="w-full mt-2 py-3.5 px-4 bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-primary/25 disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
           >
             <Key size={16} />
-            <span>{isSubmitting ? 'Gelaya...' : 'Soo Gal (Supabase Auth)'}</span>
+            <span>{isSubmitting ? 'Gelaya...' : 'Soo Gal (Admin Login)'}</span>
           </button>
         </form>
 

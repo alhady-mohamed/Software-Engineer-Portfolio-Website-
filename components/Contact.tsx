@@ -49,7 +49,7 @@ const Contact: React.FC = () => {
     e.preventDefault();
     setStatus("submitting");
 
-    // Save directly to Supabase / CMS Inbox store
+    // Save directly to Firebase / CMS Inbox store
     try {
       await addMessage({
         name: formData.name,
@@ -58,7 +58,7 @@ const Contact: React.FC = () => {
         message: formData.message,
       });
     } catch (saveErr) {
-      console.warn("Local/Supabase message capture error:", saveErr);
+      console.warn("Message capture error:", saveErr);
     }
 
     const formUrl =

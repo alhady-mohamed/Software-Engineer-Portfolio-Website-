@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Project, TimelineItem, TestimonialItem, ContactMessage, SiteSettings, ThemeSettings } from '../../types';
 import { INITIAL_PROJECTS, INITIAL_TIMELINES, INITIAL_TESTIMONIALS, INITIAL_MESSAGES, INITIAL_SETTINGS } from '../data/initialData';
-import { getSupabaseClient, getSupabaseUrl, getSupabaseAnonKey, saveSupabaseCredentials, testSupabaseConnection } from '../lib/supabase';
 import { db } from '../lib/firebase';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from 'firebase/firestore';
 
@@ -79,8 +78,6 @@ interface SiteDataContextType {
   testimonials: TestimonialItem[];
   messages: ContactMessage[];
   settings: SiteSettings;
-  isSupabaseConfigured: boolean;
-  isSupabaseConnected: boolean;
   isFirebaseConnected: boolean;
   isLoading: boolean;
   
@@ -104,13 +101,10 @@ interface SiteDataContextType {
   markMessageRead: (id: string, isRead?: boolean) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
   
-  // Settings & DB Actions
   updateSettings: (newSettings: Partial<SiteSettings>) => Promise<{ success: boolean; message: string }>;
-  checkSupabaseStatus: () => Promise<{ success: boolean; message: string }>;
-  syncAllToSupabase: () => Promise<{ success: boolean; message: string; counts?: { projects: number; timelines: number; testimonials: number } }>;
   syncAllToFirebase: () => Promise<{ success: boolean; message: string; counts?: { projects: number; timelines: number; testimonials: number } }>;
-  loadFromSupabase: () => Promise<void>;
   resetToDefaults: () => void;
+  clearAllData: () => Promise<{ success: boolean; message: string }>;
 }
 
 const SiteDataContext = createContext<SiteDataContextType | undefined>(undefined);
@@ -169,8 +163,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return {
           ...INITIAL_SETTINGS,
           ...parsed,
-          supabaseUrl: parsed.supabaseUrl || INITIAL_SETTINGS.supabaseUrl,
-          supabaseAnonKey: parsed.supabaseAnonKey || INITIAL_SETTINGS.supabaseAnonKey,
           hero: { ...INITIAL_SETTINGS.hero, ...(parsed.hero || {}) },
           branding: { ...INITIAL_SETTINGS.branding, ...(parsed.branding || {}) },
           theme: { ...INITIAL_SETTINGS.theme, ...(parsed.theme || {}) },
@@ -183,10 +175,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean>(false);
   const [isFirebaseConnected, setIsFirebaseConnected] = useState<boolean>(true);
-
-  const isSupabaseConfigured = Boolean(settings.supabaseUrl && settings.supabaseAnonKey);
 
   // Apply theme variables dynamically whenever settings.theme changes
   useEffect(() => {
@@ -223,7 +212,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setIsFirebaseConnected(true);
       }
     }, (err) => {
-      console.warn('Firestore projects listener:', err);
+      console.warn('Firestore projects listener error:', err);
     });
 
     // 2. Timelines
@@ -247,7 +236,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setTimelines(remoteTimelines);
       }
     }, (err) => {
-      console.warn('Firestore timelines listener:', err);
+      console.warn('Firestore timelines listener error:', err);
     });
 
     // 3. Testimonials
@@ -271,7 +260,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setTestimonials(remoteTestimonials);
       }
     }, (err) => {
-      console.warn('Firestore testimonials listener:', err);
+      console.warn('Firestore testimonials listener error:', err);
     });
 
     // 4. Contact messages
@@ -294,7 +283,25 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setMessages(remoteMessages);
       }
     }, (err) => {
-      console.warn('Firestore messages listener:', err);
+      console.warn('Firestore messages listener error:', err);
+    });
+
+    // 5. Site Settings
+    const unsubSettings = onSnapshot(doc(db, 'site_settings', 'current'), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setSettings(prev => ({
+          ...prev,
+          siteTitle: data.siteTitle || prev.siteTitle,
+          adminEmail: data.adminEmail || prev.adminEmail,
+          whatsappNumber: data.whatsappNumber || prev.whatsappNumber,
+          hero: data.hero ? { ...prev.hero, ...data.hero } : prev.hero,
+          branding: data.branding ? { ...prev.branding, ...data.branding } : prev.branding,
+          theme: data.theme ? { ...prev.theme, ...data.theme } : prev.theme,
+        }));
+      }
+    }, (err) => {
+      console.warn('Firestore settings listener error:', err);
     });
 
     return () => {
@@ -302,6 +309,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       unsubTimelines();
       unsubTestimonials();
       unsubMessages();
+      unsubSettings();
     };
   }, []);
 
@@ -346,115 +354,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [settings]);
 
-  // Initial fetch from Supabase if configured
-  const loadFromSupabase = useCallback(async () => {
-    const client = getSupabaseClient();
-    if (!client) {
-      setIsSupabaseConnected(false);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // 1. Projects
-      const { data: dbProjects, error: pErr } = await client.from('projects').select('*').order('display_order', { ascending: true });
-      if (!pErr && dbProjects && dbProjects.length > 0) {
-        setProjects(dbProjects.map((p: any) => ({
-          id: p.id,
-          title: p.title,
-          category: p.category,
-          summary: p.summary || p.description?.slice(0, 100),
-          description: p.description,
-          imageUrl: p.image_url,
-          galleryUrls: p.gallery_urls,
-          technologies: p.tech_stack || [],
-          link: p.live_url || '#',
-          githubUrl: p.github_url || '',
-          featured: p.featured,
-          metrics: p.metrics,
-          createdAt: p.created_at,
-        })));
-      }
-
-      // 2. Timelines
-      const { data: dbTimelines, error: tErr } = await client.from('timelines').select('*').order('display_order', { ascending: true });
-      if (!tErr && dbTimelines && dbTimelines.length > 0) {
-        setTimelines(dbTimelines.map((t: any) => ({
-          id: t.id,
-          type: t.type,
-          title: t.title,
-          institution: t.institution,
-          period: t.period,
-          description: t.description,
-          skills: t.skills || [],
-          displayOrder: t.display_order,
-          createdAt: t.created_at,
-        })));
-      }
-
-      // 3. Testimonials
-      const { data: dbTestimonials, error: tmErr } = await client.from('testimonials').select('*').order('created_at', { ascending: false });
-      if (!tmErr && dbTestimonials && dbTestimonials.length > 0) {
-        setTestimonials(dbTestimonials.map((tm: any) => ({
-          id: tm.id,
-          clientName: tm.client_name,
-          clientRole: tm.client_role,
-          company: tm.company,
-          avatarUrl: tm.avatar_url,
-          rating: tm.rating,
-          content: tm.content,
-          isApproved: tm.is_approved,
-          createdAt: tm.created_at,
-        })));
-      }
-
-      // 4. Messages
-      const { data: dbMessages, error: mErr } = await client.from('contact_messages').select('*').order('created_at', { ascending: false });
-      if (!mErr && dbMessages && dbMessages.length > 0) {
-        setMessages(dbMessages.map((m: any) => ({
-          id: m.id,
-          name: m.name,
-          email: m.email,
-          subject: m.subject || '',
-          message: m.message,
-          isRead: m.is_read,
-          replied: m.replied,
-          createdAt: m.created_at,
-        })));
-      }
-
-      setIsSupabaseConnected(true);
-    } catch (err) {
-      console.warn('Supabase remote query failed, continuing with cached/local mode:', err);
-      setIsSupabaseConnected(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadFromSupabase();
-
-    const client = getSupabaseClient();
-    if (!client) return;
-
-    // Realtime listener for live sync across all tables
-    const channel = client
-      .channel('public:realtime-sync')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public' },
-        () => {
-          loadFromSupabase();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      client.removeChannel(channel);
-    };
-  }, [loadFromSupabase]);
-
   // Project Actions
   const addProject = async (projectData: Omit<Project, 'id'>): Promise<Project> => {
     const newId = 'proj-' + Date.now();
@@ -466,7 +365,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setProjects(prev => [newProject, ...prev]);
 
-    // Save to Firestore
     try {
       await setDoc(doc(db, 'projects', newId), {
         title: newProject.title,
@@ -482,29 +380,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         createdAt: newProject.createdAt,
       });
     } catch (e) {
-      console.warn('Firestore project insert:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        const { data: dbRes } = await client.from('projects').insert({
-          title: newProject.title,
-          category: newProject.category,
-          summary: newProject.summary || '',
-          description: newProject.description,
-          image_url: newProject.imageUrl,
-          tech_stack: newProject.technologies,
-          live_url: newProject.link,
-          github_url: newProject.githubUrl,
-          featured: newProject.featured || false,
-        }).select().single();
-        if (dbRes && dbRes.id) {
-          newProject.id = String(dbRes.id);
-        }
-      } catch (e) {
-        console.warn('Supabase project insert failed:', e);
-      }
+      console.warn('Firestore addProject error:', e);
     }
 
     return newProject;
@@ -515,51 +391,20 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       prev.map(p => (String(p.id) === String(id) ? { ...p, ...updates } : p))
     );
 
-    // Update in Firestore
     try {
       await setDoc(doc(db, 'projects', String(id)), updates, { merge: true });
     } catch (e) {
-      console.warn('Firestore project update:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        const payload: any = {};
-        if (updates.title) payload.title = updates.title;
-        if (updates.category) payload.category = updates.category;
-        if (updates.summary) payload.summary = updates.summary;
-        if (updates.description) payload.description = updates.description;
-        if (updates.imageUrl) payload.image_url = updates.imageUrl;
-        if (updates.technologies) payload.tech_stack = updates.technologies;
-        if (updates.link) payload.live_url = updates.link;
-        if (updates.githubUrl !== undefined) payload.github_url = updates.githubUrl;
-        if (updates.featured !== undefined) payload.featured = updates.featured;
-
-        await client.from('projects').update(payload).eq('id', String(id));
-      } catch (e) {
-        console.warn('Supabase project update failed:', e);
-      }
+      console.warn('Firestore updateProject error:', e);
     }
   };
 
   const deleteProject = async (id: string | number) => {
     setProjects(prev => prev.filter(p => String(p.id) !== String(id)));
 
-    // Delete in Firestore
     try {
       await deleteDoc(doc(db, 'projects', String(id)));
     } catch (e) {
-      console.warn('Firestore project delete:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        await client.from('projects').delete().eq('id', String(id));
-      } catch (e) {
-        console.warn('Supabase project delete failed:', e);
-      }
+      console.warn('Firestore deleteProject error:', e);
     }
   };
 
@@ -574,7 +419,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setTimelines(prev => [newItem, ...prev]);
 
-    // Save to Firestore
     try {
       await setDoc(doc(db, 'timelines', newId), {
         type: newItem.type,
@@ -587,26 +431,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         createdAt: newItem.createdAt,
       });
     } catch (e) {
-      console.warn('Firestore timeline insert:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        const { data: dbRes } = await client.from('timelines').insert({
-          type: newItem.type,
-          title: newItem.title,
-          institution: newItem.institution,
-          period: newItem.period,
-          description: newItem.description,
-          skills: newItem.skills || [],
-        }).select().single();
-        if (dbRes && dbRes.id) {
-          newItem.id = String(dbRes.id);
-        }
-      } catch (e) {
-        console.warn('Supabase timeline insert failed:', e);
-      }
+      console.warn('Firestore addTimeline error:', e);
     }
 
     return newItem;
@@ -617,40 +442,20 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       prev.map(t => (t.id === id ? { ...t, ...updates } : t))
     );
 
-    // Update in Firestore
     try {
       await setDoc(doc(db, 'timelines', id), updates, { merge: true });
     } catch (e) {
-      console.warn('Firestore timeline update:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        await client.from('timelines').update(updates).eq('id', id);
-      } catch (e) {
-        console.warn('Supabase timeline update failed:', e);
-      }
+      console.warn('Firestore updateTimeline error:', e);
     }
   };
 
   const deleteTimeline = async (id: string) => {
     setTimelines(prev => prev.filter(t => t.id !== id));
 
-    // Delete in Firestore
     try {
       await deleteDoc(doc(db, 'timelines', id));
     } catch (e) {
-      console.warn('Firestore timeline delete:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        await client.from('timelines').delete().eq('id', id);
-      } catch (e) {
-        console.warn('Supabase timeline delete failed:', e);
-      }
+      console.warn('Firestore deleteTimeline error:', e);
     }
   };
 
@@ -665,7 +470,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setTestimonials(prev => [newItem, ...prev]);
 
-    // Save to Firestore
     try {
       await setDoc(doc(db, 'testimonials', newId), {
         clientName: newItem.clientName,
@@ -678,27 +482,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         createdAt: newItem.createdAt,
       });
     } catch (e) {
-      console.warn('Firestore testimonial insert:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        const { data: dbRes } = await client.from('testimonials').insert({
-          client_name: newItem.clientName,
-          client_role: newItem.clientRole,
-          company: newItem.company,
-          avatar_url: newItem.avatarUrl,
-          rating: newItem.rating,
-          content: newItem.content,
-          is_approved: newItem.isApproved,
-        }).select().single();
-        if (dbRes && dbRes.id) {
-          newItem.id = String(dbRes.id);
-        }
-      } catch (e) {
-        console.warn('Supabase testimonial insert failed:', e);
-      }
+      console.warn('Firestore addTestimonial error:', e);
     }
 
     return newItem;
@@ -709,40 +493,20 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       prev.map(t => (t.id === id ? { ...t, ...updates } : t))
     );
 
-    // Update in Firestore
     try {
       await setDoc(doc(db, 'testimonials', id), updates, { merge: true });
     } catch (e) {
-      console.warn('Firestore testimonial update:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        await client.from('testimonials').update(updates).eq('id', id);
-      } catch (e) {
-        console.warn('Supabase testimonial update failed:', e);
-      }
+      console.warn('Firestore updateTestimonial error:', e);
     }
   };
 
   const deleteTestimonial = async (id: string) => {
     setTestimonials(prev => prev.filter(t => t.id !== id));
 
-    // Delete in Firestore
     try {
       await deleteDoc(doc(db, 'testimonials', id));
     } catch (e) {
-      console.warn('Firestore testimonial delete:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        await client.from('testimonials').delete().eq('id', id);
-      } catch (e) {
-        console.warn('Supabase testimonial delete failed:', e);
-      }
+      console.warn('Firestore deleteTestimonial error:', e);
     }
   };
 
@@ -762,7 +526,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setMessages(prev => [newMsg, ...prev]);
 
-    // Save to Firestore
     try {
       await setDoc(doc(db, 'contact_messages', newId), {
         name: newMsg.name,
@@ -774,25 +537,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         createdAt: newMsg.createdAt,
       });
     } catch (e) {
-      console.warn('Firestore contact message insert:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        const { data: dbRes } = await client.from('contact_messages').insert({
-          name: newMsg.name,
-          email: newMsg.email,
-          subject: newMsg.subject,
-          message: newMsg.message,
-          is_read: false,
-        }).select().single();
-        if (dbRes && dbRes.id) {
-          newMsg.id = String(dbRes.id);
-        }
-      } catch (e) {
-        console.warn('Supabase message insert failed:', e);
-      }
+      console.warn('Firestore addMessage error:', e);
     }
 
     return newMsg;
@@ -803,40 +548,20 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       prev.map(m => (m.id === id ? { ...m, isRead } : m))
     );
 
-    // Update in Firestore
     try {
       await setDoc(doc(db, 'contact_messages', id), { isRead }, { merge: true });
     } catch (e) {
-      console.warn('Firestore message markRead:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        await client.from('contact_messages').update({ is_read: isRead }).eq('id', id);
-      } catch (e) {
-        console.warn('Supabase message update failed:', e);
-      }
+      console.warn('Firestore markMessageRead error:', e);
     }
   };
 
   const deleteMessage = async (id: string) => {
     setMessages(prev => prev.filter(m => m.id !== id));
 
-    // Delete in Firestore
     try {
       await deleteDoc(doc(db, 'contact_messages', id));
     } catch (e) {
-      console.warn('Firestore message delete:', e);
-    }
-
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        await client.from('contact_messages').delete().eq('id', id);
-      } catch (e) {
-        console.warn('Supabase message delete failed:', e);
-      }
+      console.warn('Firestore deleteMessage error:', e);
     }
   };
 
@@ -845,7 +570,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
 
-    // Update site settings in Firestore
     try {
       await setDoc(doc(db, 'site_settings', 'current'), {
         siteTitle: updated.siteTitle,
@@ -857,104 +581,10 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updatedAt: new Date().toISOString(),
       }, { merge: true });
     } catch (e) {
-      console.warn('Firestore settings update:', e);
-    }
-
-    if (newSettings.supabaseUrl !== undefined || newSettings.supabaseAnonKey !== undefined) {
-      saveSupabaseCredentials(updated.supabaseUrl, updated.supabaseAnonKey);
-      const testResult = await testSupabaseConnection();
-      setIsSupabaseConnected(testResult.success);
-      if (testResult.success) {
-        loadFromSupabase();
-      }
-      return testResult;
+      console.warn('Firestore settings update error:', e);
     }
 
     return { success: true, message: 'Settings saved successfully.' };
-  };
-
-  const checkSupabaseStatus = async () => {
-    const res = await testSupabaseConnection();
-    setIsSupabaseConnected(res.success);
-    return res;
-  };
-
-  const syncAllToSupabase = async (): Promise<{ success: boolean; message: string; counts?: { projects: number; timelines: number; testimonials: number } }> => {
-    const client = getSupabaseClient();
-    if (!client) {
-      return {
-        success: false,
-        message: 'Supabase ma xirna. Fadlan hubi URL-ka iyo Anon Key-ga.',
-      };
-    }
-
-    try {
-      setIsLoading(true);
-
-      const projectsToPush = (projects && projects.length > 0 ? projects : INITIAL_PROJECTS).map((p, idx) => ({
-        title: p.title,
-        category: p.category,
-        summary: p.summary || p.description.slice(0, 110),
-        description: p.description,
-        image_url: p.imageUrl,
-        gallery_urls: p.galleryUrls || [],
-        tech_stack: p.technologies || [],
-        live_url: p.link || '#',
-        github_url: p.githubUrl || '',
-        featured: p.featured || false,
-        metrics: p.metrics || {},
-        display_order: idx,
-      }));
-
-      const timelinesToPush = (timelines && timelines.length > 0 ? timelines : INITIAL_TIMELINES).map((t, idx) => ({
-        type: t.type,
-        title: t.title,
-        institution: t.institution,
-        period: t.period,
-        description: t.description,
-        skills: t.skills || [],
-        display_order: idx,
-      }));
-
-      const testimonialsToPush = (testimonials && testimonials.length > 0 ? testimonials : INITIAL_TESTIMONIALS).map((tm) => ({
-        client_name: tm.clientName,
-        client_role: tm.clientRole,
-        company: tm.company || '',
-        avatar_url: tm.avatarUrl,
-        rating: tm.rating || 5,
-        content: tm.content,
-        is_approved: tm.isApproved ?? true,
-      }));
-
-      const { error: pErr } = await client.from('projects').insert(projectsToPush);
-      if (pErr) throw new Error(`Projects: ${pErr.message}`);
-
-      const { error: tErr } = await client.from('timelines').insert(timelinesToPush);
-      if (tErr) throw new Error(`Timelines: ${tErr.message}`);
-
-      const { error: tmErr } = await client.from('testimonials').insert(testimonialsToPush);
-      if (tmErr) throw new Error(`Testimonials: ${tmErr.message}`);
-
-      await loadFromSupabase();
-
-      return {
-        success: true,
-        message: `Dhammaan xogtii si toos ah ayaa loogu shubay Supabase! (${projectsToPush.length} Mashaariic, ${timelinesToPush.length} Timeline, ${testimonialsToPush.length} Testimonials)`,
-        counts: {
-          projects: projectsToPush.length,
-          timelines: timelinesToPush.length,
-          testimonials: testimonialsToPush.length,
-        },
-      };
-    } catch (err: any) {
-      console.error('Failed to sync all to Supabase:', err);
-      return {
-        success: false,
-        message: `Cilad xilliga shubista: ${err.message || 'Xogta lama shubi karin'}`,
-      };
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const syncAllToFirebase = async (): Promise<{ success: boolean; message: string; counts?: { projects: number; timelines: number; testimonials: number } }> => {
@@ -1049,6 +679,45 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.removeItem(STORAGE_KEYS.MESSAGES);
   };
 
+  const clearAllData = async (): Promise<{ success: boolean; message: string }> => {
+    try {
+      setIsLoading(true);
+      // Clear local state
+      setProjects([]);
+      setTimelines([]);
+      setTestimonials([]);
+      localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.TIMELINES, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify([]));
+
+      // Attempt to clear remote documents if connected
+      const batch = writeBatch(db);
+      for (const p of projects) {
+        batch.delete(doc(db, 'projects', String(p.id)));
+      }
+      for (const t of timelines) {
+        batch.delete(doc(db, 'timelines', String(t.id)));
+      }
+      for (const tm of testimonials) {
+        batch.delete(doc(db, 'testimonials', String(tm.id)));
+      }
+      await batch.commit();
+
+      return {
+        success: true,
+        message: 'Dhammaan xogtii dummy-ga ahayd waa laga saaray nidaamka iyo Firebase!',
+      };
+    } catch (err: any) {
+      console.warn('Error clearing remote documents:', err);
+      return {
+        success: true,
+        message: 'Xogtii dummy-ga ahayd waa la nadiifiyay!',
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <SiteDataContext.Provider
       value={{
@@ -1057,8 +726,6 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         testimonials,
         messages,
         settings,
-        isSupabaseConfigured,
-        isSupabaseConnected,
         isFirebaseConnected,
         isLoading,
         addProject,
@@ -1074,11 +741,9 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         markMessageRead,
         deleteMessage,
         updateSettings,
-        checkSupabaseStatus,
-        syncAllToSupabase,
         syncAllToFirebase,
-        loadFromSupabase,
         resetToDefaults,
+        clearAllData,
       }}
     >
       {children}
