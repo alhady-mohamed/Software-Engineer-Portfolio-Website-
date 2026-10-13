@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSiteData } from '../../src/context/SiteDataContext';
 import { useLanguage } from '../../src/context/LanguageContext';
-import { HeroSettings, BrandingSettings, ThemeSettings } from '../../types';
+import {
+  HeroSettings,
+  BrandingSettings,
+  ThemeSettings,
+  MarqueeSectionSettings,
+  MarqueeLogoItem,
+} from '../../types';
 import {
   Palette,
   Sparkles,
@@ -24,6 +31,17 @@ import {
   QrCode,
   Link as LinkIcon,
   Smartphone,
+  Code2,
+  Zap,
+  LayoutGrid,
+  Edit2,
+  ChevronUp,
+  ChevronDown,
+  X,
+  Play,
+  Pause,
+  Video,
+  Megaphone,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ImageUploader } from './ImageUploader';
@@ -54,11 +72,136 @@ export const AdminAppearance: React.FC = () => {
   const { settings, updateSettings } = useSiteData();
   const { t } = useLanguage();
 
-  // Local editable copies of Hero, Branding, and Theme
-  const [activeTab, setActiveTab] = useState<'hero' | 'branding' | 'theme'>('hero');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<'hero' | 'branding' | 'marquee' | 'theme'>(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'marquee' || tab === 'branding' || tab === 'theme') return tab;
+    return 'hero';
+  });
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'marquee' || tab === 'branding' || tab === 'theme' || tab === 'hero') {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab: 'hero' | 'branding' | 'marquee' | 'theme') => {
+    setActiveTab(tab);
+    setSearchParams(tab === 'hero' ? {} : { tab });
+  };
+
+  // Local editable copies of Hero, Branding, Theme, and Marquee
   const [heroForm, setHeroForm] = useState<HeroSettings>(settings.hero);
   const [brandingForm, setBrandingForm] = useState<BrandingSettings>(settings.branding);
   const [themeForm, setThemeForm] = useState<ThemeSettings>(settings.theme);
+  const [marqueeForm, setMarqueeForm] = useState<MarqueeSectionSettings>(() => {
+    return settings.marquee || {
+      isEnabled: true,
+      speed: 30,
+      pauseOnHover: true,
+      monochromeFilter: true,
+      sectionTitle: 'Trusted Technologies & Brand Partners',
+      items: [
+        { id: '1', name: 'React', iconName: 'react', displayMode: 'both', isActive: true },
+        { id: '2', name: 'Next.js', iconName: 'zap', displayMode: 'both', isActive: true },
+        { id: '3', name: 'TypeScript', iconName: 'code', displayMode: 'both', isActive: true },
+        { id: '4', name: 'Tailwind CSS', iconName: 'layout', displayMode: 'both', isActive: true },
+        { id: '5', name: 'Node.js', iconName: 'server', displayMode: 'both', isActive: true },
+        { id: '6', name: 'UI/UX Design', iconName: 'palette', displayMode: 'both', isActive: true },
+      ],
+    };
+  });
+
+  // Modal / form state for Adding/Editing a Marquee Logo
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+  const [editingLogoId, setEditingLogoId] = useState<string | null>(null);
+  const [logoForm, setLogoForm] = useState<MarqueeLogoItem>({
+    id: '',
+    name: '',
+    logoUrl: '',
+    iconName: 'code',
+    displayMode: 'both',
+    websiteUrl: '',
+    category: 'Technology',
+    isActive: true,
+  });
+
+  // Handlers for Marquee Logo actions
+  const handleOpenAddLogo = () => {
+    setEditingLogoId(null);
+    setLogoForm({
+      id: `logo_${Date.now()}`,
+      name: '',
+      logoUrl: '',
+      iconName: 'code',
+      displayMode: 'both',
+      websiteUrl: '',
+      category: 'Technology',
+      isActive: true,
+    });
+    setIsLogoModalOpen(true);
+  };
+
+  const handleOpenEditLogo = (logo: MarqueeLogoItem) => {
+    setEditingLogoId(logo.id);
+    setLogoForm({ ...logo });
+    setIsLogoModalOpen(true);
+  };
+
+  const handleSaveLogo = () => {
+    if (!logoForm.name.trim()) return;
+
+    if (editingLogoId) {
+      setMarqueeForm((prev) => ({
+        ...prev,
+        items: prev.items.map((item) => (item.id === editingLogoId ? logoForm : item)),
+      }));
+    } else {
+      setMarqueeForm((prev) => ({
+        ...prev,
+        items: [...prev.items, logoForm],
+      }));
+    }
+    setIsLogoModalOpen(false);
+  };
+
+  const handleDeleteLogo = (id: string) => {
+    setMarqueeForm((prev) => ({
+      ...prev,
+      items: prev.items.filter((item) => item.id !== id),
+    }));
+  };
+
+  const handleToggleLogoActive = (id: string) => {
+    setMarqueeForm((prev) => ({
+      ...prev,
+      items: prev.items.map((item) => (item.id === id ? { ...item, isActive: !item.isActive } : item)),
+    }));
+  };
+
+  const handleMoveLogo = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= marqueeForm.items.length) return;
+    const newItems = [...marqueeForm.items];
+    const [moved] = newItems.splice(index, 1);
+    newItems.splice(targetIndex, 0, moved);
+    setMarqueeForm((prev) => ({ ...prev, items: newItems }));
+  };
+
+  const handleResetDefaultLogos = () => {
+    setMarqueeForm((prev) => ({
+      ...prev,
+      items: [
+        { id: '1', name: 'React', iconName: 'react', displayMode: 'both', isActive: true },
+        { id: '2', name: 'Next.js', iconName: 'zap', displayMode: 'both', isActive: true },
+        { id: '3', name: 'TypeScript', iconName: 'code', displayMode: 'both', isActive: true },
+        { id: '4', name: 'Tailwind CSS', iconName: 'layout', displayMode: 'both', isActive: true },
+        { id: '5', name: 'Node.js', iconName: 'server', displayMode: 'both', isActive: true },
+        { id: '6', name: 'UI/UX Design', iconName: 'palette', displayMode: 'both', isActive: true },
+      ],
+    }));
+  };
 
   const [newTechTag, setNewTechTag] = useState('');
   const [saveStatus, setSaveStatus] = useState<{ type: 'idle' | 'saving' | 'saved' | 'error'; message: string }>({
@@ -95,6 +238,7 @@ export const AdminAppearance: React.FC = () => {
         hero: heroForm,
         branding: brandingForm,
         theme: themeForm,
+        marquee: marqueeForm,
         siteTitle: `${brandingForm.siteName} | ${brandingForm.tagline}`,
         whatsappNumber: brandingForm.tagline ? settings.whatsappNumber : settings.whatsappNumber,
       });
@@ -192,8 +336,9 @@ export const AdminAppearance: React.FC = () => {
       {/* Module Navigation Tabs */}
       <div className="flex border-b border-slate-800 gap-2 overflow-x-auto pb-1">
         <button
-          onClick={() => setActiveTab('hero')}
-          className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-xs sm:text-sm transition-all whitespace-nowrap ${
+          type="button"
+          onClick={() => handleTabChange('hero')}
+          className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'hero'
               ? 'bg-slate-800 text-white border-b-2 border-primary shadow-sm'
               : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
@@ -204,8 +349,9 @@ export const AdminAppearance: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setActiveTab('branding')}
-          className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-xs sm:text-sm transition-all whitespace-nowrap ${
+          type="button"
+          onClick={() => handleTabChange('branding')}
+          className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'branding'
               ? 'bg-slate-800 text-white border-b-2 border-primary shadow-sm'
               : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
@@ -216,8 +362,25 @@ export const AdminAppearance: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setActiveTab('theme')}
-          className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-xs sm:text-sm transition-all whitespace-nowrap ${
+          type="button"
+          onClick={() => handleTabChange('marquee')}
+          className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'marquee'
+              ? 'bg-slate-800 text-white border-b-2 border-primary shadow-sm'
+              : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+          }`}
+        >
+          <Sparkles size={18} className={activeTab === 'marquee' ? 'text-primary' : 'text-slate-500'} />
+          <span>{t('admin_tab_marquee')}</span>
+          <span className="ml-1 text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-primary/20 text-primary border border-primary/30">
+            {marqueeForm.items.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleTabChange('theme')}
+          className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'theme'
               ? 'bg-slate-800 text-white border-b-2 border-primary shadow-sm'
               : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
@@ -1176,6 +1339,80 @@ export const AdminAppearance: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* 3. Website Icon / Favicon Upload Card */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-5">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2 text-white font-bold text-sm">
+                  <Globe size={18} className="text-primary" />
+                  <span>Astaanta Website-ka (Website Icon / Favicon)</span>
+                </div>
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-mono font-medium">
+                  Browser Tab & Web App
+                </span>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                <p>
+                  Soo upload-garee <strong className="text-white">astaanta sawirka ah (Website Icon)</strong> ee website-kaaga. Sawirkani wuxuu si toos ah uga dhex muuqanayaa <span className="text-primary font-semibold">Tab-ka Browser-ka (Favicon)</span>, bookmarks-ka, natiijooyinka raadinta, iyo astaanta app-ka marka qofku uu website-ka ku daro Home Screen-ka mobilkiisa.
+                </p>
+              </div>
+
+              {/* Image Uploader for Website Icon */}
+              <ImageUploader
+                label="Sawirka Website Icon-ka (Upload PNG, SVG, ama ICO)"
+                value={brandingForm.faviconUrl || brandingForm.siteIconUrl || ''}
+                onChange={(newUrl) =>
+                  setBrandingForm({
+                    ...brandingForm,
+                    faviconUrl: newUrl,
+                    siteIconUrl: newUrl,
+                  })
+                }
+                placeholder="https://.../favicon.png"
+                helperText="Soo upload-garee sawir labajibbaaran (Square 1:1). PNG transparent ama SVG vector ayaa ugu habboon."
+                bucketName="portfolio-media"
+                folderPath="favicons"
+                recommendedSize="Cabirka lagu talinayo: 32x32px, 64x64px, 128x128px, ama 512x512px (Square 1:1)"
+              />
+
+              {/* Quick Actions for Favicon */}
+              <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800/80">
+                {brandingForm.logoImageUrl && !brandingForm.faviconUrl && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBrandingForm({
+                        ...brandingForm,
+                        faviconUrl: brandingForm.logoImageUrl,
+                        siteIconUrl: brandingForm.logoImageUrl,
+                      })
+                    }
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/25 text-xs font-semibold transition-all cursor-pointer"
+                  >
+                    <Sparkles size={13} />
+                    <span>⚡ Isticmaal Sawirka Logada oo Website Icon ka dhig</span>
+                  </button>
+                )}
+
+                {(brandingForm.faviconUrl || brandingForm.siteIconUrl) && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBrandingForm({
+                        ...brandingForm,
+                        faviconUrl: '',
+                        siteIconUrl: '',
+                      })
+                    }
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs transition-all cursor-pointer ml-auto"
+                  >
+                    <Trash2 size={13} />
+                    <span>Tirtir Website Icon-ka</span>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Branding Preview */}
@@ -1184,7 +1421,100 @@ export const AdminAppearance: React.FC = () => {
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-2 text-white font-bold text-sm">
                   <Eye size={16} className="text-primary" />
-                  <span>Sida ay Header & Footer ugu muuqdaan</span>
+                  <span>Sida ay Header, Footer & Tab ugu muuqdaan</span>
+                </div>
+              </div>
+
+              {/* Browser Tab & Favicon Mockup Preview */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider flex items-center gap-1.5">
+                    <Globe size={11} className="text-primary" />
+                    Browser Tab & Favicon Preview
+                  </span>
+                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">
+                    Live
+                  </span>
+                </div>
+
+                {/* Simulated Browser Window Header */}
+                <div className="rounded-xl overflow-hidden border border-slate-700/80 bg-slate-900 shadow-xl">
+                  {/* Browser Tab Strip */}
+                  <div className="bg-slate-950 px-3 pt-2 flex items-center gap-2 border-b border-slate-800">
+                    <div className="flex items-center gap-1 mr-1.5 shrink-0">
+                      <span className="w-2 h-2 rounded-full bg-red-500/80 inline-block" />
+                      <span className="w-2 h-2 rounded-full bg-amber-500/80 inline-block" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-500/80 inline-block" />
+                    </div>
+
+                    {/* Active Browser Tab */}
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-850 rounded-t-lg border-t border-x border-slate-700 text-white max-w-[230px] truncate shadow-sm">
+                      {brandingForm.faviconUrl || brandingForm.siteIconUrl ? (
+                        <img
+                          src={brandingForm.faviconUrl || brandingForm.siteIconUrl}
+                          alt="Website Icon"
+                          className="w-4 h-4 rounded-sm object-contain shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/src/assets/images/hero_portrait_1781209944400.jpg';
+                          }}
+                        />
+                      ) : brandingForm.logoImageUrl ? (
+                        <img
+                          src={brandingForm.logoImageUrl}
+                          alt="Logo Icon"
+                          className="w-4 h-4 rounded-sm object-contain shrink-0"
+                        />
+                      ) : (
+                        <div className="w-4 h-4 rounded-sm bg-primary/20 text-primary flex items-center justify-center font-bold text-[9px] shrink-0">
+                          {brandingForm.logoText?.slice(0, 2) || 'MA'}
+                        </div>
+                      )}
+                      <span className="text-[11px] font-medium text-slate-200 truncate">
+                        {brandingForm.siteName || 'Mohamed Alhady'} | {brandingForm.tagline?.slice(0, 16) || 'Portfolio'}
+                      </span>
+                      <span className="text-[10px] text-slate-500 hover:text-white shrink-0 ml-auto">✕</span>
+                    </div>
+                  </div>
+
+                  {/* Browser URL bar */}
+                  <div className="px-3 py-1.5 bg-slate-900 flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                    <span className="text-slate-400">https://</span>
+                    <span className="text-white font-semibold truncate">
+                      {(brandingForm.siteName || 'mohamed').toLowerCase().replace(/\s+/g, '')}.dev
+                    </span>
+                  </div>
+                </div>
+
+                {/* Mobile Web App Shortcut Preview */}
+                <div className="pt-2 border-t border-slate-800/80 flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-slate-900 via-slate-850 to-slate-800 border border-slate-700/80 p-1.5 flex items-center justify-center shadow-lg shadow-black/40 shrink-0">
+                    {brandingForm.faviconUrl || brandingForm.siteIconUrl ? (
+                      <img
+                        src={brandingForm.faviconUrl || brandingForm.siteIconUrl}
+                        alt="App Icon"
+                        className="w-full h-full rounded-xl object-contain"
+                      />
+                    ) : brandingForm.logoImageUrl ? (
+                      <img
+                        src={brandingForm.logoImageUrl}
+                        alt="App Icon"
+                        className="w-full h-full rounded-xl object-contain"
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-xl bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">
+                        {brandingForm.logoText?.slice(0, 2) || 'MA'}
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-white truncate">
+                      {brandingForm.siteName || 'Mohamed Alhady'}
+                    </p>
+                    <p className="text-[10px] text-slate-400">
+                      Mobile App / Bookmark Icon
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -1314,7 +1644,560 @@ export const AdminAppearance: React.FC = () => {
       )}
 
       {/* ============================================================== */}
-      {/* TAB 3: THEME, BACKGROUND COLOR & ACCENTS                       */}
+      {/* TAB 3: ANIMATED MARQUEE & BRAND PARTNER LOGOS                  */}
+      {/* ============================================================== */}
+      {activeTab === 'marquee' && (
+        <div className="space-y-8">
+          {/* Top Marquee Control Banner */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20">
+                    <Sparkles size={16} />
+                  </span>
+                  <span className="text-xs font-mono uppercase tracking-wider text-primary font-bold">
+                    Homepage Animated Loop
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-white tracking-tight">
+                  {t('admin_marquee_title')}
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  {t('admin_marquee_desc')}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleResetDefaultLogos}
+                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700 text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Ku celi 6-da Tech Stack ee asalka ah"
+                >
+                  <RotateCcw size={13} />
+                  <span className="hidden sm:inline">Ku celi Asalka</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleOpenAddLogo}
+                  className="px-4 py-2.5 rounded-xl bg-primary hover:opacity-90 text-slate-950 text-xs font-bold transition-all shadow-md shadow-primary/20 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus size={15} />
+                  <span>Ku dar Logo Cusub</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Marquee Settings Bar */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-1">
+              {/* Toggle Enable/Disable */}
+              <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-white">Muuji Marquee-ga</p>
+                  <p className="text-[10px] text-slate-400">Daar/dami qaybtan homepage-ka</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-2">
+                  <input
+                    type="checkbox"
+                    checked={marqueeForm.isEnabled !== false}
+                    onChange={(e) =>
+                      setMarqueeForm({ ...marqueeForm, isEnabled: e.target.checked })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+
+              {/* Speed Control */}
+              <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-white">Xawaaraha Wareegga</p>
+                  <span className="text-[10px] font-mono text-primary font-bold">
+                    {marqueeForm.speed || 30}s
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-1 pt-1">
+                  {[
+                    { label: 'Dheereeya', sec: 20 },
+                    { label: 'Dhexdhexaad', sec: 30 },
+                    { label: 'Deggan', sec: 45 },
+                  ].map((speed) => (
+                    <button
+                      key={speed.sec}
+                      type="button"
+                      onClick={() => setMarqueeForm({ ...marqueeForm, speed: speed.sec })}
+                      className={`py-1 rounded-lg text-[10px] font-medium border text-center transition-all ${
+                        (marqueeForm.speed || 30) === speed.sec
+                          ? 'bg-primary/20 border-primary text-white font-bold'
+                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      {speed.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pause on Hover Toggle */}
+              <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-white">Jooji Marka la Dul Istaago</p>
+                  <p className="text-[10px] text-slate-400">Pause on mouse hover</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-2">
+                  <input
+                    type="checkbox"
+                    checked={marqueeForm.pauseOnHover !== false}
+                    onChange={(e) =>
+                      setMarqueeForm({ ...marqueeForm, pauseOnHover: e.target.checked })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+
+              {/* Monochrome Style Toggle */}
+              <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-white">Monochrome Filter</p>
+                  <p className="text-[10px] text-slate-400">Midab noqda marka la dul maro</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-2">
+                  <input
+                    type="checkbox"
+                    checked={marqueeForm.monochromeFilter !== false}
+                    onChange={(e) =>
+                      setMarqueeForm({ ...marqueeForm, monochromeFilter: e.target.checked })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Live Marquee Preview Box */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div className="flex items-center gap-2 text-white font-bold text-sm">
+                <Eye size={16} className="text-primary" />
+                <span>Muuqaalka Tooska ah ee Marquee-ga (Live Preview)</span>
+              </div>
+              <span className="text-[10px] font-mono text-slate-400">
+                {marqueeForm.items.filter((i) => i.isActive).length} Logos Active
+              </span>
+            </div>
+
+            <div className="py-8 px-4 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden relative group/preview">
+              {/* Vignette gradients */}
+              <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none" />
+              <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none" />
+
+              <div className="flex whitespace-nowrap overflow-hidden">
+                <motion.div
+                  className="flex items-center gap-12 px-6 min-w-full"
+                  animate={{ x: ['0%', '-50%'] }}
+                  transition={{
+                    repeat: Infinity,
+                    ease: 'linear',
+                    duration: marqueeForm.speed || 30,
+                  }}
+                >
+                  {[...Array(2)].map((_, rep) => (
+                    <React.Fragment key={rep}>
+                      {marqueeForm.items
+                        .filter((i) => i.isActive)
+                        .map((logo) => (
+                          <div
+                            key={`${rep}-${logo.id}`}
+                            className="flex items-center gap-3 text-slate-400 hover:text-white font-bold text-base uppercase tracking-widest transition-all shrink-0 select-none group/logo"
+                          >
+                            {logo.logoUrl ? (
+                              <div className="h-7 flex items-center justify-center shrink-0">
+                                <img
+                                  src={logo.logoUrl}
+                                  alt={logo.name}
+                                  className={`h-6 w-auto max-w-[120px] object-contain transition-all duration-300 ${
+                                    marqueeForm.monochromeFilter !== false
+                                      ? 'filter grayscale brightness-90 group-hover/logo:grayscale-0 group-hover/logo:brightness-100 opacity-80 group-hover/logo:opacity-100'
+                                      : 'opacity-90 group-hover/logo:opacity-100'
+                                  }`}
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-5 h-5 flex items-center justify-center text-primary">
+                                <Code2 size={18} />
+                              </div>
+                            )}
+                            {logo.displayMode !== 'logo-only' && (
+                              <span className="text-xs">{logo.name}</span>
+                            )}
+                          </div>
+                        ))}
+                    </React.Fragment>
+                  ))}
+                </motion.div>
+              </div>
+            </div>
+          </div>
+
+          {/* Logo Cards Management Grid */}
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <LayoutGrid size={18} className="text-primary" />
+                  <span>Liiska Logooyinka ({marqueeForm.items.length})</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Guji "Wax ka beddel" si aad sawir logo ah ugu upload-garayso ama "Ku dar Logo Cusub".
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleOpenAddLogo}
+                className="px-4 py-2 rounded-xl bg-primary hover:opacity-90 text-slate-950 text-xs font-bold transition-all shadow-md shadow-primary/20 flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+              >
+                <Plus size={15} />
+                <span>+ Ku dar Logo</span>
+              </button>
+            </div>
+
+            {/* Grid of Logos */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {marqueeForm.items.map((item, idx) => (
+                <div
+                  key={item.id}
+                  className={`p-4 rounded-2xl border transition-all duration-200 ${
+                    item.isActive
+                      ? 'bg-slate-900/80 border-slate-800 hover:border-slate-700 shadow-md'
+                      : 'bg-slate-950/40 border-slate-850 opacity-60'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    {/* Thumbnail */}
+                    <div className="w-14 h-14 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center p-2 overflow-hidden shrink-0 shadow-inner">
+                      {item.logoUrl ? (
+                        <img
+                          src={item.logoUrl}
+                          alt={item.name}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <div className="text-primary font-bold text-xs flex flex-col items-center">
+                          <Code2 size={20} />
+                          <span className="text-[9px] font-mono mt-0.5">Icon</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Meta info */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h4 className="font-bold text-white text-sm truncate">{item.name}</h4>
+                        {item.isActive ? (
+                          <span className="text-[9px] font-mono font-medium px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-500">
+                            Hidden
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+                        {item.category || 'Tech Stack'}
+                      </p>
+                      <span className="inline-block mt-1 text-[10px] font-mono text-cyan-300 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-800/40">
+                        {item.displayMode === 'logo-only'
+                          ? 'Sawir Kaliya'
+                          : item.displayMode === 'text-only'
+                          ? 'Icon & Magac'
+                          : 'Sawir & Magac'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Actions footer */}
+                  <div className="pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+                    {/* Order up / down buttons */}
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleMoveLogo(idx, 'up')}
+                        disabled={idx === 0}
+                        title="Dhaqaaji xagga hore"
+                        className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        <ChevronUp size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMoveLogo(idx, 'down')}
+                        disabled={idx === marqueeForm.items.length - 1}
+                        title="Dhaqaaji xagga dambe"
+                        className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        <ChevronDown size={13} />
+                      </button>
+                    </div>
+
+                    {/* Toggle, Edit, Delete */}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleLogoActive(item.id)}
+                        className={`text-[11px] px-2 py-1 rounded-lg border font-medium transition-all cursor-pointer ${
+                          item.isActive
+                            ? 'bg-slate-800 text-slate-300 hover:text-white border-slate-700'
+                            : 'bg-emerald-950/40 text-emerald-400 border-emerald-800/40 hover:bg-emerald-900/40'
+                        }`}
+                      >
+                        {item.isActive ? 'Dami' : 'Daar'}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditLogo(item)}
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all cursor-pointer"
+                        title="Wax ka beddel"
+                      >
+                        <Edit2 size={13} />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteLogo(item.id)}
+                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all cursor-pointer"
+                        title="Tirtir"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom Save Action Button */}
+          <div className="pt-4 flex justify-end border-t border-slate-800">
+            <button
+              type="button"
+              onClick={handleSaveAll}
+              disabled={saveStatus.type === 'saving'}
+              className="px-8 py-3 rounded-xl bg-primary hover:opacity-90 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-primary/25 disabled:opacity-60 cursor-pointer flex items-center gap-2"
+            >
+              <Save size={16} />
+              <span>Badbaadi Isbeddelka Marquee-ga</span>
+            </button>
+          </div>
+
+          {/* MODAL: ADD / EDIT MARQUEE LOGO */}
+          {isLogoModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+              <div className="w-full max-w-xl rounded-3xl bg-slate-900 border border-slate-800 p-6 sm:p-7 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20">
+                      <Sparkles size={16} />
+                    </span>
+                    <h3 className="font-bold text-white text-base">
+                      {editingLogoId ? 'Wax ka beddel Logada' : 'Ku dar Logo Cusub'}
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsLogoModalOpen(false)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all cursor-pointer"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="space-y-5">
+                  {/* Image Upload section */}
+                  <ImageUploader
+                    label="Sawirka Logada (Upload PNG, SVG, WEBP, ama JPG)"
+                    value={logoForm.logoUrl || ''}
+                    onChange={(newUrl) => setLogoForm({ ...logoForm, logoUrl: newUrl })}
+                    placeholder="https://.../logo.svg"
+                    helperText="Soo upload-garee sawirka logada (PNG transparent ama SVG vector ayaa ugu fiican). Haddii aadan sawir haysan, qor magaca hoose."
+                    bucketName="portfolio-media"
+                    folderPath="marquee-logos"
+                    recommendedSize="Cabirka lagu talinayo: 150x50px, 200x80px, ama SVG Vector"
+                  />
+
+                  {/* Logo Name Input */}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                      Magaca Logada / Shirkadda / Tool-ka *
+                    </label>
+                    <input
+                      type="text"
+                      value={logoForm.name}
+                      onChange={(e) => setLogoForm({ ...logoForm, name: e.target.value })}
+                      placeholder="e.g. React, Google, Vercel, Figma, Supabase"
+                      className="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-primary font-semibold"
+                    />
+                  </div>
+
+                  {/* Display Mode Options */}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                      Habka Muujinta ee Marquee-ga (Display Mode):
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {[
+                        {
+                          id: 'both',
+                          label: 'Sawir & Magac',
+                          desc: 'Logo Image + Name',
+                        },
+                        {
+                          id: 'logo-only',
+                          label: 'Sawir Kaliya',
+                          desc: 'Logo Only (Partners)',
+                        },
+                        {
+                          id: 'text-only',
+                          label: 'Icon & Magac',
+                          desc: 'Icon + Name text',
+                        },
+                      ].map((mode) => (
+                        <button
+                          key={mode.id}
+                          type="button"
+                          onClick={() =>
+                            setLogoForm({
+                              ...logoForm,
+                              displayMode: mode.id as 'both' | 'logo-only' | 'text-only',
+                            })
+                          }
+                          className={`p-3 rounded-xl border text-left transition-all ${
+                            logoForm.displayMode === mode.id
+                              ? 'bg-primary/20 border-primary text-white font-bold shadow-md shadow-primary/10'
+                              : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                          }`}
+                        >
+                          <p className="text-xs text-white font-bold">{mode.label}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{mode.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quick Preset Tech Stack Name Suggestions */}
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1.5">
+                      Talooyinka degdegga ah (Quick Tech Suggestions):
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        'React',
+                        'Next.js',
+                        'TypeScript',
+                        'Tailwind CSS',
+                        'Node.js',
+                        'Python',
+                        'Figma',
+                        'Docker',
+                        'AWS',
+                        'Firebase',
+                        'Supabase',
+                        'Vercel',
+                      ].map((tech) => (
+                        <button
+                          key={tech}
+                          type="button"
+                          onClick={() => setLogoForm({ ...logoForm, name: tech })}
+                          className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[10px] font-mono border border-slate-700 transition-all cursor-pointer"
+                        >
+                          {tech}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Category & Website URL */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                        Category / Qeybta
+                      </label>
+                      <input
+                        type="text"
+                        value={logoForm.category || ''}
+                        onChange={(e) => setLogoForm({ ...logoForm, category: e.target.value })}
+                        placeholder="e.g. Tech Stack, Brand Partner, Client"
+                        className="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                        Website Link (Optional)
+                      </label>
+                      <input
+                        type="url"
+                        value={logoForm.websiteUrl || ''}
+                        onChange={(e) => setLogoForm({ ...logoForm, websiteUrl: e.target.value })}
+                        placeholder="https://react.dev"
+                        className="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Active Switch */}
+                  <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-white">Muuji Logadan</p>
+                      <p className="text-[10px] text-slate-400">Logadani way ka dhex muuqan doontaa marquee-ga</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={logoForm.isActive !== false}
+                        onChange={(e) => setLogoForm({ ...logoForm, isActive: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsLogoModalOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all cursor-pointer"
+                  >
+                    Ka noqo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveLogo}
+                    disabled={!logoForm.name.trim()}
+                    className="px-5 py-2 rounded-xl bg-primary hover:opacity-90 text-slate-950 text-xs font-bold transition-all shadow-md shadow-primary/20 disabled:opacity-50 cursor-pointer"
+                  >
+                    Badbaadi Logada
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* TAB 4: THEME, BACKGROUND COLOR & ACCENTS                       */}
       {/* ============================================================== */}
       {activeTab === 'theme' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

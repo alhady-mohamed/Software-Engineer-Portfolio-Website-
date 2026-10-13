@@ -817,10 +817,50 @@ export const translations = {
     so: '2. Sumadda & Astaanta',
     ar: '2. الشعار وهوية الموقع',
   },
+  admin_tab_marquee: {
+    en: '3. Animated Logos & Partners',
+    so: '3. Logooyinka Marquee-ga & Shirkadaha',
+    ar: '3. الشعارات المتحركة والشركاء',
+  },
   admin_tab_theme: {
-    en: '3. Theme Colors & Styling',
-    so: '3. Midabbada & Qaab-dhismeedka',
-    ar: '3. ألوان المظهر والتنسيق',
+    en: '4. Theme Colors & Styling',
+    so: '4. Midabbada & Qaab-dhismeedka',
+    ar: '4. ألوان المظهر والتنسيق',
+  },
+  admin_marquee_title: {
+    en: 'Animated Marquee & Brand Logos',
+    so: 'Logooyinka Wareegaya ee Marquee-ga',
+    ar: 'الشعارات المتحركة وهوية الشركاء',
+  },
+  admin_marquee_desc: {
+    en: 'Upload, customize, and manage brand partner logos and tech stack items rotating on the homepage.',
+    so: 'Halkan ka maamul, ku dar, ama ka upload-gareey logooyinka shirkadaha iyo tech stack-ka ka wareegaya bogga hore.',
+    ar: 'إدارة ورفع شعارات الشركاء والتقنيات المتحركة في شريط الصفحة الرئيسية.',
+  },
+  admin_theme_emerald: {
+    en: 'Emerald Green',
+    so: 'Cagaarka Emerald',
+    ar: 'أخضر زمردي',
+  },
+  admin_theme_midnight: {
+    en: 'Midnight Dark',
+    so: 'Midnight Madoow',
+    ar: 'منتصف الليل الداكن',
+  },
+  admin_theme_toggle_tip: {
+    en: 'Toggle between Emerald Green and High-Contrast Midnight dark mode',
+    so: 'U kala beddel qaabka Cagaarka iyo Midnight Dark Mode',
+    ar: 'التبديل بين الأخضر الزمردي ووضع منتصف الليل عالي التباين',
+  },
+  admin_website_icon_title: {
+    en: 'Website Icon & Favicon',
+    so: 'Astaanta Website-ka (Favicon & App Icon)',
+    ar: 'أيقونة الموقع وشعار التبويب',
+  },
+  admin_website_icon_desc: {
+    en: 'Upload your website browser tab favicon, bookmark icon, and mobile web app icon.',
+    so: 'Halkan ka upload-gareey sawirka astaanta (Favicon) ee browser tab-ka, bookmarks-ka, iyo apps-ka mobilka.',
+    ar: 'ارفع أيقونة الموقع للتبويب والإشارات المرجعية وتطبيقات الويب.',
   },
 };
 

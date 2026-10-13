@@ -48,6 +48,7 @@ export const AdminOverview: React.FC = () => {
     isFirebaseConnected,
     syncAllToFirebase,
     clearAllData,
+    settings,
   } = useSiteData();
   const { t } = useLanguage();
 
@@ -232,6 +233,35 @@ export const AdminOverview: React.FC = () => {
           <span>{firebaseFeedback}</span>
         </div>
       )}
+
+      {/* ANIMATED MARQUEE & PARTNER LOGOS QUICK ACTION BANNER */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/30 to-slate-900 border border-indigo-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-cyan-400 border border-indigo-500/20 shrink-0">
+            <Sparkles size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-white">Homepage Animated Marquee Logos</span>
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                {(settings?.marquee?.items?.length ?? 6)} Logos Configured
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Qaybta wareegaysa ee homepage-ka: Waxaad si toos ah uga upload-garayn kartaa sawirrada logoyinka shirkadaha & tech stack-ka.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          to="/admin/appearance?tab=marquee"
+          className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/25 flex items-center gap-1.5 transition-all self-start sm:self-auto shrink-0"
+        >
+          <Upload size={13} />
+          <span>Maamul & Upload-garee Logoyinka</span>
+          <ArrowUpRight size={13} />
+        </Link>
+      </div>
 
       {/* SUMMARY CARDS SECTION USING RECHARTS (Key Metrics: Visitor Count, Total Projects, Pending Messages) */}
       <div className="space-y-3">

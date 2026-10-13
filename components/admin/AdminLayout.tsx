@@ -22,11 +22,13 @@ import {
   Layers,
   ChevronLeft,
   ChevronRight,
+  Moon,
+  Sparkles,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAdminAuth();
-  const { messages, isFirebaseConnected, settings } = useSiteData();
+  const { messages, isFirebaseConnected, settings, updateSettings } = useSiteData();
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,6 +71,25 @@ export const AdminLayout: React.FC = () => {
   const handleLogout = async () => {
     await logout();
     navigate('/admin/login');
+  };
+
+  // Theme toggle state: Emerald Green (Default) vs High-Contrast 'Midnight' dark mode
+  const isMidnight = settings?.theme?.bgPalette === 'midnight';
+  const [isThemeToggling, setIsThemeToggling] = useState(false);
+
+  const handleToggleTheme = async () => {
+    setIsThemeToggling(true);
+    try {
+      const nextPalette = isMidnight ? 'emerald' : 'midnight';
+      await updateSettings({
+        theme: {
+          ...(settings?.theme || { primaryColor: '#facc15', secondaryColor: '#22c55e' }),
+          bgPalette: nextPalette,
+        },
+      });
+    } finally {
+      setIsThemeToggling(false);
+    }
   };
 
   // Clean grouped navigation structure without repetitive single-item categories
@@ -145,12 +166,18 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row font-sans selection:bg-primary selection:text-white ${
+      className={`min-h-screen ${
+        isMidnight ? 'bg-[#030712]' : 'bg-slate-950'
+      } text-slate-100 flex flex-col md:flex-row font-sans selection:bg-primary selection:text-white ${
         isRTL ? 'rtl' : 'ltr'
       }`}
     >
       {/* Mobile Top Header */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
+      <header
+        className={`md:hidden flex items-center justify-between px-4 py-3 ${
+          isMidnight ? 'bg-[#070d19] border-slate-800' : 'bg-slate-900 border-slate-800'
+        } border-b sticky top-0 z-40`}
+      >
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-bold">
             <ShieldCheck size={18} />
@@ -162,6 +189,22 @@ export const AdminLayout: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Mobile Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={handleToggleTheme}
+            disabled={isThemeToggling}
+            title={isMidnight ? 'U beddel Emerald Green' : 'U beddel Midnight Dark Mode'}
+            className={`p-2 rounded-xl border transition-all cursor-pointer ${
+              isMidnight
+                ? 'bg-slate-900 border-indigo-500/50 text-cyan-300 hover:text-white shadow-[0_0_10px_rgba(99,102,241,0.25)]'
+                : 'bg-slate-900 border-emerald-500/40 text-emerald-300 hover:text-white shadow-[0_0_10px_rgba(34,197,94,0.18)]'
+            }`}
+            aria-label="Toggle Theme"
+          >
+            {isMidnight ? <Moon size={16} className="fill-cyan-400/20" /> : <Sparkles size={16} />}
+          </button>
+
           {/* Mobile Language Switcher */}
           <LanguageSelector variant="admin" compact />
 
@@ -449,9 +492,13 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Pane */}
-      <main className="flex-1 min-h-screen bg-slate-950 flex flex-col overflow-x-hidden">
+      <main className={`flex-1 min-h-screen ${isMidnight ? 'bg-[#030712]' : 'bg-slate-950'} flex flex-col overflow-x-hidden`}>
         {/* Clean, High-Polish Top Bar on Desktop */}
-        <div className="hidden md:flex items-center justify-between px-8 py-3.5 border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md sticky top-0 z-30">
+        <div
+          className={`hidden md:flex items-center justify-between px-8 py-3.5 border-b border-slate-800/80 ${
+            isMidnight ? 'bg-[#070d19]/80' : 'bg-slate-900/40'
+          } backdrop-blur-md sticky top-0 z-30`}
+        >
           <div className="flex items-center gap-3">
             {/* Active Screen Indicator */}
             <div className="flex items-center gap-1.5 text-white font-bold bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/60 shadow-sm text-xs">
@@ -460,8 +507,48 @@ export const AdminLayout: React.FC = () => {
             </div>
           </div>
 
-          {/* Header Actions: Language Switcher, Live Site */}
+          {/* Header Actions: Theme Toggle, Language Switcher, Live Site */}
           <div className="flex items-center gap-3">
+            {/* High-Contrast Midnight vs Emerald Green Theme Toggle */}
+            <button
+              type="button"
+              onClick={handleToggleTheme}
+              disabled={isThemeToggling}
+              title={
+                isMidnight
+                  ? 'Guji si aad ugu beddesho Naqshadda Cagaarka ah (Switch to Emerald Green)'
+                  : "Guji si aad ugu beddesho High-Contrast 'Midnight' Dark Mode"
+              }
+              className={`group flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs font-semibold transition-all duration-200 cursor-pointer shadow-sm select-none ${
+                isMidnight
+                  ? 'bg-slate-900/90 border-indigo-500/50 text-indigo-200 hover:border-indigo-400 hover:text-white hover:bg-indigo-950/40 shadow-[0_0_15px_rgba(99,102,241,0.25)]'
+                  : 'bg-slate-900/90 border-emerald-500/40 text-emerald-200 hover:border-emerald-400 hover:text-white hover:bg-emerald-950/30 shadow-[0_0_15px_rgba(34,197,94,0.18)]'
+              }`}
+              aria-label="Toggle High-Contrast Midnight or Emerald Green Theme"
+            >
+              {isMidnight ? (
+                <>
+                  <div className="w-5 h-5 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-cyan-300">
+                    <Moon size={12} className="fill-cyan-400/30" />
+                  </div>
+                  <span className="font-mono text-white text-xs font-bold">Midnight</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-mono font-medium">
+                    High-Contrast
+                  </span>
+                </>
+              ) : (
+                <>
+                  <div className="w-5 h-5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300">
+                    <Sparkles size={12} />
+                  </div>
+                  <span className="font-mono text-white text-xs font-bold">Emerald</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono font-medium">
+                    Green
+                  </span>
+                </>
+              )}
+            </button>
+
             {/* Multi-language Selector (English, Somali, Arabic) */}
             <LanguageSelector variant="admin" />
 

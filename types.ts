@@ -122,6 +122,8 @@ export interface BrandingSettings {
   tagline: string;
   footerBio: string;
   copyrightName: string;
+  faviconUrl?: string; // Website Icon / Favicon for browser tab & bookmarks
+  siteIconUrl?: string; // Optional alias for website icon image
 }
 
 // Visual Theme & Color configuration
@@ -131,6 +133,27 @@ export interface ThemeSettings {
   secondaryColor: string;
   customBgHex?: string;
   customCardHex?: string;
+}
+
+// Marquee Animated Banner & Brand Partner Logo configuration
+export interface MarqueeLogoItem {
+  id: string;
+  name: string;
+  logoUrl?: string; // Uploaded image URL (SVG/PNG/WEBP/JPG)
+  iconName?: string; // Fallback icon name (e.g. 'react', 'zap', 'code', 'layout', 'server', 'palette')
+  displayMode?: 'both' | 'logo-only' | 'text-only';
+  websiteUrl?: string;
+  category?: string;
+  isActive: boolean;
+}
+
+export interface MarqueeSectionSettings {
+  isEnabled: boolean;
+  speed: number; // In seconds (e.g. 20, 30, 45)
+  pauseOnHover: boolean;
+  monochromeFilter: boolean;
+  sectionTitle?: string;
+  items: MarqueeLogoItem[];
 }
 
 // Configuration parameters for Portfolio CMS & Firebase
@@ -145,4 +168,5 @@ export interface SiteSettings {
   hero: HeroSettings;
   branding: BrandingSettings;
   theme: ThemeSettings;
+  marquee?: MarqueeSectionSettings;
 }

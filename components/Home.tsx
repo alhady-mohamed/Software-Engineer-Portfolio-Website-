@@ -7,8 +7,63 @@ import { PROJECTS, EXPERIENCE } from '../constants';
 import { useSiteData } from '../src/context/SiteDataContext';
 
 const Home: React.FC = () => {
-  const { projects: dynamicProjects, testimonials, timelines } = useSiteData();
+  const { projects: dynamicProjects, testimonials, timelines, settings } = useSiteData();
   const allProjects = dynamicProjects.length > 0 ? dynamicProjects : PROJECTS;
+
+  // Marquee settings & dynamic logo items
+  const marqueeSettings = settings?.marquee;
+  const isMarqueeEnabled = marqueeSettings?.isEnabled !== false;
+  const marqueeSpeed = marqueeSettings?.speed || 30;
+  const pauseOnHover = marqueeSettings?.pauseOnHover !== false;
+  const monochromeFilter = marqueeSettings?.monochromeFilter !== false;
+
+  const defaultMarqueeLogos = [
+    { id: '1', name: 'React', iconName: 'react', displayMode: 'both' as const, isActive: true },
+    { id: '2', name: 'Next.js', iconName: 'zap', displayMode: 'both' as const, isActive: true },
+    { id: '3', name: 'TypeScript', iconName: 'code', displayMode: 'both' as const, isActive: true },
+    { id: '4', name: 'Tailwind CSS', iconName: 'layout', displayMode: 'both' as const, isActive: true },
+    { id: '5', name: 'Node.js', iconName: 'server', displayMode: 'both' as const, isActive: true },
+    { id: '6', name: 'UI/UX Design', iconName: 'palette', displayMode: 'both' as const, isActive: true },
+  ];
+
+  const activeLogos = (marqueeSettings?.items && marqueeSettings.items.length > 0)
+    ? marqueeSettings.items.filter((item) => item.isActive !== false)
+    : defaultMarqueeLogos;
+
+  const renderMarqueeIcon = (iconName?: string) => {
+    switch (iconName?.toLowerCase()) {
+      case 'zap':
+      case 'next':
+      case 'nextjs':
+        return <Zap size={22} className="text-secondary shrink-0" />;
+      case 'code':
+      case 'ts':
+      case 'typescript':
+        return <span className="font-mono text-primary font-bold shrink-0 text-lg">{"{ }"}</span>;
+      case 'layout':
+      case 'tailwind':
+      case 'css':
+        return <LayoutGrid size={22} className="text-cyan-400 shrink-0" />;
+      case 'palette':
+      case 'figma':
+      case 'ui':
+      case 'ui/ux':
+        return <Palette size={22} className="text-rose-400 shrink-0" />;
+      case 'video':
+      case 'media':
+        return <Video size={22} className="text-amber-400 shrink-0" />;
+      case 'marketing':
+      case 'social':
+        return <Megaphone size={22} className="text-emerald-400 shrink-0" />;
+      case 'server':
+      case 'node':
+      case 'nodejs':
+      case 'node.js':
+        return <Code2 size={22} className="text-emerald-400 shrink-0" />;
+      default:
+        return <Code2 size={22} className="text-primary shrink-0" />;
+    }
+  };
 
   // Prioritize featured projects from CMS, fallback to top 3
   const cmsFeatured = allProjects.filter((p) => p.featured);
@@ -33,34 +88,74 @@ const Home: React.FC = () => {
       {/* Intro hero showcasing title assets */}
       <Hero />
       
-      {/* Infinite Tech Stack Marquee loop banner */}
-      <section className="py-10 border-y border-white/5 bg-black/20 overflow-hidden relative">
-         {/* Vignette mask overlays targeting seamless crop entries */}
-         <div className="absolute inset-x-0 top-0 h-full w-32 bg-gradient-to-r from-dark to-transparent z-10 pointer-events-none" />
-         <div className="absolute inset-x-0 right-0 h-full w-32 bg-gradient-to-l from-dark to-transparent z-10 pointer-events-none opacity-100 float-right" />
-         <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-dark to-transparent z-10 pointer-events-none" />
-         
-         <div className="flex whitespace-nowrap">
+      {/* Infinite Tech Stack & Brand Logos Marquee loop banner */}
+      {isMarqueeEnabled && activeLogos.length > 0 && (
+        <section className="py-10 border-y border-white/5 bg-black/20 overflow-hidden relative group">
+          {/* Vignette mask overlays targeting seamless crop entries */}
+          <div className="absolute inset-x-0 top-0 h-full w-32 bg-gradient-to-r from-dark to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-x-0 right-0 h-full w-32 bg-gradient-to-l from-dark to-transparent z-10 pointer-events-none opacity-100 float-right" />
+          <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-dark to-transparent z-10 pointer-events-none" />
+          
+          <div className="flex whitespace-nowrap">
             {/* Horizontal Framer motion translation timeline set to run infinitely */}
             <motion.div 
-               className="flex items-center gap-16 px-8 min-w-full"
-               animate={{ x: ["0%", "-50%"] }}
-               transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
+              className={`flex items-center gap-16 px-8 min-w-full ${
+                pauseOnHover ? 'group-hover:[animation-play-state:paused]' : ''
+              }`}
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: marqueeSpeed }}
             >
-               {/* Items repeated twice for seamless loop without visual breaks */}
-               {[...Array(2)].map((_, i) => (
-                 <React.Fragment key={i}>
-                   <div className="flex items-center gap-3 text-gray-500 font-bold text-xl uppercase tracking-widest"><Code2 size={24} /> React</div>
-                   <div className="flex items-center gap-3 text-gray-500 font-bold text-xl uppercase tracking-widest"><Zap size={24} /> Next.js</div>
-                   <div className="flex items-center gap-3 text-gray-500 font-bold text-xl uppercase tracking-widest"><span className="font-mono">{"{ }"}</span> TypeScript</div>
-                   <div className="flex items-center gap-3 text-gray-500 font-bold text-xl uppercase tracking-widest"><LayoutGrid size={24} /> Tailwind CSS</div>
-                   <div className="flex items-center gap-3 text-gray-500 font-bold text-xl uppercase tracking-widest"><Code2 size={24} /> Node.js</div>
-                   <div className="flex items-center gap-3 text-gray-500 font-bold text-xl uppercase tracking-widest"><Palette size={24} /> UI/UX</div>
-                 </React.Fragment>
-               ))}
+              {/* Items repeated twice for seamless loop without visual breaks */}
+              {[...Array(2)].map((_, i) => (
+                <React.Fragment key={i}>
+                  {activeLogos.map((logo) => {
+                    const logoItem = (
+                      <div
+                        key={`${i}-${logo.id}`}
+                        className="flex items-center gap-3.5 text-gray-400 hover:text-white font-bold text-xl uppercase tracking-widest transition-all duration-300 group/item shrink-0 select-none"
+                      >
+                        {logo.logoUrl ? (
+                          <div className="h-8 flex items-center justify-center shrink-0">
+                            <img
+                              src={logo.logoUrl}
+                              alt={logo.name}
+                              className={`h-7 sm:h-8 w-auto max-w-[140px] object-contain transition-all duration-300 ${
+                                monochromeFilter
+                                  ? 'filter grayscale brightness-90 group-hover/item:grayscale-0 group-hover/item:brightness-110 opacity-75 group-hover/item:opacity-100'
+                                  : 'opacity-85 group-hover/item:opacity-100'
+                              }`}
+                            />
+                          </div>
+                        ) : (
+                          renderMarqueeIcon(logo.iconName)
+                        )}
+                        {logo.displayMode !== 'logo-only' && (
+                          <span className="tracking-widest whitespace-nowrap">{logo.name}</span>
+                        )}
+                      </div>
+                    );
+
+                    return logo.websiteUrl ? (
+                      <a
+                        key={`${i}-${logo.id}`}
+                        href={logo.websiteUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="transition-transform hover:scale-105 inline-flex items-center"
+                        title={logo.name}
+                      >
+                        {logoItem}
+                      </a>
+                    ) : (
+                      logoItem
+                    );
+                  })}
+                </React.Fragment>
+              ))}
             </motion.div>
-         </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Services Section displaying modular capability descriptions split in three */}
       <section className="py-24 relative overflow-hidden bg-slate-900/10 border-b border-white/5">

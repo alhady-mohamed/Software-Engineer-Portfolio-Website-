@@ -34,26 +34,50 @@ function applyThemeVariables(theme?: ThemeSettings) {
     root.style.setProperty('--color-secondary', theme.secondaryColor);
   }
 
+  // Set active palette attribute
+  root.setAttribute('data-palette', theme.bgPalette || 'emerald');
+
+  if (theme.bgPalette === 'midnight') {
+    root.classList.add('midnight-theme');
+    root.classList.remove('emerald-theme');
+  } else {
+    root.classList.remove('midnight-theme');
+    root.classList.add('emerald-theme');
+  }
+
   switch (theme.bgPalette) {
     case 'emerald':
       root.style.setProperty('--color-bg-base', '2 15 10');
       root.style.setProperty('--color-bg-card', '6 36 24');
       root.style.setProperty('--color-bg-secondary', '0 5 2');
+      root.style.setProperty('--color-text-base', '255 255 255');
+      root.style.setProperty('--color-text-muted', '153 178 162');
+      root.style.setProperty('--color-border', '12 72 48');
       break;
     case 'slate':
       root.style.setProperty('--color-bg-base', '10 15 26');
       root.style.setProperty('--color-bg-card', '15 23 42');
       root.style.setProperty('--color-bg-secondary', '2 6 23');
+      root.style.setProperty('--color-text-base', '255 255 255');
+      root.style.setProperty('--color-text-muted', '148 163 184');
+      root.style.setProperty('--color-border', '30 41 59');
       break;
     case 'obsidian':
       root.style.setProperty('--color-bg-base', '5 5 7');
       root.style.setProperty('--color-bg-card', '18 18 22');
       root.style.setProperty('--color-bg-secondary', '0 0 0');
+      root.style.setProperty('--color-text-base', '255 255 255');
+      root.style.setProperty('--color-text-muted', '161 161 170');
+      root.style.setProperty('--color-border', '39 39 42');
       break;
     case 'midnight':
-      root.style.setProperty('--color-bg-base', '3 7 18');
-      root.style.setProperty('--color-bg-card', '15 23 42');
-      root.style.setProperty('--color-bg-secondary', '2 4 12');
+      // High-contrast Midnight dark mode theme
+      root.style.setProperty('--color-bg-base', '3 7 18');       // Deep Midnight Navy/Black
+      root.style.setProperty('--color-bg-card', '15 23 42');     // Crisp Slate-900 Card
+      root.style.setProperty('--color-bg-secondary', '2 4 12');  // Ultra dark Midnight
+      root.style.setProperty('--color-text-base', '255 255 255'); // Pure White text
+      root.style.setProperty('--color-text-muted', '148 163 184'); // High-contrast Slate-400
+      root.style.setProperty('--color-border', '51 65 85');       // High-contrast Slate-700 Border
       break;
     case 'custom':
       if (theme.customBgHex) {
@@ -166,6 +190,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           hero: { ...INITIAL_SETTINGS.hero, ...(parsed.hero || {}) },
           branding: { ...INITIAL_SETTINGS.branding, ...(parsed.branding || {}) },
           theme: { ...INITIAL_SETTINGS.theme, ...(parsed.theme || {}) },
+          marquee: parsed.marquee ? { ...INITIAL_SETTINGS.marquee, ...parsed.marquee } : INITIAL_SETTINGS.marquee,
         };
       }
       return INITIAL_SETTINGS;
@@ -183,6 +208,36 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       applyThemeVariables(settings.theme);
     }
   }, [settings.theme]);
+
+  // Apply dynamic website icon / favicon whenever settings.branding.faviconUrl changes
+  useEffect(() => {
+    const iconUrl = settings.branding?.faviconUrl || settings.branding?.siteIconUrl;
+    if (typeof document !== 'undefined' && iconUrl) {
+      let iconLink = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+      if (!iconLink) {
+        iconLink = document.createElement('link');
+        iconLink.rel = 'icon';
+        document.head.appendChild(iconLink);
+      }
+      iconLink.href = iconUrl;
+
+      let shortcutLink = document.querySelector<HTMLLinkElement>("link[rel='shortcut icon']");
+      if (!shortcutLink) {
+        shortcutLink = document.createElement('link');
+        shortcutLink.rel = 'shortcut icon';
+        document.head.appendChild(shortcutLink);
+      }
+      shortcutLink.href = iconUrl;
+
+      let appleLink = document.querySelector<HTMLLinkElement>("link[rel='apple-touch-icon']");
+      if (!appleLink) {
+        appleLink = document.createElement('link');
+        appleLink.rel = 'apple-touch-icon';
+        document.head.appendChild(appleLink);
+      }
+      appleLink.href = iconUrl;
+    }
+  }, [settings.branding?.faviconUrl, settings.branding?.siteIconUrl]);
 
   // Real-time synchronization with Firebase Firestore
   useEffect(() => {
@@ -298,6 +353,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           hero: data.hero ? { ...prev.hero, ...data.hero } : prev.hero,
           branding: data.branding ? { ...prev.branding, ...data.branding } : prev.branding,
           theme: data.theme ? { ...prev.theme, ...data.theme } : prev.theme,
+          marquee: data.marquee ? { ...(prev.marquee || INITIAL_SETTINGS.marquee), ...data.marquee } : prev.marquee,
         }));
       }
     }, (err) => {
@@ -578,6 +634,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         hero: updated.hero,
         branding: updated.branding,
         theme: updated.theme,
+        marquee: updated.marquee,
         updatedAt: new Date().toISOString(),
       }, { merge: true });
     } catch (e) {
