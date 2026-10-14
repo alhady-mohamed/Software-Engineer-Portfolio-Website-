@@ -92,6 +92,18 @@ export const AdminLayout: React.FC = () => {
     }
   };
 
+  // Determine active nav item accounting for query parameters like ?tab=marquee
+  const isItemActive = (to: string, exact?: boolean) => {
+    if (to.includes('?')) {
+      const [path, search] = to.split('?');
+      return location.pathname === path && location.search.includes(search);
+    }
+    if (to === '/admin/appearance') {
+      return location.pathname === '/admin/appearance' && !location.search.includes('tab=marquee');
+    }
+    return exact ? location.pathname === to : location.pathname.startsWith(to);
+  };
+
   // Clean grouped navigation structure without repetitive single-item categories
   const navSections = [
     {
@@ -107,6 +119,12 @@ export const AdminLayout: React.FC = () => {
           to: '/admin/appearance',
           label: t('admin_appearance'),
           icon: Palette,
+        },
+        {
+          to: '/admin/appearance?tab=marquee',
+          label: t('admin_marquee_nav'),
+          icon: Sparkles,
+          badge: settings?.marquee?.items?.length ? `${settings.marquee.items.length}` : undefined,
         },
       ],
     },
@@ -274,6 +292,9 @@ export const AdminLayout: React.FC = () => {
                   src={settings.branding.logoImageUrl}
                   alt={settings?.branding?.siteName || 'Logo'}
                   className="w-10 h-10 rounded-full object-cover border border-slate-700/80 shadow-md shrink-0"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
                 />
               ) : (
                 <div
@@ -357,6 +378,7 @@ export const AdminLayout: React.FC = () => {
                 )}
                 {section.items.map((item) => {
                   const Icon = item.icon;
+                  const itemActive = isItemActive(item.to, item.exact);
                   return (
                     <NavLink
                       key={item.to}
@@ -364,21 +386,21 @@ export const AdminLayout: React.FC = () => {
                       end={item.exact}
                       onClick={() => setSidebarOpen(false)}
                       title={isCollapsed ? undefined : item.label}
-                      className={({ isActive }) =>
+                      className={
                         isCollapsed
                           ? `group relative flex items-center justify-center w-11 h-11 mx-auto rounded-xl transition-all duration-200 ${
-                              isActive
+                              itemActive
                                 ? 'bg-[#8b151b] text-white font-semibold shadow-lg shadow-[#8b151b]/35 ring-1 ring-rose-500/40'
                                 : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
                             }`
                           : `group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
-                              isActive
+                              itemActive
                                 ? 'bg-[#8b151b] text-white font-semibold shadow-lg shadow-[#8b151b]/30 ring-1 ring-rose-500/40'
                                 : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
                             }`
                       }
                     >
-                      {({ isActive }) =>
+                      {() =>
                         isCollapsed ? (
                           <>
                             <Icon size={19} className="shrink-0 transition-transform group-hover:scale-105" />
@@ -412,7 +434,7 @@ export const AdminLayout: React.FC = () => {
                               <Icon
                                 size={17}
                                 className={`shrink-0 transition-transform duration-200 group-hover:scale-105 ${
-                                  isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
+                                  itemActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
                                 }`}
                               />
                               <span className="truncate">{item.label}</span>
@@ -421,7 +443,7 @@ export const AdminLayout: React.FC = () => {
                               <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950">
                                 {item.badge}
                               </span>
-                            ) : isActive ? (
+                            ) : itemActive ? (
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-300 ring-2 ring-rose-400/50 shrink-0" />
                             ) : null}
                           </>

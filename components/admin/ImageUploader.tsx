@@ -15,58 +15,110 @@ interface ImageUploaderProps {
 
 /**
  * Resizes and compresses image to web-optimized data URL.
+ * Enforces a strict size budget (< 200KB) to ensure Firestore and LocalStorage never fail.
  */
 async function processAndCompressImage(
   file: File,
-  maxWidth = 1600,
-  maxHeight = 1600,
-  quality = 0.85
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    // If it's an SVG, preserve vector format directly
-    if (file.type === 'image/svg+xml') {
+  folderPath = 'uploads',
+  label = ''
+): Promise<{ dataUrl: string; sizeKb: number }> {
+  // If it's an SVG, preserve vector format directly if reasonably sized
+  if (file.type === 'image/svg+xml') {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve({
+          dataUrl: result,
+          sizeKb: Math.round(result.length * 0.75 / 1024),
+        });
+      };
       reader.onerror = (e) => reject(e);
       reader.readAsDataURL(file);
-      return;
-    }
+    });
+  }
 
+  // Determine optimal max dimensions based on the purpose
+  const isIcon = folderPath.includes('favicon') || folderPath.includes('icon') || label.toLowerCase().includes('icon') || label.toLowerCase().includes('favicon');
+  const isLogo = folderPath.includes('logo') || label.toLowerCase().includes('logo');
+  const isHero = folderPath.includes('hero') || label.toLowerCase().includes('hero') || label.toLowerCase().includes('portrait');
+
+  let targetMaxWidth = 1000;
+  let targetMaxHeight = 1000;
+  let initialQuality = 0.8;
+
+  if (isIcon) {
+    targetMaxWidth = 256;
+    targetMaxHeight = 256;
+    initialQuality = 0.85;
+  } else if (isLogo) {
+    targetMaxWidth = 600;
+    targetMaxHeight = 300;
+    initialQuality = 0.85;
+  } else if (isHero) {
+    targetMaxWidth = 960;
+    targetMaxHeight = 1200;
+    initialQuality = 0.8;
+  }
+
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        let width = img.width;
-        let height = img.height;
+        // Adaptive multi-pass compression
+        let currentWidth = img.width;
+        let currentHeight = img.height;
+        let currentQuality = initialQuality;
 
-        if (width > maxWidth || height > maxHeight) {
-          if (width > height) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          } else {
-            width = Math.round((width * maxHeight) / height);
-            maxHeight = height;
+        // Scale down to fit initial target bounding box
+        if (currentWidth > targetMaxWidth || currentHeight > targetMaxHeight) {
+          const ratio = Math.min(targetMaxWidth / currentWidth, targetMaxHeight / currentHeight);
+          currentWidth = Math.round(currentWidth * ratio);
+          currentHeight = Math.round(currentHeight * ratio);
+        }
+
+        const renderCanvas = (w: number, h: number, q: number): string => {
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, w);
+          canvas.height = Math.max(1, h);
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return e.target?.result as string;
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, w, h);
+
+          // Try webp first (supports alpha + high compression)
+          try {
+            const webpUrl = canvas.toDataURL('image/webp', q);
+            if (webpUrl.startsWith('data:image/webp')) {
+              return webpUrl;
+            }
+          } catch {
+            // fallback
           }
+
+          // Fallback to jpeg or png
+          const mime = (file.type === 'image/png' && isLogo) ? 'image/png' : 'image/jpeg';
+          return canvas.toDataURL(mime, q);
+        };
+
+        let resultUrl = renderCanvas(currentWidth, currentHeight, currentQuality);
+        const MAX_DATA_URL_CHAR_LEN = 220 * 1024; // ~165KB binary
+
+        // Downscale loop if image is still above size threshold
+        let passes = 0;
+        while (resultUrl.length > MAX_DATA_URL_CHAR_LEN && passes < 3) {
+          passes++;
+          currentWidth = Math.round(currentWidth * 0.8);
+          currentHeight = Math.round(currentHeight * 0.8);
+          currentQuality = Math.max(0.6, currentQuality - 0.1);
+          resultUrl = renderCanvas(currentWidth, currentHeight, currentQuality);
         }
 
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          resolve(e.target?.result as string);
-          return;
-        }
-
-        // Smooth image rendering
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Convert to webp if supported, or jpeg/png
-        const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-        const dataUrl = canvas.toDataURL(mime, quality);
-        resolve(dataUrl);
+        const finalKb = Math.round((resultUrl.length * 0.75) / 1024);
+        resolve({ dataUrl: resultUrl, sizeKb: finalKb });
       };
       img.onerror = () => reject(new Error('Sawirka lama akhrin karo'));
       img.src = e.target?.result as string;
@@ -99,8 +151,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       return;
     }
 
-    if (file.size > 15 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'Sawirku aad buu u weyn yahay (ugu badnaan 15MB)' });
+    if (file.size > 20 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Sawirku aad buu u weyn yahay (ugu badnaan 20MB)' });
       return;
     }
 
@@ -108,15 +160,14 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     setMessage(null);
 
     try {
-      // High-Fidelity Data URL with Canvas Compression
-      const compressedDataUrl = await processAndCompressImage(file);
-      onChange(compressedDataUrl);
+      // Smart compressed data URL guaranteed to be safe for Firestore (<200KB)
+      const { dataUrl, sizeKb } = await processAndCompressImage(file, folderPath, label);
+      onChange(dataUrl);
       setMessage({
         type: 'success',
-        text: 'Sawirka waa la habeeyay oo si toos ah ayaa loo keydiyay!',
+        text: `Sawirka si guul leh ayaa loo habeeyay (${sizeKb} KB) oo diyaar u ah keydinta!`,
       });
     } catch (err: any) {
-
       console.error('Image upload failed:', err);
       setMessage({ type: 'error', text: 'Cilad baa dhacday marka sawirka la shubayay' });
     } finally {

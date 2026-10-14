@@ -163,6 +163,7 @@ export interface SiteSettings {
   whatsappNumber: string;
   firebaseProjectId?: string;
   lastSyncedAt?: string;
+  updatedAt?: string;
 
   // Visual modules:
   hero: HeroSettings;

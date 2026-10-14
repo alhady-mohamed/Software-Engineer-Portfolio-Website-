@@ -211,32 +211,37 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Apply dynamic website icon / favicon whenever settings.branding.faviconUrl changes
   useEffect(() => {
-    const iconUrl = settings.branding?.faviconUrl || settings.branding?.siteIconUrl;
-    if (typeof document !== 'undefined' && iconUrl) {
-      let iconLink = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
-      if (!iconLink) {
-        iconLink = document.createElement('link');
-        iconLink.rel = 'icon';
-        document.head.appendChild(iconLink);
-      }
-      iconLink.href = iconUrl;
+    if (typeof document === 'undefined') return;
 
-      let shortcutLink = document.querySelector<HTMLLinkElement>("link[rel='shortcut icon']");
-      if (!shortcutLink) {
-        shortcutLink = document.createElement('link');
-        shortcutLink.rel = 'shortcut icon';
-        document.head.appendChild(shortcutLink);
-      }
-      shortcutLink.href = iconUrl;
+    const DEFAULT_FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%2322c55e'/%3E%3Ctext x='50' y='67' font-size='52' font-family='sans-serif' font-weight='900' text-anchor='middle' fill='%23050b14'%3EM%3C/text%3E%3C/svg%3E";
+    const targetUrl = settings.branding?.faviconUrl || settings.branding?.siteIconUrl || DEFAULT_FAVICON;
 
-      let appleLink = document.querySelector<HTMLLinkElement>("link[rel='apple-touch-icon']");
-      if (!appleLink) {
-        appleLink = document.createElement('link');
-        appleLink.rel = 'apple-touch-icon';
-        document.head.appendChild(appleLink);
-      }
-      appleLink.href = iconUrl;
+    let mimeType = '';
+    if (targetUrl.includes('image/svg+xml') || targetUrl.endsWith('.svg')) {
+      mimeType = 'image/svg+xml';
+    } else if (targetUrl.includes('image/png') || targetUrl.endsWith('.png')) {
+      mimeType = 'image/png';
+    } else if (targetUrl.includes('image/webp') || targetUrl.endsWith('.webp')) {
+      mimeType = 'image/webp';
+    } else if (targetUrl.includes('image/jpeg') || targetUrl.endsWith('.jpg') || targetUrl.endsWith('.jpeg')) {
+      mimeType = 'image/jpeg';
     }
+
+    const iconSelectors = ["link[rel~='icon']", "link[rel='shortcut icon']", "link[rel='apple-touch-icon']"];
+    iconSelectors.forEach((selector) => {
+      let link = document.querySelector<HTMLLinkElement>(selector);
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = selector.includes('apple') ? 'apple-touch-icon' : 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = targetUrl;
+      if (mimeType) {
+        link.type = mimeType;
+      } else {
+        link.removeAttribute('type');
+      }
+    });
   }, [settings.branding?.faviconUrl, settings.branding?.siteIconUrl]);
 
   // Real-time synchronization with Firebase Firestore
@@ -354,6 +359,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           branding: data.branding ? { ...prev.branding, ...data.branding } : prev.branding,
           theme: data.theme ? { ...prev.theme, ...data.theme } : prev.theme,
           marquee: data.marquee ? { ...(prev.marquee || INITIAL_SETTINGS.marquee), ...data.marquee } : prev.marquee,
+          updatedAt: data.updatedAt,
         }));
       }
     }, (err) => {
@@ -623,25 +629,44 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Settings Actions
   const updateSettings = async (newSettings: Partial<SiteSettings>): Promise<{ success: boolean; message: string }> => {
-    const updated = { ...settings, ...newSettings };
+    const updated: SiteSettings = {
+      ...settings,
+      ...newSettings,
+      hero: newSettings.hero ? { ...settings.hero, ...newSettings.hero } : settings.hero,
+      branding: newSettings.branding ? { ...settings.branding, ...newSettings.branding } : settings.branding,
+      theme: newSettings.theme ? { ...settings.theme, ...newSettings.theme } : settings.theme,
+      marquee: newSettings.marquee ? { ...settings.marquee, ...newSettings.marquee } : settings.marquee,
+    };
+
     setSettings(updated);
+
+    // Save to localStorage immediately so changes persist locally even before Firestore
+    try {
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
 
     try {
       await setDoc(doc(db, 'site_settings', 'current'), {
-        siteTitle: updated.siteTitle,
-        adminEmail: updated.adminEmail,
-        whatsappNumber: updated.whatsappNumber,
+        siteTitle: updated.siteTitle || '',
+        adminEmail: updated.adminEmail || '',
+        whatsappNumber: updated.whatsappNumber || '',
         hero: updated.hero,
         branding: updated.branding,
         theme: updated.theme,
         marquee: updated.marquee,
         updatedAt: new Date().toISOString(),
       }, { merge: true });
-    } catch (e) {
-      console.warn('Firestore settings update error:', e);
-    }
 
-    return { success: true, message: 'Settings saved successfully.' };
+      return { success: true, message: 'Settings saved successfully.' };
+    } catch (e: any) {
+      console.error('Firestore settings update error:', e);
+      return {
+        success: false,
+        message: e?.message || 'Cilad baa dhacday marka database-ka la kaydinayay',
+      };
+    }
   };
 
   const syncAllToFirebase = async (): Promise<{ success: boolean; message: string; counts?: { projects: number; timelines: number; testimonials: number } }> => {

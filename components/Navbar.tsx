@@ -99,6 +99,9 @@ const Navbar: React.FC = () => {
                 src={branding.logoImageUrl}
                 alt={branding.siteName}
                 className={getNavbarLogoClass()}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
               />
             </div>
           ) : branding?.logoType === 'image' && branding?.logoImageUrl ? (
@@ -107,6 +110,9 @@ const Navbar: React.FC = () => {
                 src={branding.logoImageUrl}
                 alt={branding.siteName}
                 className="w-full h-full object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
               />
             </div>
           ) : (

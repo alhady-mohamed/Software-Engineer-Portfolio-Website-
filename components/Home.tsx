@@ -1,12 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Code2, Palette, Zap, LayoutGrid, Github, ExternalLink, Video, Megaphone, Star, MessageSquareQuote } from 'lucide-react';
+import { ArrowRight, Code2, Palette, Zap, LayoutGrid, Github, ExternalLink, Video, Megaphone, Star, MessageSquareQuote, Sparkles, Upload } from 'lucide-react';
 import Hero from './Hero';
 import { PROJECTS, EXPERIENCE } from '../constants';
 import { useSiteData } from '../src/context/SiteDataContext';
+import { useAdminAuth } from '../src/context/AdminAuthContext';
 
 const Home: React.FC = () => {
+  const { user } = useAdminAuth();
   const { projects: dynamicProjects, testimonials, timelines, settings } = useSiteData();
   const allProjects = dynamicProjects.length > 0 ? dynamicProjects : PROJECTS;
 
@@ -90,16 +92,41 @@ const Home: React.FC = () => {
       
       {/* Infinite Tech Stack & Brand Logos Marquee loop banner */}
       {isMarqueeEnabled && activeLogos.length > 0 && (
-        <section className="py-10 border-y border-white/5 bg-black/20 overflow-hidden relative group">
+        <section className="py-12 md:py-16 border-y border-white/[0.08] bg-slate-950/70 backdrop-blur-md overflow-hidden relative group">
+          {/* Subtle ambient spotlight glow behind marquee */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-36 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Section Header with Title and Optional Admin Quick Link */}
+          <div className="relative z-10 max-w-7xl mx-auto px-6 mb-7 flex items-center justify-between">
+            <div className="flex items-center gap-3 mx-auto">
+              <span className="w-8 md:w-16 h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-primary/60" />
+              <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-slate-400 font-bold flex items-center gap-2 select-none">
+                <Sparkles size={13} className="text-primary" />
+                {marqueeSettings?.sectionTitle || 'Trusted Technologies & Brand Partners'}
+              </span>
+              <span className="w-8 md:w-16 h-[1px] bg-gradient-to-l from-transparent via-primary/30 to-primary/60" />
+            </div>
+
+            {user && (
+              <Link
+                to="/admin/appearance?tab=marquee"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 hover:bg-primary border border-slate-700/80 hover:border-primary text-slate-300 hover:text-slate-950 text-xs font-semibold shadow-lg transition-all absolute right-6 top-0"
+                title="Upload & edit brand logos"
+              >
+                <Upload size={12} className="text-primary group-hover:text-slate-950" />
+                <span>Upload Logos</span>
+              </Link>
+            )}
+          </div>
+
           {/* Vignette mask overlays targeting seamless crop entries */}
-          <div className="absolute inset-x-0 top-0 h-full w-32 bg-gradient-to-r from-dark to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-x-0 right-0 h-full w-32 bg-gradient-to-l from-dark to-transparent z-10 pointer-events-none opacity-100 float-right" />
-          <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-dark to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-28 md:w-56 bg-gradient-to-r from-dark via-dark/80 to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-28 md:w-56 bg-gradient-to-l from-dark via-dark/80 to-transparent z-10 pointer-events-none" />
           
           <div className="flex whitespace-nowrap">
             {/* Horizontal Framer motion translation timeline set to run infinitely */}
             <motion.div 
-              className={`flex items-center gap-16 px-8 min-w-full ${
+              className={`flex items-center gap-6 px-8 min-w-full ${
                 pauseOnHover ? 'group-hover:[animation-play-state:paused]' : ''
               }`}
               animate={{ x: ["0%", "-50%"] }}
@@ -112,17 +139,17 @@ const Home: React.FC = () => {
                     const logoItem = (
                       <div
                         key={`${i}-${logo.id}`}
-                        className="flex items-center gap-3.5 text-gray-400 hover:text-white font-bold text-xl uppercase tracking-widest transition-all duration-300 group/item shrink-0 select-none"
+                        className="flex items-center gap-3.5 px-5 py-2.5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] hover:border-primary/40 text-slate-300 hover:text-white font-bold text-sm uppercase tracking-wider transition-all duration-300 group/item shrink-0 select-none shadow-sm hover:shadow-lg hover:shadow-primary/10 backdrop-blur-sm"
                       >
                         {logo.logoUrl ? (
-                          <div className="h-8 flex items-center justify-center shrink-0">
+                          <div className="h-7 min-w-[28px] flex items-center justify-center shrink-0">
                             <img
                               src={logo.logoUrl}
                               alt={logo.name}
-                              className={`h-7 sm:h-8 w-auto max-w-[140px] object-contain transition-all duration-300 ${
+                              className={`h-6 sm:h-7 w-auto max-w-[130px] object-contain transition-all duration-300 ${
                                 monochromeFilter
-                                  ? 'filter grayscale brightness-90 group-hover/item:grayscale-0 group-hover/item:brightness-110 opacity-75 group-hover/item:opacity-100'
-                                  : 'opacity-85 group-hover/item:opacity-100'
+                                  ? 'filter grayscale brightness-90 group-hover/item:grayscale-0 group-hover/item:brightness-110 opacity-80 group-hover/item:opacity-100'
+                                  : 'opacity-90 group-hover/item:opacity-100'
                               }`}
                             />
                           </div>
@@ -130,7 +157,7 @@ const Home: React.FC = () => {
                           renderMarqueeIcon(logo.iconName)
                         )}
                         {logo.displayMode !== 'logo-only' && (
-                          <span className="tracking-widest whitespace-nowrap">{logo.name}</span>
+                          <span className="tracking-wider whitespace-nowrap text-xs sm:text-sm font-semibold">{logo.name}</span>
                         )}
                       </div>
                     );

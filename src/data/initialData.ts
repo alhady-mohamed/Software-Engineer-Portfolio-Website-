@@ -1,5 +1,6 @@
 import { TimelineItem, TestimonialItem, ContactMessage, Project, SiteSettings } from '../../types';
 import { PROJECTS as DEFAULT_PROJECTS, EXPERIENCE as DEFAULT_EXPERIENCE } from '../../constants';
+import defaultHeroPortrait from '../assets/images/hero_portrait_1781209944400.jpg';
 
 export const INITIAL_TIMELINES: TimelineItem[] = [
   {
@@ -127,7 +128,7 @@ export const INITIAL_SETTINGS: SiteSettings = {
     titleLine1: 'Building the',
     titleLine2: 'Digital Future',
     bio: "I'm Mohamed Alhady, a Creative Strategist & Developer specializing in Software Development, Branding, Video Production, and Social Media Marketing. I transform ideas into impactful digital experiences.",
-    imageUrl: '/src/assets/images/hero_portrait_1781209944400.jpg',
+    imageUrl: defaultHeroPortrait,
     imageAlt: 'Mohamed Alhady - Creative Strategist & Developer',
     primaryCtaText: 'View Work',
     primaryCtaLink: '/projects',

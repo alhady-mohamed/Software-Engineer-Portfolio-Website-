@@ -822,6 +822,11 @@ export const translations = {
     so: '3. Logooyinka Marquee-ga & Shirkadaha',
     ar: '3. الشعارات المتحركة والشركاء',
   },
+  admin_marquee_nav: {
+    en: 'Animated Logos & Marquee',
+    so: 'Logada Marquee-ga & Shirkadaha',
+    ar: 'الشعارات المتحركة والشركاء',
+  },
   admin_tab_theme: {
     en: '4. Theme Colors & Styling',
     so: '4. Midabbada & Qaab-dhismeedka',

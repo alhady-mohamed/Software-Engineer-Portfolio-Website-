@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSiteData } from '../../src/context/SiteDataContext';
 import { useLanguage } from '../../src/context/LanguageContext';
@@ -42,9 +42,11 @@ import {
   Pause,
   Video,
   Megaphone,
+  Upload,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ImageUploader } from './ImageUploader';
+import defaultHeroPortrait from '../../src/assets/images/hero_portrait_1781209944400.jpg';
 
 // Curated primary accent colors
 const ACCENT_COLOR_PRESETS = [
@@ -112,6 +114,35 @@ export const AdminAppearance: React.FC = () => {
       ],
     };
   });
+
+  // Quick Logo Upload Board state for instant inline logo uploading
+  const [quickLogoName, setQuickLogoName] = useState('');
+  const [quickLogoUrl, setQuickLogoUrl] = useState('');
+  const [quickDisplayMode, setQuickDisplayMode] = useState<'both' | 'logo-only' | 'text-only'>('both');
+  const [quickWebsiteUrl, setQuickWebsiteUrl] = useState('');
+
+  const handleQuickAddLogo = () => {
+    const finalName = quickLogoName.trim() || 'Brand Partner';
+    const newLogo: MarqueeLogoItem = {
+      id: `logo_${Date.now()}`,
+      name: finalName,
+      logoUrl: quickLogoUrl.trim() || undefined,
+      iconName: 'code',
+      displayMode: quickDisplayMode,
+      websiteUrl: quickWebsiteUrl.trim() || undefined,
+      category: 'Brand Partner',
+      isActive: true,
+    };
+
+    setMarqueeForm((prev) => ({
+      ...prev,
+      items: [newLogo, ...prev.items],
+    }));
+
+    setQuickLogoName('');
+    setQuickLogoUrl('');
+    setQuickWebsiteUrl('');
+  };
 
   // Modal / form state for Adding/Editing a Marquee Logo
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
@@ -208,6 +239,21 @@ export const AdminAppearance: React.FC = () => {
     type: 'idle',
     message: '',
   });
+
+  // Sync state with settings when loaded from Firestore or updated remotely
+  const lastRemoteUpdateRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (settings && saveStatus.type !== 'saving') {
+      const updateKey = settings.updatedAt || 'initial';
+      if (updateKey !== lastRemoteUpdateRef.current) {
+        lastRemoteUpdateRef.current = updateKey;
+        if (settings.hero) setHeroForm(settings.hero);
+        if (settings.branding) setBrandingForm(settings.branding);
+        if (settings.theme) setThemeForm(settings.theme);
+        if (settings.marquee) setMarqueeForm(settings.marquee);
+      }
+    }
+  }, [settings, saveStatus.type]);
 
   // Handle tech stack tags add / remove
   const handleAddTechTag = () => {
@@ -951,7 +997,7 @@ export const AdminAppearance: React.FC = () => {
                     : 'rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-black'
                 }`}>
                   <img
-                    src={heroForm.imageUrl || '/src/assets/images/hero_portrait_1781209944400.jpg'}
+                    src={heroForm.imageUrl || defaultHeroPortrait}
                     alt="Preview"
                     className={`w-full h-full ${
                       heroForm.isTransparentImage !== false
@@ -961,7 +1007,10 @@ export const AdminAppearance: React.FC = () => {
                         : 'object-cover'
                     }`}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/src/assets/images/hero_portrait_1781209944400.jpg';
+                      const target = e.target as HTMLImageElement;
+                      if (target.dataset.hasFailed) return;
+                      target.dataset.hasFailed = 'true';
+                      target.src = defaultHeroPortrait;
                     }}
                   />
                   {heroForm.isTransparentImage === false && (
@@ -1455,7 +1504,7 @@ export const AdminAppearance: React.FC = () => {
                           alt="Website Icon"
                           className="w-4 h-4 rounded-sm object-contain shrink-0"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/src/assets/images/hero_portrait_1781209944400.jpg';
+                            (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
                       ) : brandingForm.logoImageUrl ? (
@@ -1463,6 +1512,9 @@ export const AdminAppearance: React.FC = () => {
                           src={brandingForm.logoImageUrl}
                           alt="Logo Icon"
                           className="w-4 h-4 rounded-sm object-contain shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
                         />
                       ) : (
                         <div className="w-4 h-4 rounded-sm bg-primary/20 text-primary flex items-center justify-center font-bold text-[9px] shrink-0">
@@ -1842,6 +1894,135 @@ export const AdminAppearance: React.FC = () => {
                     </React.Fragment>
                   ))}
                 </motion.div>
+              </div>
+            </div>
+          </div>
+
+          {/* ============================================================== */}
+          {/* LOGO ADD BOARD / QUICK UPLOADER                                */}
+          {/* ============================================================== */}
+          <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <Upload size={16} />
+                  </span>
+                  <span className="text-xs font-mono uppercase tracking-wider text-emerald-400 font-bold">
+                    Logo Add Board
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-white tracking-tight">
+                  Ku dar / Upload-garee Logo Cusub
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Soo upload-garee sawir logo ah (PNG transparent ama SVG vector) ama qor magaca shirkadda/tech-ka.
+                </p>
+              </div>
+
+              {/* Preset Quick Adds */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-mono text-slate-400 mr-1">Presets:</span>
+                {[
+                  { name: 'Google', icon: 'zap' },
+                  { name: 'Microsoft', icon: 'layout' },
+                  { name: 'Figma', icon: 'palette' },
+                  { name: 'GitHub', icon: 'code' },
+                  { name: 'Supabase', icon: 'server' },
+                ].map((preset) => (
+                  <button
+                    key={preset.name}
+                    type="button"
+                    onClick={() => {
+                      setQuickLogoName(preset.name);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80 text-[10px] font-medium transition-all cursor-pointer"
+                  >
+                    +{preset.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Upload Form Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+              {/* Image Uploader widget (Left) */}
+              <div className="lg:col-span-7">
+                <ImageUploader
+                  label="Sawirka Logada (Upload PNG, SVG, WEBP ama JPG)"
+                  value={quickLogoUrl}
+                  onChange={(url) => setQuickLogoUrl(url)}
+                  placeholder="https://.../logo.png"
+                  helperText="Sawirka wuxuu toos ugu wareegayaa homepage-ka. PNG transparent ayaa ugu qurux badan."
+                  bucketName="portfolio-media"
+                  folderPath="marquee-logos"
+                  recommendedSize="Cabirka: 160x50px, 200x80px, ama Vector SVG"
+                />
+              </div>
+
+              {/* Logo Details & Submit (Right) */}
+              <div className="lg:col-span-5 space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
+                    Magaca Logada / Shirkadda *
+                  </label>
+                  <input
+                    type="text"
+                    value={quickLogoName}
+                    onChange={(e) => setQuickLogoName(e.target.value)}
+                    placeholder="e.g. Google, Vercel, Stripe, AWS..."
+                    className="w-full px-4 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-primary font-semibold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
+                    Habka Muujinta (Display Mode):
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: 'both', label: 'Sawir & Qoraal' },
+                      { id: 'logo-only', label: 'Sawir Kaliya' },
+                      { id: 'text-only', label: 'Qoraal Kaliya' },
+                    ].map((mode) => (
+                      <button
+                        key={mode.id}
+                        type="button"
+                        onClick={() => setQuickDisplayMode(mode.id as any)}
+                        className={`py-2 px-1 text-center rounded-xl text-[11px] font-medium border transition-all cursor-pointer ${
+                          quickDisplayMode === mode.id
+                            ? 'bg-primary/20 border-primary text-white font-bold'
+                            : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {mode.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
+                    Website Link (Ikhtiyaari):
+                  </label>
+                  <input
+                    type="text"
+                    value={quickWebsiteUrl}
+                    onChange={(e) => setQuickWebsiteUrl(e.target.value)}
+                    placeholder="https://company.com"
+                    className="w-full px-3.5 py-2 bg-slate-950/70 border border-slate-700/80 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleQuickAddLogo}
+                  disabled={!quickLogoName.trim() && !quickLogoUrl}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-primary hover:opacity-95 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  <Plus size={16} />
+                  <span>Ku dar Liiska Logooyinka (Add to Marquee)</span>
+                </button>
               </div>
             </div>
           </div>

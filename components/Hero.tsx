@@ -24,6 +24,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useSiteData } from '../src/context/SiteDataContext';
 import { useLanguage } from '../src/context/LanguageContext';
+import defaultHeroPortrait from '../src/assets/images/hero_portrait_1781209944400.jpg';
 
 /**
  * Hero component of the portfolio landing page.
@@ -187,7 +188,7 @@ const Hero: React.FC = () => {
                 : 'rounded-3xl overflow-hidden shadow-2xl bg-slate-900/30 border border-white/5'
             }`}>
               <img
-                src={hero.imageUrl || '/src/assets/images/hero_portrait_1781209944400.jpg'}
+                src={hero.imageUrl || defaultHeroPortrait}
                 alt={hero.imageAlt || 'Hero portrait'}
                 onLoad={handleImageLoad}
                 className={`w-full h-full transition-all duration-700 ease-out group-hover:scale-105 ${
@@ -199,7 +200,10 @@ const Hero: React.FC = () => {
                 }`}
                 referrerPolicy="no-referrer"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/src/assets/images/hero_portrait_1781209944400.jpg';
+                  const target = e.target as HTMLImageElement;
+                  if (target.dataset.hasFailed) return;
+                  target.dataset.hasFailed = 'true';
+                  target.src = defaultHeroPortrait;
                 }}
               />
 
