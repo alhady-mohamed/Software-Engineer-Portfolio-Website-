@@ -20,20 +20,32 @@ import { useSiteData } from "../src/context/SiteDataContext";
 import { useLanguage } from "../src/context/LanguageContext";
 
 // Fixed categorizations defining portfolio filters
-const Categories = ["All", "Web App", "Mobile", "AI/ML"];
+const Categories = ["All", "Featured ⭐", "Web App", "Mobile", "AI/ML"];
 
 const Projects: React.FC = () => {
   const { projects: dynamicProjects } = useSiteData();
   const { t } = useLanguage();
   const allProjects = dynamicProjects.length > 0 ? dynamicProjects : PROJECTS;
 
-  // Navigation active tab index setting
+  // Active category filter
   const [activeCategory, setActiveCategory] = useState("All");
+
+  // Dynamic list of featured projects
+  const featuredProjects = allProjects.filter((p) => p.featured);
+  const [selectedSpotlightId, setSelectedSpotlightId] = useState<string | number | null>(null);
+
+  // The active spotlight project is either the user-selected one, or the first featured project, or the first project
+  const spotlightProject =
+    (selectedSpotlightId ? allProjects.find((p) => String(p.id) === String(selectedSpotlightId)) : null) ||
+    featuredProjects[0] ||
+    allProjects[0];
 
   // Dynamic filter query scanning metadata fields
   const filteredProjects =
     activeCategory === "All"
       ? allProjects
+      : activeCategory === "Featured ⭐"
+      ? allProjects.filter((p) => p.featured)
       : allProjects.filter((p) => p.category === activeCategory);
 
   return (
@@ -65,77 +77,137 @@ const Projects: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Spotlight Highlight Box (Top Showcase Item) */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-24 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] border border-white/5 overflow-hidden flex flex-col lg:flex-row shadow-2xl relative"
-        >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+        {spotlightProject && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-24 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] border border-white/5 overflow-hidden flex flex-col lg:flex-row shadow-2xl relative"
+          >
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-amber-400 to-secondary"></div>
 
-          {/* Spotlight text details and main statistics metrics */}
-          <div className="lg:w-1/2 p-8 md:p-12 border-r border-white/5 flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase w-fit mb-6">
-              <Star size={14} className="fill-primary text-primary" />
-              Spotlight Project
-            </div>
-
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              {PROJECTS[0]?.title || "Enterprise Resource Planning"}
-            </h2>
-
-            <p className="text-gray-400 text-lg leading-relaxed mb-8">
-              A comprehensive case study showcasing end-to-end architecture, a
-              custom design system, and full-stack integration optimized for
-              high scalability. This project generated significant business
-              impact through streamlined workflows.
-            </p>
-
-            {/* In-spotlight impact metrics block */}
-            <div className="grid grid-cols-2 gap-6 border-y border-white/5 py-6 mb-8">
-              <div>
-                <div className="text-2xl font-bold text-white mb-1">200%</div>
-                <div className="text-sm text-gray-400">Increase in Speed</div>
+            {/* Spotlight text details and main statistics metrics */}
+            <div className="lg:w-1/2 p-8 md:p-12 border-r border-white/5 flex flex-col justify-center">
+              <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-bold tracking-widest uppercase w-fit shadow-sm shadow-amber-500/10">
+                  <Star size={14} className="fill-amber-400 text-amber-400" />
+                  Featured Spotlight Project
+                </div>
+                {featuredProjects.length > 1 && (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] text-slate-400 font-mono">Featured ({featuredProjects.length}):</span>
+                    {featuredProjects.map((fp) => (
+                      <button
+                        key={fp.id}
+                        type="button"
+                        onClick={() => setSelectedSpotlightId(fp.id)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                          String(spotlightProject?.id) === String(fp.id)
+                            ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
+                            : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5'
+                        }`}
+                        title={fp.title}
+                      >
+                        {fp.title.slice(0, 14)}{fp.title.length > 14 ? '...' : ''}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div>
-                <div className="text-2xl font-bold text-primary mb-1">50k+</div>
-                <div className="text-sm text-gray-400">Daily Active Users</div>
+
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                {spotlightProject.title}
+              </h2>
+
+              <p className="text-gray-400 text-lg leading-relaxed mb-8">
+                {spotlightProject.summary || spotlightProject.description}
+              </p>
+
+              {/* In-spotlight impact metrics block */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-y border-white/5 py-6 mb-8">
+                {spotlightProject.metrics && Object.keys(spotlightProject.metrics).length > 0 ? (
+                  Object.entries(spotlightProject.metrics).map(([label, val]) => (
+                    <div key={label}>
+                      <div className="text-2xl font-bold text-white mb-1">{val}</div>
+                      <div className="text-sm text-gray-400">{label}</div>
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div>
+                      <div className="text-2xl font-bold text-white mb-1">High</div>
+                      <div className="text-sm text-gray-400">Scalability</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-primary mb-1">100%</div>
+                      <div className="text-sm text-gray-400">Custom Built</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-amber-400 mb-1">Active</div>
+                      <div className="text-sm text-gray-400">Production</div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Action buttons directing to the spotlight details */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <Link
+                  to={`/project/${spotlightProject.id}`}
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-primary hover:bg-yellow-400 text-dark rounded-full font-bold transition-all shadow-lg shadow-primary/25 hover:-translate-y-0.5"
+                >
+                  Read Case Study <ArrowRight size={18} />
+                </Link>
+                {spotlightProject.githubUrl && (
+                  <a
+                    href={spotlightProject.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-4 rounded-full border border-white/10 text-white hover:bg-white/5 transition-all"
+                    aria-label="GitHub Repository Link"
+                    title="GitHub Repository"
+                  >
+                    <Github size={20} />
+                  </a>
+                )}
+                {spotlightProject.link && spotlightProject.link !== '#' && (
+                  <a
+                    href={spotlightProject.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-4 rounded-full border border-primary/30 text-primary hover:bg-primary/10 transition-all"
+                    aria-label="Live Demo Link"
+                    title="Live Demo"
+                  >
+                    <ExternalLink size={20} />
+                  </a>
+                )}
               </div>
             </div>
 
-            {/* Action buttons directing to the spotlight details */}
-            <div className="flex items-center gap-4">
-              <Link
-                to={`/project/${PROJECTS[0]?.id || 1}`}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-primary hover:bg-yellow-400 text-dark rounded-full font-bold transition-all shadow-lg shadow-primary/25 hover:-translate-y-0.5"
-              >
-                Read Case Study <ArrowRight size={18} />
-              </Link>
-              <a
-                href="https://github.com/alhady-mohamed"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-4 rounded-full border border-white/10 text-white hover:bg-white/5 transition-all"
-                aria-label="GitHub Repository Link"
-              >
-                <Github size={20} />
-              </a>
+            {/* Spotlight image background layout */}
+            <div className="lg:w-1/2 relative bg-dark min-h-[300px] lg:min-h-full overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-transparent z-10 hidden lg:block pointer-events-none" />
+              <img
+                src={
+                  spotlightProject.imageUrl ||
+                  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80"
+                }
+                alt={spotlightProject.title}
+                className="w-full h-full object-cover origin-left hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                <span className="px-3.5 py-1.5 text-xs font-bold bg-amber-500 text-slate-950 rounded-full border border-amber-400 flex items-center gap-1.5 shadow-lg shadow-amber-500/25">
+                  <Star size={12} className="fill-slate-950" />
+                  Featured
+                </span>
+                <span className="px-3.5 py-1.5 text-xs font-bold bg-slate-900/80 backdrop-blur-md text-white rounded-full border border-white/10 shadow-lg">
+                  {spotlightProject.category}
+                </span>
+              </div>
             </div>
-          </div>
-
-          {/* Spotlight image background layout */}
-          <div className="lg:w-1/2 relative bg-dark min-h-[300px] lg:min-h-full overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-transparent z-10 hidden lg:block" />
-            <img
-              src={
-                PROJECTS[0]?.imageUrl ||
-                "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80"
-              }
-              alt="Spotlight Project"
-              className="w-full h-full object-cover origin-left hover:scale-105 transition-transform duration-700"
-            />
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         {/* Categories Tab Selector */}
         <motion.div
@@ -186,8 +258,14 @@ const Projects: React.FC = () => {
                     alt={project.title}
                     className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute top-4 right-4 z-20">
-                    <span className="px-3 py-1.5 text-xs font-bold bg-white/10 backdrop-blur-md text-white rounded-full border border-white/10 shadow-lg">
+                  <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 flex-wrap justify-end">
+                    {project.featured && (
+                      <span className="px-2.5 py-1 text-[11px] font-bold bg-amber-500 text-slate-950 rounded-full border border-amber-400 flex items-center gap-1 shadow-md shadow-amber-500/25">
+                        <Star size={11} className="fill-slate-950" />
+                        Featured
+                      </span>
+                    )}
+                    <span className="px-3 py-1 text-xs font-bold bg-white/10 backdrop-blur-md text-white rounded-full border border-white/10 shadow-lg">
                       {project.category}
                     </span>
                   </div>

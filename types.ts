@@ -156,6 +156,36 @@ export interface MarqueeSectionSettings {
   items: MarqueeLogoItem[];
 }
 
+// Editable Skill with progress percentage (Core Competencies)
+export interface SkillItem {
+  id: string;
+  name: string;        // e.g. 'Software Development'
+  percentage: number;  // 0 - 100
+}
+
+// Editable Key Performance Metric
+export interface AboutMetricItem {
+  id: string;
+  label: string;       // e.g. 'Years Experience'
+  value: number;       // e.g. 5
+  suffix: string;      // e.g. '+'
+}
+
+// About page customizable modules (Bio, Key Metrics, Skill Bars, Tech Stack)
+export interface AboutSettings {
+  introBadge?: string;
+  headingTitle?: string;
+  leadText?: string;
+  paragraph1?: string;
+  paragraph2?: string;
+  paragraph3?: string;
+  metrics: AboutMetricItem[];
+  skills: SkillItem[];
+  techStack: string[];
+  standardsTitle?: string;
+  standardsDescription?: string;
+}
+
 // Configuration parameters for Portfolio CMS & Firebase
 export interface SiteSettings {
   siteTitle: string;
@@ -170,4 +200,5 @@ export interface SiteSettings {
   branding: BrandingSettings;
   theme: ThemeSettings;
   marquee?: MarqueeSectionSettings;
+  about?: AboutSettings;
 }

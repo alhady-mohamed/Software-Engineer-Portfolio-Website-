@@ -24,6 +24,7 @@ import {
   ChevronRight,
   Moon,
   Sparkles,
+  Cpu,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -99,7 +100,7 @@ export const AdminLayout: React.FC = () => {
       return location.pathname === path && location.search.includes(search);
     }
     if (to === '/admin/appearance') {
-      return location.pathname === '/admin/appearance' && !location.search.includes('tab=marquee');
+      return location.pathname === '/admin/appearance' && !location.search.includes('tab=marquee') && !location.search.includes('tab=about');
     }
     return exact ? location.pathname === to : location.pathname.startsWith(to);
   };
@@ -125,6 +126,12 @@ export const AdminLayout: React.FC = () => {
           label: t('admin_marquee_nav'),
           icon: Sparkles,
           badge: settings?.marquee?.items?.length ? `${settings.marquee.items.length}` : undefined,
+        },
+        {
+          to: '/admin/appearance?tab=about',
+          label: t('admin_about_nav'),
+          icon: Cpu,
+          badge: settings?.about?.skills?.length ? `${settings.about.skills.length}` : undefined,
         },
       ],
     },

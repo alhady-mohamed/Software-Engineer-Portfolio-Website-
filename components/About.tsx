@@ -64,9 +64,61 @@ const AnimatedCounter = ({ to, suffix, delay = 0 }: { to: number; suffix: string
  * 7. Call To Action (Project inquiry prompt)
  */
 import { useSiteData } from '../src/context/SiteDataContext';
+import { useAdminAuth } from '../src/context/AdminAuthContext';
 
 const About: React.FC = () => {
-  const { timelines } = useSiteData();
+  const { timelines, settings } = useSiteData();
+  const { isAuthenticated } = useAdminAuth();
+
+  const aboutSettings = settings.about || {
+    introBadge: 'Get to know me',
+    headingTitle: 'Mohamed Alhady',
+    leadText: 'Creative Strategist & Full-Stack Developer bridging engineering precision with cinematic storytelling and digital growth.',
+    paragraph1: 'I help modern brands, startups, and enterprises translate ambitious ideas into scalable software, distinctive visual identities, and high-impact digital experiences.',
+    paragraph2: 'With over five years at the intersection of technology and creative media, my work spans end-to-end web engineering, visual branding systems, high-production video direction, and data-backed digital marketing.',
+    paragraph3: "I believe high-performing software should feel as refined as handcrafted art. When I'm not designing architectures or deploying code, I immerse myself in creative direction, motion design, and exploring cutting-edge web technologies.",
+    metrics: [
+      { id: 'm1', label: 'Years Experience', value: 5, suffix: '+' },
+      { id: 'm2', label: 'Shipped Projects', value: 40, suffix: '+' },
+      { id: 'm3', label: 'Client Partners', value: 15, suffix: '+' },
+      { id: 'm4', label: 'Lines of Code', value: 1, suffix: 'M+' },
+    ],
+    skills: [
+      { id: 's1', name: 'Software Development', percentage: 95 },
+      { id: 's2', name: 'Branding & Visual Identity', percentage: 95 },
+      { id: 's3', name: 'Video Production', percentage: 90 },
+      { id: 's4', name: 'Social Media Marketing', percentage: 85 },
+      { id: 's5', name: 'UI/UX Design', percentage: 90 },
+      { id: 's6', name: 'Digital Strategy', percentage: 80 },
+    ],
+    techStack: [
+      'React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Node.js',
+      'PostgreSQL', 'Python', 'Framer Motion', 'Figma', 'Premiere Pro',
+      'After Effects', 'Docker', 'GraphQL', 'Git'
+    ],
+    standardsTitle: 'Architecture Standards',
+    standardsDescription: 'All projects adhere to WCAG accessibility, strict TypeScript validation, responsive design patterns, and SEO best practices.',
+  };
+
+  const dynamicMetrics = aboutSettings.metrics && aboutSettings.metrics.length > 0 ? aboutSettings.metrics : [
+    { id: 'm1', label: 'Years Experience', value: 5, suffix: '+' },
+    { id: 'm2', label: 'Shipped Projects', value: 40, suffix: '+' },
+    { id: 'm3', label: 'Client Partners', value: 15, suffix: '+' },
+    { id: 'm4', label: 'Lines of Code', value: 1, suffix: 'M+' },
+  ];
+
+  const dynamicSkills = aboutSettings.skills && aboutSettings.skills.length > 0 ? aboutSettings.skills : SKILLS_DATA.map((s, idx) => ({
+    id: `s_${idx}`,
+    name: s.subject,
+    percentage: s.A,
+  }));
+
+  const dynamicTechStack = aboutSettings.techStack && aboutSettings.techStack.length > 0 ? aboutSettings.techStack : [
+    'React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Node.js',
+    'PostgreSQL', 'Python', 'Framer Motion', 'Figma', 'Premiere Pro',
+    'After Effects', 'Docker', 'GraphQL', 'Git'
+  ];
+
   const dynamicEducation = timelines.find((t) => t.type === 'education');
   const dynamicExperiences = timelines.filter((t) => t.type === 'experience');
   const experiencesToRender = dynamicExperiences.length > 0
@@ -78,12 +130,6 @@ const About: React.FC = () => {
         description: e.description,
       }))
     : EXPERIENCE;
-
-  const techStackList = [
-    'React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Node.js',
-    'PostgreSQL', 'Python', 'Framer Motion', 'Figma', 'Premiere Pro',
-    'After Effects', 'Docker', 'GraphQL', 'Git'
-  ];
 
   return (
     <div className="pt-28 pb-24 min-h-screen bg-dark text-slate-200">
@@ -103,13 +149,13 @@ const About: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase mb-4">
               <User size={14} />
-              <span>Get to know me</span>
+              <span>{aboutSettings.introBadge || 'Get to know me'}</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-4">
-              About <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary">Mohamed Alhady</span>
+              About <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary">{aboutSettings.headingTitle || 'Mohamed Alhady'}</span>
             </h1>
             <p className="text-gray-400 text-lg max-w-2xl">
-              Creative Strategist & Full-Stack Developer bridging engineering precision with cinematic storytelling and digital growth.
+              {aboutSettings.leadText || 'Creative Strategist & Full-Stack Developer bridging engineering precision with cinematic storytelling and digital growth.'}
             </p>
           </motion.div>
 
@@ -122,13 +168,13 @@ const About: React.FC = () => {
               className="lg:col-span-7 space-y-5 text-gray-300 text-base leading-relaxed"
             >
               <p className="text-xl text-white font-medium leading-relaxed">
-                I help modern brands, startups, and enterprises translate ambitious ideas into scalable software, distinctive visual identities, and high-impact digital experiences.
+                {aboutSettings.paragraph1 || 'I help modern brands, startups, and enterprises translate ambitious ideas into scalable software, distinctive visual identities, and high-impact digital experiences.'}
               </p>
               <p className="text-gray-400">
-                With over five years at the intersection of technology and creative media, my work spans end-to-end web engineering, visual branding systems, high-production video direction, and data-backed digital marketing.
+                {aboutSettings.paragraph2 || 'With over five years at the intersection of technology and creative media, my work spans end-to-end web engineering, visual branding systems, high-production video direction, and data-backed digital marketing.'}
               </p>
               <p className="text-gray-400">
-                I believe high-performing software should feel as refined as handcrafted art. When I'm not designing architectures or deploying code, I immerse myself in creative direction, motion design, and exploring cutting-edge web technologies.
+                {aboutSettings.paragraph3 || "I believe high-performing software should feel as refined as handcrafted art. When I'm not designing architectures or deploying code, I immerse myself in creative direction, motion design, and exploring cutting-edge web technologies."}
               </p>
             </motion.div>
 
@@ -137,32 +183,31 @@ const About: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-5 grid grid-cols-2 gap-4"
+              className="lg:col-span-5 grid grid-cols-2 gap-4 relative group"
             >
-              <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6 text-center hover:border-primary/40 transition-colors shadow-lg">
-                <div className="text-3xl md:text-4xl font-extrabold text-primary mb-1">
-                  <AnimatedCounter to={5} suffix="+" delay={0.2} />
+              {isAuthenticated && (
+                <div className="col-span-2 flex justify-end -mt-3 mb-1">
+                  <Link
+                    to="/admin/appearance?tab=about"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-slate-950 transition-all shadow-md shadow-amber-500/10 backdrop-blur-md"
+                    title="Beddel Metrics-kan Gudaha Admin-ka"
+                  >
+                    <Sparkles size={11} />
+                    <span>Beddel Metrics (Admin)</span>
+                  </Link>
                 </div>
-                <div className="text-xs text-gray-400 uppercase tracking-widest font-semibold">Years Experience</div>
-              </div>
-              <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6 text-center hover:border-secondary/40 transition-colors shadow-lg">
-                <div className="text-3xl md:text-4xl font-extrabold text-secondary mb-1">
-                  <AnimatedCounter to={40} suffix="+" delay={0.3} />
+              )}
+              {dynamicMetrics.map((m, idx) => (
+                <div
+                  key={m.id || idx}
+                  className="bg-slate-900/60 border border-white/10 rounded-2xl p-6 text-center hover:border-primary/40 transition-colors shadow-lg group/metric"
+                >
+                  <div className="text-3xl md:text-4xl font-extrabold text-primary mb-1">
+                    <AnimatedCounter to={Number(m.value) || 0} suffix={m.suffix || '+'} delay={0.2 + idx * 0.1} />
+                  </div>
+                  <div className="text-xs text-gray-400 uppercase tracking-widest font-semibold">{m.label}</div>
                 </div>
-                <div className="text-xs text-gray-400 uppercase tracking-widest font-semibold">Shipped Projects</div>
-              </div>
-              <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6 text-center hover:border-primary/40 transition-colors shadow-lg">
-                <div className="text-3xl md:text-4xl font-extrabold text-primary mb-1">
-                  <AnimatedCounter to={15} suffix="+" delay={0.4} />
-                </div>
-                <div className="text-xs text-gray-400 uppercase tracking-widest font-semibold">Client Partners</div>
-              </div>
-              <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6 text-center hover:border-white/40 transition-colors shadow-lg">
-                <div className="text-3xl md:text-4xl font-extrabold text-white mb-1">
-                  <AnimatedCounter to={1} suffix="M+" delay={0.5} />
-                </div>
-                <div className="text-xs text-gray-400 uppercase tracking-widest font-semibold">Lines of Code</div>
-              </div>
+              ))}
             </motion.div>
           </div>
         </div>
@@ -325,21 +370,33 @@ const About: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             {/* Skill Bars */}
-            <div className="lg:col-span-7 bg-slate-900/40 p-8 rounded-3xl border border-white/10 shadow-xl space-y-6">
+            <div className="lg:col-span-7 bg-slate-900/40 p-8 rounded-3xl border border-white/10 shadow-xl space-y-6 relative group">
+              {isAuthenticated && (
+                <div className="absolute top-5 right-5 z-10">
+                  <Link
+                    to="/admin/appearance?tab=about"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-slate-950 transition-all shadow-md shadow-amber-500/10 backdrop-blur-md"
+                    title="Maamul Xirfadaha Gudaha Admin-ka"
+                  >
+                    <Sparkles size={11} />
+                    <span>Maamul Xirfadaha (Admin)</span>
+                  </Link>
+                </div>
+              )}
               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <Target size={20} className="text-primary" />
                 Core Competencies
               </h3>
-              {SKILLS_DATA.map((skill, index) => (
-                <div key={skill.subject}>
+              {dynamicSkills.map((skill, index) => (
+                <div key={skill.id || skill.name}>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-200 font-medium text-sm">{skill.subject}</span>
-                    <span className="text-primary font-bold text-sm tracking-widest">{skill.A}%</span>
+                    <span className="text-gray-200 font-medium text-sm">{skill.name}</span>
+                    <span className="text-primary font-bold text-sm tracking-widest">{skill.percentage}%</span>
                   </div>
                   <div className="h-2.5 w-full bg-black/60 rounded-full overflow-hidden border border-white/5 relative">
                     <motion.div
                       initial={{ width: 0 }}
-                      whileInView={{ width: `${skill.A}%` }}
+                      whileInView={{ width: `${Math.min(100, Math.max(0, skill.percentage))}%` }}
                       viewport={{ once: true }}
                       transition={{ duration: 1.2, delay: index * 0.1, ease: 'easeOut' }}
                       className="h-full bg-gradient-to-r from-primary via-yellow-300 to-secondary rounded-full relative"
@@ -353,13 +410,25 @@ const About: React.FC = () => {
 
             {/* Stack Highlights & Badges */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="bg-slate-900/40 p-8 rounded-3xl border border-white/10 shadow-xl">
+              <div className="bg-slate-900/40 p-8 rounded-3xl border border-white/10 shadow-xl relative group">
+                {isAuthenticated && (
+                  <div className="absolute top-5 right-5 z-10">
+                    <Link
+                      to="/admin/appearance?tab=about"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-slate-950 transition-all shadow-md shadow-amber-500/10 backdrop-blur-md"
+                      title="Beddel Tech Stack Gudaha Admin-ka"
+                    >
+                      <Sparkles size={11} />
+                      <span>Beddel Stack (Admin)</span>
+                    </Link>
+                  </div>
+                )}
                 <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                   <Layers size={20} className="text-secondary" />
                   Technologies & Ecosystem
                 </h3>
                 <div className="flex flex-wrap gap-2.5">
-                  {techStackList.map((tech) => (
+                  {dynamicTechStack.map((tech) => (
                     <span
                       key={tech}
                       className="px-3.5 py-1.5 text-xs font-semibold bg-white/5 text-gray-200 rounded-xl border border-white/10 hover:border-primary/40 hover:text-primary transition-colors cursor-default"
@@ -376,9 +445,11 @@ const About: React.FC = () => {
                     <ShieldCheck size={24} />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold text-base mb-1">Architecture Standards</h4>
+                    <h4 className="text-white font-bold text-base mb-1">
+                      {aboutSettings.standardsTitle || 'Architecture Standards'}
+                    </h4>
                     <p className="text-gray-400 text-xs leading-relaxed">
-                      All projects adhere to WCAG accessibility, strict TypeScript validation, responsive design patterns, and SEO best practices.
+                      {aboutSettings.standardsDescription || 'All projects adhere to WCAG accessibility, strict TypeScript validation, responsive design patterns, and SEO best practices.'}
                     </p>
                   </div>
                 </div>

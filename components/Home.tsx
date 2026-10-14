@@ -67,9 +67,12 @@ const Home: React.FC = () => {
     }
   };
 
-  // Prioritize featured projects from CMS, fallback to top 3
+  // Prioritize featured projects from CMS, fill remaining slots up to 3 (or show all up to 6)
   const cmsFeatured = allProjects.filter((p) => p.featured);
-  const featuredProjects = cmsFeatured.length > 0 ? cmsFeatured.slice(0, 3) : allProjects.slice(0, 3);
+  const nonFeatured = allProjects.filter((p) => !p.featured);
+  const featuredProjects = cmsFeatured.length >= 3
+    ? cmsFeatured.slice(0, 6)
+    : [...cmsFeatured, ...nonFeatured].slice(0, 3);
 
   // Dynamic experiences from CMS
   const dynamicExp = timelines.filter((t) => t.type === 'experience');
@@ -398,7 +401,13 @@ const Home: React.FC = () => {
                     alt={project.title}
                     className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out opacity-80 group-hover:opacity-100"
                   />
-                  <div className="absolute top-4 right-4 z-20">
+                  <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 flex-wrap justify-end">
+                    {project.featured && (
+                      <span className="px-2.5 py-1 text-[11px] font-bold bg-amber-500 text-slate-950 rounded-full border border-amber-400 flex items-center gap-1 shadow-md shadow-amber-500/25">
+                        <Star size={11} className="fill-slate-950" />
+                        Featured
+                      </span>
+                    )}
                     <span className="px-3 py-1 text-xs font-bold bg-white/10 backdrop-blur-md text-white rounded-full border border-white/10">
                       {project.category}
                     </span>

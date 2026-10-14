@@ -191,6 +191,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           branding: { ...INITIAL_SETTINGS.branding, ...(parsed.branding || {}) },
           theme: { ...INITIAL_SETTINGS.theme, ...(parsed.theme || {}) },
           marquee: parsed.marquee ? { ...INITIAL_SETTINGS.marquee, ...parsed.marquee } : INITIAL_SETTINGS.marquee,
+          about: parsed.about ? { ...INITIAL_SETTINGS.about, ...parsed.about } : INITIAL_SETTINGS.about,
         };
       }
       return INITIAL_SETTINGS;
@@ -252,23 +253,29 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const remoteProjects: Project[] = [];
         snapshot.forEach((docSnap) => {
           const data = docSnap.data();
-          remoteProjects.push({
-            id: docSnap.id,
-            title: data.title,
-            category: data.category,
-            summary: data.summary || data.description?.slice(0, 110),
-            description: data.description,
-            imageUrl: data.imageUrl,
-            galleryUrls: data.galleryUrls || [],
-            technologies: data.technologies || [],
-            link: data.link || '#',
-            githubUrl: data.githubUrl || '',
-            featured: Boolean(data.featured),
-            metrics: data.metrics,
-            createdAt: data.createdAt || new Date().toISOString(),
-          });
+          const fallback = INITIAL_PROJECTS.find(p => String(p.id) === String(docSnap.id));
+          const title = data.title || fallback?.title;
+          if (title) {
+            remoteProjects.push({
+              id: docSnap.id,
+              title: title,
+              category: data.category || fallback?.category || 'Web App',
+              summary: data.summary || fallback?.summary || (data.description ? data.description.slice(0, 110) : ''),
+              description: data.description || fallback?.description || '',
+              imageUrl: data.imageUrl || fallback?.imageUrl || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80',
+              galleryUrls: Array.isArray(data.galleryUrls) ? data.galleryUrls : (fallback?.galleryUrls || []),
+              technologies: Array.isArray(data.technologies) ? data.technologies : (fallback?.technologies || ['React', 'TypeScript']),
+              link: data.link || fallback?.link || '#',
+              githubUrl: data.githubUrl || fallback?.githubUrl || '',
+              featured: typeof data.featured === 'boolean' ? data.featured : Boolean(fallback?.featured),
+              metrics: data.metrics || fallback?.metrics,
+              createdAt: data.createdAt || fallback?.createdAt || new Date().toISOString(),
+            });
+          }
         });
-        setProjects(remoteProjects);
+        if (remoteProjects.length > 0) {
+          setProjects(remoteProjects);
+        }
         setIsFirebaseConnected(true);
       }
     }, (err) => {
@@ -359,6 +366,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           branding: data.branding ? { ...prev.branding, ...data.branding } : prev.branding,
           theme: data.theme ? { ...prev.theme, ...data.theme } : prev.theme,
           marquee: data.marquee ? { ...(prev.marquee || INITIAL_SETTINGS.marquee), ...data.marquee } : prev.marquee,
+          about: data.about ? { ...(prev.about || INITIAL_SETTINGS.about), ...data.about } : prev.about,
           updatedAt: data.updatedAt,
         }));
       }
@@ -449,12 +457,25 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updateProject = async (id: string | number, updates: Partial<Project>) => {
-    setProjects(prev =>
-      prev.map(p => (String(p.id) === String(id) ? { ...p, ...updates } : p))
-    );
+    let completeUpdatedProject: Project | undefined;
+
+    setProjects(prev => {
+      return prev.map(p => {
+        if (String(p.id) === String(id)) {
+          const merged = { ...p, ...updates };
+          completeUpdatedProject = merged;
+          return merged;
+        }
+        return p;
+      });
+    });
 
     try {
-      await setDoc(doc(db, 'projects', String(id)), updates, { merge: true });
+      if (completeUpdatedProject) {
+        await setDoc(doc(db, 'projects', String(id)), completeUpdatedProject, { merge: true });
+      } else {
+        await setDoc(doc(db, 'projects', String(id)), updates, { merge: true });
+      }
     } catch (e) {
       console.warn('Firestore updateProject error:', e);
     }

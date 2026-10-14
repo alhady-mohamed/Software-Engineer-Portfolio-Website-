@@ -181,4 +181,33 @@ export const INITIAL_SETTINGS: SiteSettings = {
       { id: '6', name: 'UI/UX Design', iconName: 'palette', displayMode: 'both', isActive: true },
     ],
   },
+  about: {
+    introBadge: 'Get to know me',
+    headingTitle: 'Mohamed Alhady',
+    leadText: 'Creative Strategist & Full-Stack Developer bridging engineering precision with cinematic storytelling and digital growth.',
+    paragraph1: 'I help modern brands, startups, and enterprises translate ambitious ideas into scalable software, distinctive visual identities, and high-impact digital experiences.',
+    paragraph2: 'With over five years at the intersection of technology and creative media, my work spans end-to-end web engineering, visual branding systems, high-production video direction, and data-backed digital marketing.',
+    paragraph3: "I believe high-performing software should feel as refined as handcrafted art. When I'm not designing architectures or deploying code, I immerse myself in creative direction, motion design, and exploring cutting-edge web technologies.",
+    metrics: [
+      { id: 'm1', label: 'Years Experience', value: 5, suffix: '+' },
+      { id: 'm2', label: 'Shipped Projects', value: 40, suffix: '+' },
+      { id: 'm3', label: 'Client Partners', value: 15, suffix: '+' },
+      { id: 'm4', label: 'Lines of Code', value: 1, suffix: 'M+' },
+    ],
+    skills: [
+      { id: 's1', name: 'Software Development', percentage: 95 },
+      { id: 's2', name: 'Branding & Visual Identity', percentage: 95 },
+      { id: 's3', name: 'Video Production', percentage: 90 },
+      { id: 's4', name: 'Social Media Marketing', percentage: 85 },
+      { id: 's5', name: 'UI/UX Design', percentage: 90 },
+      { id: 's6', name: 'Digital Strategy', percentage: 80 },
+    ],
+    techStack: [
+      'React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Node.js',
+      'PostgreSQL', 'Python', 'Framer Motion', 'Figma', 'Premiere Pro',
+      'After Effects', 'Docker', 'GraphQL', 'Git'
+    ],
+    standardsTitle: 'Architecture Standards',
+    standardsDescription: 'All projects adhere to WCAG accessibility, strict TypeScript validation, responsive design patterns, and SEO best practices.',
+  },
 };

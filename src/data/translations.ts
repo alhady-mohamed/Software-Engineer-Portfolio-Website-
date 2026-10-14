@@ -832,6 +832,16 @@ export const translations = {
     so: '4. Midabbada & Qaab-dhismeedka',
     ar: '4. ألوان المظهر والتنسيق',
   },
+  admin_tab_about: {
+    en: '5. About, Skills & Tech Stack',
+    so: '5. Xirfadaha, Tech Stack & About-ka',
+    ar: '5. المهارات والتقنيات ونبذة عني',
+  },
+  admin_about_nav: {
+    en: 'About, Skills & Tech Stack',
+    so: 'Xirfadaha & About-ka',
+    ar: 'المهارات والتقنيات',
+  },
   admin_marquee_title: {
     en: 'Animated Marquee & Brand Logos',
     so: 'Logooyinka Wareegaya ee Marquee-ga',

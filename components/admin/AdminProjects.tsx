@@ -41,16 +41,27 @@ export const AdminProjects: React.FC = () => {
   });
 
   const [newTagInput, setNewTagInput] = useState('');
+  const [featuredFeedback, setFeaturedFeedback] = useState<string | null>(null);
 
-  const categories = ['All', 'Web App', 'Mobile', 'AI/ML'];
+  const categories = ['All', 'Featured ⭐', 'Web App', 'Mobile', 'AI/ML', 'SaaS Platform', 'API / Backend'];
 
   const filteredProjects = projects.filter((p) => {
+    const title = p.title || '';
+    const desc = p.description || '';
+    const techs = Array.isArray(p.technologies) ? p.technologies : [];
+
     const matchesSearch =
-      p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.technologies.some((t) => t.toLowerCase().includes(searchTerm.toLowerCase()));
+      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      desc.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      techs.some((t) => t.toLowerCase().includes(searchTerm.toLowerCase()));
+
     const matchesCategory =
-      selectedCategory === 'All' || p.category.toLowerCase() === selectedCategory.toLowerCase();
+      selectedCategory === 'All'
+        ? true
+        : selectedCategory === 'Featured ⭐'
+        ? Boolean(p.featured)
+        : (p.category || '').toLowerCase() === selectedCategory.toLowerCase();
+
     return matchesSearch && matchesCategory;
   });
 
@@ -73,14 +84,14 @@ export const AdminProjects: React.FC = () => {
   const handleOpenEditModal = (proj: Project) => {
     setEditingProject(proj);
     setFormData({
-      title: proj.title,
-      category: proj.category,
+      title: proj.title || '',
+      category: proj.category || 'Web App',
       summary: proj.summary || '',
-      description: proj.description,
-      imageUrl: proj.imageUrl,
-      technologies: [...proj.technologies],
-      link: proj.link,
-      githubUrl: proj.githubUrl,
+      description: proj.description || '',
+      imageUrl: proj.imageUrl || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80',
+      technologies: Array.isArray(proj.technologies) ? [...proj.technologies] : ['React', 'TypeScript'],
+      link: proj.link || '#',
+      githubUrl: proj.githubUrl || '',
       featured: Boolean(proj.featured),
     });
     setIsModalOpen(true);
@@ -112,21 +123,35 @@ export const AdminProjects: React.FC = () => {
 
     if (editingProject) {
       await updateProject(editingProject.id, formData);
+      setFeaturedFeedback(`Mashruuca "${formData.title}" si guul leh ayaa loo cusboonaysiiyay!`);
     } else {
       await addProject(formData);
+      setFeaturedFeedback(`Mashruuc cusub "${formData.title}" si guul leh ayaa loo daray!`);
     }
 
+    setTimeout(() => setFeaturedFeedback(null), 3500);
     setIsModalOpen(false);
   };
 
   const handleDelete = async (id: string | number, title: string) => {
     if (window.confirm(`Ma hubtaa inaad tirtirto mashruuca "${title}"?`)) {
       await deleteProject(id);
+      setFeaturedFeedback(`Mashruuca "${title}" waa la tirtiray.`);
+      setTimeout(() => setFeaturedFeedback(null), 3000);
     }
   };
 
   const handleToggleFeatured = async (proj: Project) => {
-    await updateProject(proj.id, { featured: !proj.featured });
+    const nextFeatured = !proj.featured;
+    await updateProject(proj.id, { featured: nextFeatured });
+    setFeaturedFeedback(
+      nextFeatured
+        ? `⭐ "${proj.title}" waxaa laga dhigay Featured Project! Wuxuu hadda ka dhex muuqanayaa Spotlight-ka.`
+        : `"${proj.title}" waxaa laga saaray Featured-ka.`
+    );
+    setTimeout(() => {
+      setFeaturedFeedback(null);
+    }, 3500);
   };
 
   return (
@@ -138,19 +163,43 @@ export const AdminProjects: React.FC = () => {
             <FolderGit2 className="text-primary" size={26} />
             <span>{t('admin_projects_title')}</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            {t('admin_projects_subtitle')}
-          </p>
+          <div className="flex items-center gap-2.5 mt-1.5 flex-wrap">
+            <p className="text-slate-400 text-sm">
+              {t('admin_projects_subtitle')}
+            </p>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+              <Star size={12} className="fill-amber-400 text-amber-400" />
+              <span>{projects.filter((p) => p.featured).length} Featured</span>
+            </span>
+          </div>
         </div>
 
         <button
           onClick={handleOpenAddModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold shadow-lg shadow-primary/25 transition-all self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold shadow-lg shadow-primary/25 transition-all self-start sm:self-auto cursor-pointer"
         >
           <Plus size={16} />
           <span>{t('admin_add_project')}</span>
         </button>
       </div>
+
+      {/* Featured Toast Alert */}
+      {featuredFeedback && (
+        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-amber-500/10 to-slate-900 border border-amber-500/40 text-amber-200 text-xs flex items-center justify-between shadow-lg shadow-amber-500/5 animate-fadeIn">
+          <div className="flex items-center gap-2.5">
+            <Star size={16} className="fill-amber-400 text-amber-400 shrink-0" />
+            <span className="font-medium">{featuredFeedback}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFeaturedFeedback(null)}
+            className="p-1 text-amber-300 hover:text-white rounded-lg hover:bg-amber-500/20 transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
@@ -213,23 +262,33 @@ export const AdminProjects: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
 
                 {/* Badge Overlay */}
-                <div className="absolute top-3 left-3 flex items-center gap-2">
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
                   <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-900/80 text-white backdrop-blur-md border border-white/10 font-mono">
                     {p.category}
                   </span>
+                  {p.featured && (
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950 shadow-md shadow-amber-500/30 flex items-center gap-1">
+                      <Star size={10} className="fill-slate-950" />
+                      Featured
+                    </span>
+                  )}
                 </div>
 
                 <div className="absolute top-3 right-3 flex items-center gap-1.5">
                   <button
-                    onClick={() => handleToggleFeatured(p)}
-                    title={p.featured ? 'Featured Mashruuc' : 'Ka dhig Featured'}
-                    className={`p-2 rounded-xl backdrop-blur-md border transition-colors ${
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleFeatured(p);
+                    }}
+                    title={p.featured ? 'Featured Mashruuc (Guji si aad uga saarto)' : 'Ka dhig Featured Project'}
+                    className={`p-2 rounded-xl backdrop-blur-md border transition-all duration-200 cursor-pointer ${
                       p.featured
-                        ? 'bg-amber-500 text-slate-950 border-amber-400'
-                        : 'bg-slate-900/70 text-slate-400 hover:text-white border-white/10'
+                        ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/30 scale-105 hover:bg-amber-400'
+                        : 'bg-slate-900/80 text-slate-400 hover:text-amber-300 hover:border-amber-500/40 border-white/10'
                     }`}
                   >
-                    <Star size={14} className={p.featured ? 'fill-slate-950' : ''} />
+                    <Star size={14} className={p.featured ? 'fill-slate-950' : 'hover:fill-amber-400/20'} />
                   </button>
                 </div>
               </div>
@@ -457,18 +516,73 @@ export const AdminProjects: React.FC = () => {
 
               {/* Featured toggle */}
               <div className="pt-2">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.featured}
-                    onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="w-4 h-4 rounded text-primary bg-slate-950 border-slate-700 focus:ring-primary"
-                  />
-                  <div>
-                    <span className="text-xs font-semibold text-white">Ka dhig Featured Project</span>
-                    <p className="text-[11px] text-slate-400">
-                      Wuxuu si toos ah uga dhex muuqan doonaa bogga hore (Hero / Home showcase)
-                    </p>
+                <label
+                  className={`relative flex items-center justify-between p-4 sm:p-5 rounded-2xl border transition-all duration-300 cursor-pointer select-none group ${
+                    formData.featured
+                      ? 'bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-slate-950/80 border-amber-500/50 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/30'
+                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700 hover:bg-slate-950'
+                  }`}
+                >
+                  <div className="flex items-center gap-3.5 pr-3">
+                    <div
+                      className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-300 shrink-0 ${
+                        formData.featured
+                          ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/30 scale-105'
+                          : 'bg-slate-900 border border-slate-800 text-slate-400 group-hover:text-amber-400 group-hover:border-slate-700'
+                      }`}
+                    >
+                      <Star
+                        size={20}
+                        className={formData.featured ? 'fill-slate-950' : 'group-hover:fill-amber-400/20'}
+                      />
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-sm font-bold transition-colors ${formData.featured ? 'text-amber-300' : 'text-white'}`}>
+                          Ka dhig Featured Project (Spotlight & Showcase)
+                        </span>
+                        {formData.featured ? (
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            Active Featured
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-medium text-slate-500 font-mono">
+                            Standard
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        {formData.featured
+                          ? 'Mashruucan wuxuu si toos ah uga muuqan doonaa Spotlight Showcase-ka weyn ee bogga Projects iyo qaybta Selected Work ee Home-ka.'
+                          : 'Guji toggle-kan si aad mashruucan uga dhigto Featured Project si toos ah uga muuqda Spotlight-ka.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Custom Animated iOS-style Toggle Switch */}
+                  <div className="relative shrink-0 flex items-center pl-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.featured}
+                      onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                      className="sr-only"
+                    />
+                    <div
+                      className={`w-12 h-6.5 rounded-full transition-colors duration-300 p-0.5 flex items-center ${
+                        formData.featured
+                          ? 'bg-amber-500 shadow-md shadow-amber-500/30'
+                          : 'bg-slate-800 border border-slate-700'
+                      }`}
+                    >
+                      <div
+                        className={`w-5.5 h-5.5 rounded-full bg-white shadow-md transform transition-transform duration-300 flex items-center justify-center ${
+                          formData.featured ? 'translate-x-5.5 bg-slate-950 text-amber-500' : 'translate-x-0 bg-slate-400'
+                        }`}
+                      >
+                        {formData.featured && <Check size={11} className="stroke-[3]" />}
+                      </div>
+                    </div>
                   </div>
                 </label>
               </div>
