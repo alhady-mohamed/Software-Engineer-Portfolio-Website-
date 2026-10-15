@@ -8,6 +8,9 @@ import {
   ThemeSettings,
   MarqueeSectionSettings,
   MarqueeLogoItem,
+  AboutSettings,
+  SkillItem,
+  AboutMetricItem,
 } from '../../types';
 import {
   Palette,
@@ -43,9 +46,14 @@ import {
   Video,
   Megaphone,
   Upload,
+  Cpu,
+  Target,
+  Award,
+  User,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ImageUploader } from './ImageUploader';
+import { INITIAL_SETTINGS } from '../../src/data/initialData';
 import defaultHeroPortrait from '../../src/assets/images/hero_portrait_1781209944400.jpg';
 
 // Curated primary accent colors
@@ -75,20 +83,20 @@ export const AdminAppearance: React.FC = () => {
   const { t } = useLanguage();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'hero' | 'branding' | 'marquee' | 'theme'>(() => {
+  const [activeTab, setActiveTab] = useState<'hero' | 'branding' | 'marquee' | 'theme' | 'about'>(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'marquee' || tab === 'branding' || tab === 'theme') return tab;
+    if (tab === 'marquee' || tab === 'branding' || tab === 'theme' || tab === 'about') return tab;
     return 'hero';
   });
 
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'marquee' || tab === 'branding' || tab === 'theme' || tab === 'hero') {
+    if (tab === 'marquee' || tab === 'branding' || tab === 'theme' || tab === 'hero' || tab === 'about') {
       setActiveTab(tab);
     }
   }, [searchParams]);
 
-  const handleTabChange = (tab: 'hero' | 'branding' | 'marquee' | 'theme') => {
+  const handleTabChange = (tab: 'hero' | 'branding' | 'marquee' | 'theme' | 'about') => {
     setActiveTab(tab);
     setSearchParams(tab === 'hero' ? {} : { tab });
   };
@@ -114,6 +122,140 @@ export const AdminAppearance: React.FC = () => {
       ],
     };
   });
+
+  // Local editable copy of About section (Key Metrics, Skill Bars, Tech Stack, Narrative)
+  const [aboutForm, setAboutForm] = useState<AboutSettings>(() => {
+    return settings.about || INITIAL_SETTINGS.about || {
+      introBadge: 'Get to know me',
+      headingTitle: 'Mohamed Alhady',
+      leadText: 'Creative Strategist & Full-Stack Developer bridging engineering precision with cinematic storytelling and digital growth.',
+      paragraph1: 'I help modern brands, startups, and enterprises translate ambitious ideas into scalable software, distinctive visual identities, and high-impact digital experiences.',
+      paragraph2: 'With over five years at the intersection of technology and creative media, my work spans end-to-end web engineering, visual branding systems, high-production video direction, and data-backed digital marketing.',
+      paragraph3: "I believe high-performing software should feel as refined as handcrafted art. When I'm not designing architectures or deploying code, I immerse myself in creative direction, motion design, and exploring cutting-edge web technologies.",
+      metrics: [
+        { id: 'm1', label: 'Years Experience', value: 5, suffix: '+' },
+        { id: 'm2', label: 'Shipped Projects', value: 40, suffix: '+' },
+        { id: 'm3', label: 'Client Partners', value: 15, suffix: '+' },
+        { id: 'm4', label: 'Lines of Code', value: 1, suffix: 'M+' },
+      ],
+      skills: [
+        { id: 's1', name: 'Software Development', percentage: 95 },
+        { id: 's2', name: 'Branding & Visual Identity', percentage: 95 },
+        { id: 's3', name: 'Video Production', percentage: 90 },
+        { id: 's4', name: 'Social Media Marketing', percentage: 85 },
+        { id: 's5', name: 'UI/UX Design', percentage: 90 },
+        { id: 's6', name: 'Digital Strategy', percentage: 80 },
+      ],
+      techStack: [
+        'React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Node.js',
+        'PostgreSQL', 'Python', 'Framer Motion', 'Figma', 'Premiere Pro',
+        'After Effects', 'Docker', 'GraphQL', 'Git'
+      ],
+      standardsTitle: 'Architecture Standards',
+      standardsDescription: 'All projects adhere to WCAG accessibility, strict TypeScript validation, responsive design patterns, and SEO best practices.',
+    };
+  });
+
+  useEffect(() => {
+    if (settings.about) {
+      setAboutForm(settings.about);
+    }
+  }, [settings.about]);
+
+  // About Section Helper Handlers
+  const [newAboutTechTag, setNewAboutTechTag] = useState('');
+
+  const handleUpdateMetric = (id: string, field: keyof AboutMetricItem, value: any) => {
+    setAboutForm((prev) => ({
+      ...prev,
+      metrics: prev.metrics.map((m) => (m.id === id ? { ...m, [field]: value } : m)),
+    }));
+  };
+
+  const handleAddMetric = () => {
+    const newMetric: AboutMetricItem = {
+      id: `m_${Date.now()}`,
+      label: 'Metric Cusub',
+      value: 10,
+      suffix: '+',
+    };
+    setAboutForm((prev) => ({
+      ...prev,
+      metrics: [...prev.metrics, newMetric],
+    }));
+  };
+
+  const handleDeleteMetric = (id: string) => {
+    setAboutForm((prev) => ({
+      ...prev,
+      metrics: prev.metrics.filter((m) => m.id !== id),
+    }));
+  };
+
+  const handleUpdateSkill = (id: string, field: keyof SkillItem, value: any) => {
+    setAboutForm((prev) => ({
+      ...prev,
+      skills: prev.skills.map((s) => (s.id === id ? { ...s, [field]: value } : s)),
+    }));
+  };
+
+  const handleAddSkill = (presetName?: string, presetPercentage?: number) => {
+    const newSkill: SkillItem = {
+      id: `s_${Date.now()}`,
+      name: presetName || 'Xirfad Cusub',
+      percentage: presetPercentage ?? 85,
+    };
+    setAboutForm((prev) => ({
+      ...prev,
+      skills: [...prev.skills, newSkill],
+    }));
+  };
+
+  const handleDeleteSkill = (id: string) => {
+    setAboutForm((prev) => ({
+      ...prev,
+      skills: prev.skills.filter((m) => m.id !== id),
+    }));
+  };
+
+  const handleMoveSkill = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= aboutForm.skills.length) return;
+    const reordered = [...aboutForm.skills];
+    const [moved] = reordered.splice(index, 1);
+    reordered.splice(targetIndex, 0, moved);
+    setAboutForm((prev) => ({
+      ...prev,
+      skills: reordered,
+    }));
+  };
+
+  const handleAddAboutTech = (tagToAdd?: string) => {
+    const tag = (tagToAdd || newAboutTechTag).trim();
+    if (!tag) return;
+    if (aboutForm.techStack.some((t) => t.toLowerCase() === tag.toLowerCase())) {
+      setNewAboutTechTag('');
+      return;
+    }
+    setAboutForm((prev) => ({
+      ...prev,
+      techStack: [...prev.techStack, tag],
+    }));
+    setNewAboutTechTag('');
+  };
+
+  const handleRemoveAboutTech = (techToRemove: string) => {
+    setAboutForm((prev) => ({
+      ...prev,
+      techStack: prev.techStack.filter((t) => t !== techToRemove),
+    }));
+  };
+
+  const handleResetDefaultAbout = () => {
+    if (INITIAL_SETTINGS.about) {
+      setAboutForm(INITIAL_SETTINGS.about);
+    }
+  };
 
   // Quick Logo Upload Board state for instant inline logo uploading
   const [quickLogoName, setQuickLogoName] = useState('');
@@ -285,6 +427,7 @@ export const AdminAppearance: React.FC = () => {
         branding: brandingForm,
         theme: themeForm,
         marquee: marqueeForm,
+        about: aboutForm,
         siteTitle: `${brandingForm.siteName} | ${brandingForm.tagline}`,
         whatsappNumber: brandingForm.tagline ? settings.whatsappNumber : settings.whatsappNumber,
       });
@@ -434,6 +577,22 @@ export const AdminAppearance: React.FC = () => {
         >
           <Sliders size={18} className={activeTab === 'theme' ? 'text-primary' : 'text-slate-500'} />
           <span>{t('admin_tab_theme')}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleTabChange('about')}
+          className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'about'
+              ? 'bg-slate-800 text-white border-b-2 border-primary shadow-sm'
+              : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+          }`}
+        >
+          <Cpu size={18} className={activeTab === 'about' ? 'text-primary' : 'text-slate-500'} />
+          <span>{t('admin_tab_about')}</span>
+          <span className="ml-1 text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-primary/20 text-primary border border-primary/30">
+            {aboutForm.skills.length + aboutForm.metrics.length}
+          </span>
         </button>
       </div>
 
@@ -1017,8 +1176,11 @@ export const AdminAppearance: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-dark via-transparent to-transparent opacity-80" />
                   )}
                   {heroForm.verticalBadgeText && (
-                    <div className="absolute right-1 top-1/2 -translate-y-1/2 py-2 px-1 bg-primary text-black rounded-full font-bold text-[7px] [writing-mode:vertical-lr]">
-                      {heroForm.verticalBadgeText}
+                    <div className="absolute right-1 top-1/2 -translate-y-1/2 py-2 px-1 bg-primary text-black rounded-full font-bold text-[7px] [writing-mode:vertical-lr] flex items-center justify-center gap-1">
+                      <span>{heroForm.verticalBadgeText}</span>
+                      <span className="w-2 h-2 rounded-full bg-dark flex items-center justify-center shrink-0">
+                        <span className="w-0.5 h-0.5 rounded-full bg-white shrink-0" />
+                      </span>
                     </div>
                   )}
                   {heroForm.showWidgets !== false && heroForm.showQrCodeWidget !== false && (
@@ -2706,6 +2868,601 @@ export const AdminAppearance: React.FC = () => {
               >
                 <Save size={15} />
                 <span>Kaydi Midabada & Asalka</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* TAB 5: ABOUT, SKILLS & TECH STACK                              */}
+      {/* ============================================================== */}
+      {activeTab === 'about' && (
+        <div className="space-y-8">
+          {/* Top Control Banner */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20">
+                    <Cpu size={16} />
+                  </span>
+                  <span className="text-xs font-mono uppercase tracking-wider text-primary font-bold">
+                    About Page Control Hub
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-white tracking-tight">
+                  Xirfadaha, Tech Stack & Key Metrics (About Page)
+                </h2>
+                <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                  Halkan waxaad si toos ah uga beddeli kartaa Key Performance Metrics (5+ Years, 40+ Projects), Core Competencies (Skill Bars), Tech Stack tags, iyo dhammaan qoraallada About page.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleResetDefaultAbout}
+                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700 text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Ku celi xogta asalka ah ee About page"
+                >
+                  <RotateCcw size={13} />
+                  <span className="hidden sm:inline">Ku celi Asalka</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSaveAll}
+                  disabled={saveStatus.type === 'saving'}
+                  className="px-5 py-2.5 rounded-xl bg-primary hover:opacity-90 text-slate-950 text-xs font-bold transition-all shadow-md shadow-primary/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
+                >
+                  <Save size={15} />
+                  <span>Badbaadi Isbeddelka</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick stats counter ribbon */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+              <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-slate-400">Key Metrics</p>
+                  <p className="text-lg font-bold text-white mt-0.5">{aboutForm.metrics.length} Tirooyin</p>
+                </div>
+                <Award className="text-primary opacity-80" size={24} />
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-slate-400">Core Competencies</p>
+                  <p className="text-lg font-bold text-white mt-0.5">{aboutForm.skills.length} Xirfadood</p>
+                </div>
+                <Target className="text-secondary opacity-80" size={24} />
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-slate-400">Tech Stack Tags</p>
+                  <p className="text-lg font-bold text-white mt-0.5">{aboutForm.techStack.length} Ecosystem Tags</p>
+                </div>
+                <Layers className="text-primary opacity-80" size={24} />
+              </div>
+            </div>
+          </div>
+
+          {/* ============================================================== */}
+          {/* SECTION 1: KEY PERFORMANCE METRICS (CSS SELECTOR 1)            */}
+          {/* ============================================================== */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <Award size={15} />
+                  </span>
+                  <h3 className="text-base font-bold text-white">
+                    1. Key Performance Metrics Grid
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Tirooyinka iyo guulaha muuqda qaybta sare ee About page (e.g. "5+ Years Experience", "40+ Shipped Projects").
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAddMetric}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold transition-all cursor-pointer shadow-sm"
+              >
+                <Plus size={14} />
+                <span>Ku dar Metric Cusub</span>
+              </button>
+            </div>
+
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {aboutForm.metrics.map((m, idx) => (
+                <div
+                  key={m.id || idx}
+                  className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-amber-500/40 transition-all flex flex-col justify-between group/metric"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                      <span className="text-[11px] font-mono font-bold text-slate-400">
+                        Metric #{idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteMetric(m.id)}
+                        className="p-1 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                        title="Tirtir Metric-kan"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                          Tirada (Value)
+                        </label>
+                        <input
+                          type="number"
+                          value={m.value}
+                          onChange={(e) => handleUpdateMetric(m.id, 'value', Number(e.target.value) || 0)}
+                          className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs font-mono focus:border-amber-500 focus:outline-none"
+                          placeholder="5"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                          Daba-galka (Suffix)
+                        </label>
+                        <input
+                          type="text"
+                          value={m.suffix}
+                          onChange={(e) => handleUpdateMetric(m.id, 'suffix', e.target.value)}
+                          className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs font-mono focus:border-amber-500 focus:outline-none"
+                          placeholder="+, M+, %"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                        Magaca / Faahfaahinta (Label)
+                      </label>
+                      <input
+                        type="text"
+                        value={m.label}
+                        onChange={(e) => handleUpdateMetric(m.id, 'label', e.target.value)}
+                        className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-amber-500 focus:outline-none"
+                        placeholder="e.g. Years Experience"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Live Visual Preview Card */}
+                  <div className="mt-4 pt-3 border-t border-slate-850">
+                    <p className="text-[10px] uppercase tracking-wider font-mono text-slate-500 text-center mb-1.5">
+                      Muuqaalka Bogga Hore:
+                    </p>
+                    <div className="bg-slate-900/90 border border-white/10 rounded-xl p-3 text-center shadow-inner">
+                      <div className="text-2xl font-black text-primary">
+                        {m.value}{m.suffix}
+                      </div>
+                      <div className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold mt-0.5 truncate">
+                        {m.label || 'Metric Label'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ============================================================== */}
+          {/* SECTION 2: CORE COMPETENCIES / SKILL BARS (CSS SELECTOR 2)     */}
+          {/* ============================================================== */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                    <Target size={15} />
+                  </span>
+                  <h3 className="text-base font-bold text-white">
+                    2. Core Competencies & Skill Progress Bars
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Xirfadaha farsamo iyo boqolkiiba (%) animated progress bars-ka ku dhex yaal qaybta Technical Proficiency.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleAddSkill()}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary/20 hover:bg-primary/30 text-primary border border-primary/40 text-xs font-semibold transition-all cursor-pointer shadow-sm"
+              >
+                <Plus size={14} />
+                <span>Ku dar Xirfad Cusub</span>
+              </button>
+            </div>
+
+            {/* Quick Skill Presets */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-medium text-slate-400 block">
+                Talooyin xirfado diyaarsan (Guji si aad ugu darto):
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { name: 'DevOps & CI/CD Pipelines', pct: 88 },
+                  { name: 'Mobile Apps (React Native / Flutter)', pct: 85 },
+                  { name: 'GraphQL & REST Architecture', pct: 92 },
+                  { name: 'UI/UX & Interactive Design', pct: 90 },
+                  { name: 'Cloud Infrastructure (GCP / AWS)', pct: 85 },
+                  { name: 'Cybersecurity & Auth Systems', pct: 82 },
+                ].map((preset) => (
+                  <button
+                    key={preset.name}
+                    type="button"
+                    onClick={() => handleAddSkill(preset.name, preset.pct)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-[11px] transition-colors cursor-pointer"
+                  >
+                    <Plus size={11} className="text-primary" />
+                    <span>{preset.name} ({preset.pct}%)</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Skills List */}
+            <div className="space-y-3 pt-2">
+              {aboutForm.skills.map((skill, index) => (
+                <div
+                  key={skill.id || index}
+                  className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-slate-700 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group/skill"
+                >
+                  {/* Skill Name & Order */}
+                  <div className="flex items-center gap-3 flex-1 min-w-[200px]">
+                    <div className="flex flex-col gap-0.5">
+                      <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={() => handleMoveSkill(index, 'up')}
+                        className="p-0.5 rounded text-slate-500 hover:text-white disabled:opacity-30 disabled:hover:text-slate-500 cursor-pointer"
+                        title="U qaad kor"
+                      >
+                        <ChevronUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={index === aboutForm.skills.length - 1}
+                        onClick={() => handleMoveSkill(index, 'down')}
+                        className="p-0.5 rounded text-slate-500 hover:text-white disabled:opacity-30 disabled:hover:text-slate-500 cursor-pointer"
+                        title="U qaad hoos"
+                      >
+                        <ChevronDown size={14} />
+                      </button>
+                    </div>
+
+                    <div className="flex-1">
+                      <label className="text-[10px] font-bold uppercase text-slate-400 block mb-1">
+                        Magaca Xirfadda
+                      </label>
+                      <input
+                        type="text"
+                        value={skill.name}
+                        onChange={(e) => handleUpdateSkill(skill.id, 'name', e.target.value)}
+                        className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs font-semibold focus:border-primary focus:outline-none"
+                        placeholder="e.g. Software Development"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Percentage Slider & Progress Bar Preview */}
+                  <div className="flex-1 min-w-[250px] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-bold uppercase text-slate-400">
+                        Boqolkiiba (%)
+                      </label>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={skill.percentage}
+                          onChange={(e) => handleUpdateSkill(skill.id, 'percentage', Math.min(100, Math.max(0, Number(e.target.value) || 0)))}
+                          className="w-16 px-2 py-1 bg-slate-900 border border-slate-700/80 rounded-lg text-primary text-xs font-mono font-bold text-right focus:border-primary focus:outline-none"
+                        />
+                        <span className="text-xs font-bold text-primary">%</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={skill.percentage}
+                        onChange={(e) => handleUpdateSkill(skill.id, 'percentage', Number(e.target.value))}
+                        className="w-full accent-primary h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Gradient Progress Bar Preview */}
+                    <div className="h-2 w-full bg-black/60 rounded-full overflow-hidden border border-white/5 relative">
+                      <div
+                        className="h-full bg-gradient-to-r from-primary via-yellow-300 to-secondary rounded-full relative transition-all duration-300"
+                        style={{ width: `${Math.min(100, Math.max(0, skill.percentage))}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Delete Button */}
+                  <div className="flex items-center justify-end shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteSkill(skill.id)}
+                      className="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                      title="Tirtir xirfaddan"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ============================================================== */}
+          {/* SECTION 3: TECHNOLOGIES & ECOSYSTEM TAGS (CSS SELECTOR 3)      */}
+          {/* ============================================================== */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1 rounded-md bg-secondary/10 text-secondary border border-secondary/20">
+                    <Layers size={15} />
+                  </span>
+                  <h3 className="text-base font-bold text-white">
+                    3. Technologies & Ecosystem (Tech Stack Tags)
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Agabka, luqadaha barnaamijyada, iyo frameworks-ka ku muuqda qaybta "Technologies & Ecosystem".
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-secondary bg-secondary/10 border border-secondary/20 px-2.5 py-1 rounded-lg">
+                  {aboutForm.techStack.length} Tags
+                </span>
+              </div>
+            </div>
+
+            {/* Quick Add Tech Input */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={newAboutTechTag}
+                  onChange={(e) => setNewAboutTechTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddAboutTech();
+                    }
+                  }}
+                  placeholder="Geli magac cusub (e.g. Flutter, Rust, AWS, Supabase, Redis)..."
+                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs placeholder-slate-500 focus:border-secondary focus:outline-none"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleAddAboutTech()}
+                className="px-5 py-2.5 rounded-xl bg-secondary hover:opacity-90 text-slate-950 text-xs font-bold transition-all shadow-md shadow-secondary/20 flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+              >
+                <Plus size={15} />
+                <span>Ku dar Tag</span>
+              </button>
+            </div>
+
+            {/* One-click Popular Presets */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-medium text-slate-400 block">
+                Guji mid ka mid ah si aad ugu darto isla markiiba:
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  'React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Node.js',
+                  'PostgreSQL', 'Python', 'Docker', 'GraphQL', 'Framer Motion',
+                  'Figma', 'AWS', 'Redis', 'Supabase', 'Git', 'Vue.js',
+                  'Flutter', 'Swift', 'Rust', 'Golang', 'Prisma', 'Kubernetes'
+                ].map((tech) => {
+                  const isAlreadyAdded = aboutForm.techStack.some((t) => t.toLowerCase() === tech.toLowerCase());
+                  return (
+                    <button
+                      key={tech}
+                      type="button"
+                      disabled={isAlreadyAdded}
+                      onClick={() => handleAddAboutTech(tech)}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all ${
+                        isAlreadyAdded
+                          ? 'bg-slate-900 text-slate-600 border border-slate-800 cursor-not-allowed'
+                          : 'bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-secondary/50 cursor-pointer'
+                      }`}
+                    >
+                      {isAlreadyAdded ? <Check size={11} className="text-slate-600" /> : <Plus size={11} className="text-secondary" />}
+                      <span>{tech}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Active Tags Cloud */}
+            <div className="pt-3 border-t border-slate-800">
+              <label className="text-[11px] font-bold uppercase text-slate-400 block mb-2">
+                Tech Stack-ka Hadda Shaqeynaya ({aboutForm.techStack.length}):
+              </label>
+              <div className="flex flex-wrap gap-2 min-h-[60px] p-4 rounded-xl bg-slate-950/60 border border-slate-850">
+                {aboutForm.techStack.map((tech) => (
+                  <span
+                    key={tech}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 text-gray-200 border border-white/10 hover:border-secondary/40 text-xs font-semibold group transition-all"
+                  >
+                    <span>{tech}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAboutTech(tech)}
+                      className="p-0.5 rounded text-slate-500 hover:text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer"
+                      title={`Ka saar ${tech}`}
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+                {aboutForm.techStack.length === 0 && (
+                  <p className="text-xs text-slate-500 italic py-2">
+                    Weli wax tags ah kuma jiraan. Fadlan kor ka ku dar.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ============================================================== */}
+          {/* SECTION 4: ABOUT NARRATIVE & BIO HEADINGS                      */}
+          {/* ============================================================== */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-6">
+            <div className="border-b border-slate-800/80 pb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="p-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                  <User size={15} />
+                </span>
+                <h3 className="text-base font-bold text-white">
+                  4. About Narrative & Bio Content
+                </h3>
+              </div>
+              <p className="text-xs text-slate-400">
+                Cinwaannada, hordhaca, sheekada shakhsiga ah, iyo heerarka tayada software-ka.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                  Badge Hordhac (Intro Badge)
+                </label>
+                <input
+                  type="text"
+                  value={aboutForm.introBadge || ''}
+                  onChange={(e) => setAboutForm({ ...aboutForm, introBadge: e.target.value })}
+                  placeholder="Get to know me"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                  Cinwaanka Weyn (Heading Title)
+                </label>
+                <input
+                  type="text"
+                  value={aboutForm.headingTitle || ''}
+                  onChange={(e) => setAboutForm({ ...aboutForm, headingTitle: e.target.value })}
+                  placeholder="Mohamed Alhady"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                Faallada Hordhaca ah (Lead Summary Text)
+              </label>
+              <textarea
+                rows={2}
+                value={aboutForm.leadText || ''}
+                onChange={(e) => setAboutForm({ ...aboutForm, leadText: e.target.value })}
+                placeholder="Creative Strategist & Full-Stack Developer bridging engineering precision with cinematic storytelling and digital growth."
+                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none leading-relaxed"
+              />
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <label className="text-xs font-bold uppercase text-slate-400 block">
+                Qoraalka Sheekada (3 Bio Paragraphs):
+              </label>
+              <div>
+                <span className="text-[11px] text-slate-400 mb-1 block">Paragaraafka 1 (Hordhac & Himilada):</span>
+                <textarea
+                  rows={2}
+                  value={aboutForm.paragraph1 || ''}
+                  onChange={(e) => setAboutForm({ ...aboutForm, paragraph1: e.target.value })}
+                  className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div>
+                <span className="text-[11px] text-slate-400 mb-1 block">Paragaraafka 2 (Khibradda & Takhasuska):</span>
+                <textarea
+                  rows={2}
+                  value={aboutForm.paragraph2 || ''}
+                  onChange={(e) => setAboutForm({ ...aboutForm, paragraph2: e.target.value })}
+                  className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div>
+                <span className="text-[11px] text-slate-400 mb-1 block">Paragaraafka 3 (Falsafadda & Xilliyada Firaaqada):</span>
+                <textarea
+                  rows={2}
+                  value={aboutForm.paragraph3 || ''}
+                  onChange={(e) => setAboutForm({ ...aboutForm, paragraph3: e.target.value })}
+                  className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                  Standards Box Title
+                </label>
+                <input
+                  type="text"
+                  value={aboutForm.standardsTitle || ''}
+                  onChange={(e) => setAboutForm({ ...aboutForm, standardsTitle: e.target.value })}
+                  placeholder="Architecture Standards"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                  Standards Box Description
+                </label>
+                <input
+                  type="text"
+                  value={aboutForm.standardsDescription || ''}
+                  onChange={(e) => setAboutForm({ ...aboutForm, standardsDescription: e.target.value })}
+                  placeholder="All projects adhere to WCAG accessibility, strict TypeScript validation..."
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Bottom Save Button */}
+            <div className="pt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={handleSaveAll}
+                disabled={saveStatus.type === 'saving'}
+                className="px-6 py-3 rounded-xl bg-primary hover:opacity-90 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-primary/25 flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              >
+                <Save size={16} />
+                <span>Badbaadi Dhammaan Isbeddelka About-ka</span>
               </button>
             </div>
           </div>

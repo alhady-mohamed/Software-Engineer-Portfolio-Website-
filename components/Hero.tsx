@@ -115,15 +115,15 @@ const Hero: React.FC = () => {
         <div className="absolute right-0 bottom-0 -z-10 h-[310px] w-[310px] rounded-full bg-secondary/20 opacity-20 blur-[100px]"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div className="max-w-7xl 2xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           
           {/* Left Column: Title, Intro text, CTAs, and featured technologies */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="flex flex-col justify-center"
+            className="lg:col-span-7 xl:col-span-7 flex flex-col justify-center w-full"
           >
             {/* Status pill badge with pulsing online dot indicator */}
             {hero.isBadgeVisible !== false && (
@@ -137,15 +137,19 @@ const Hero: React.FC = () => {
             )}
 
             {/* Main Title Heading styling dual accents and color transitions */}
-            <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.1]">
-              {hero.titleLine1 || 'Building the'} <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary animate-gradient-x">
+            <motion.h1
+              variants={itemVariants}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.12] w-full max-w-full lg:max-w-3xl xl:max-w-4xl break-words"
+            >
+              {hero.titleLine1 || 'Building the'}{' '}
+              <br className="hidden sm:inline" />
+              <span className="inline-block w-full max-w-full text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary animate-gradient-x">
                 {hero.titleLine2 || 'Digital Future'}
               </span>
             </motion.h1>
             
             {/* Short Bio snippet profiling competencies */}
-            <motion.p variants={itemVariants} className="text-lg text-gray-400 mb-8 max-w-lg leading-relaxed">
+            <motion.p variants={itemVariants} className="text-lg text-gray-400 mb-8 max-w-xl leading-relaxed">
               {hero.bio}
             </motion.p>
             
@@ -172,7 +176,7 @@ const Hero: React.FC = () => {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="relative flex items-center justify-center mt-10 lg:mt-0 w-full"
+            className="lg:col-span-5 xl:col-span-5 relative flex items-center justify-center mt-10 lg:mt-0 w-full"
           >
             {/* Dynamic background lighting layers */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-tr from-secondary/10 via-primary/5 to-transparent rounded-full blur-3xl -z-10" />
@@ -214,9 +218,11 @@ const Hero: React.FC = () => {
 
               {/* Vertical Accent text label (subtly placed on edge, customizable) */}
               {hero.verticalBadgeText && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 py-4 px-2.5 bg-primary text-black rounded-full font-sans font-extrabold uppercase text-[8px] tracking-[0.15em] [writing-mode:vertical-lr] flex items-center justify-center gap-1.5 shadow-lg shadow-primary/20 hover:scale-105 transition-transform duration-300 z-10">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 py-4 px-2.5 bg-primary text-black rounded-full font-sans font-extrabold uppercase text-[8px] tracking-[0.15em] [writing-mode:vertical-lr] flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-105 transition-transform duration-300 z-10">
                   <span className="font-sans font-black">{hero.verticalBadgeText}</span>
-                  <span className="text-[7px] text-white bg-black/40 px-1.5 py-0.5 rounded-full tracking-widest font-mono">CMS</span>
+                  <span className="w-3 h-3 rounded-full bg-dark flex items-center justify-center shadow-inner border border-black/20 shrink-0">
+                    <span className="w-1 h-1 rounded-full bg-white shrink-0" />
+                  </span>
                 </div>
               )}
 

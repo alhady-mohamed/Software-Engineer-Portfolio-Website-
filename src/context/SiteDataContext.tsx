@@ -657,6 +657,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       branding: newSettings.branding ? { ...settings.branding, ...newSettings.branding } : settings.branding,
       theme: newSettings.theme ? { ...settings.theme, ...newSettings.theme } : settings.theme,
       marquee: newSettings.marquee ? { ...settings.marquee, ...newSettings.marquee } : settings.marquee,
+      about: newSettings.about ? { ...(settings.about || INITIAL_SETTINGS.about), ...newSettings.about } : settings.about,
     };
 
     setSettings(updated);
@@ -676,7 +677,8 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         hero: updated.hero,
         branding: updated.branding,
         theme: updated.theme,
-        marquee: updated.marquee,
+        marquee: updated.marquee || null,
+        about: updated.about || null,
         updatedAt: new Date().toISOString(),
       }, { merge: true });
 

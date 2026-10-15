@@ -41,8 +41,11 @@ const Contact: React.FC = () => {
     "idle" | "submitting" | "success" | "error"
   >("idle");
 
-  const { addMessage } = useSiteData();
+  const { addMessage, settings } = useSiteData();
   const { t } = useLanguage();
+
+  const contactEmail = settings?.adminEmail || "engmohamedabdurazak@gmail.com";
+  const contactPhone = settings?.whatsappNumber || "+252 63 4944558";
 
   // Submit handler processing inputs and invoking visual feedback cycles
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,15 +127,15 @@ const Contact: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Contact Info Group (Metadata channels, mail directory, and locations) */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:col-span-4 space-y-8"
+            className="lg:col-span-5 xl:col-span-5 space-y-8 w-full"
           >
-            <div className="bg-slate-900/50 p-8 rounded-3xl border border-white/5 backdrop-blur-sm">
+            <div className="bg-slate-900/50 p-6 sm:p-8 xl:p-9 rounded-3xl border border-white/5 backdrop-blur-sm w-full shadow-xl">
               <h3 className="text-2xl font-bold text-white mb-8">
                 Contact Info
               </h3>
@@ -143,15 +146,16 @@ const Contact: React.FC = () => {
                   <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20 shrink-0">
                     <Mail size={24} />
                   </div>
-                  <div className="min-w-0 overflow-hidden">
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">
                       Email
                     </p>
                     <a
-                      href="mailto:engmohamedabdurazak@gmail.com"
-                      className="text-base sm:text-lg text-white hover:text-primary transition-colors font-medium break-all block"
+                      href={`mailto:${contactEmail}`}
+                      title={contactEmail}
+                      className="text-sm sm:text-base xl:text-lg text-white hover:text-primary transition-colors font-medium break-normal sm:break-words [overflow-wrap:anywhere] block"
                     >
-                      engmohamedabdurazak@gmail.com
+                      {contactEmail}
                     </a>
                   </div>
                 </div>
@@ -161,15 +165,15 @@ const Contact: React.FC = () => {
                   <div className="p-4 bg-secondary/10 rounded-2xl text-secondary border border-secondary/20 shrink-0">
                     <Phone size={24} />
                   </div>
-                  <div className="min-w-0 overflow-hidden">
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">
                       Phone
                     </p>
                     <a
-                      href="tel:+252634944558"
-                      className="text-base sm:text-lg text-white hover:text-secondary transition-colors font-medium block"
+                      href={`tel:${contactPhone.replace(/\s+/g, '')}`}
+                      className="text-base sm:text-lg text-white hover:text-secondary transition-colors font-medium block truncate"
                     >
-                      +252 63 4944558
+                      {contactPhone}
                     </a>
                   </div>
                 </div>
@@ -179,7 +183,7 @@ const Contact: React.FC = () => {
                   <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20 shrink-0">
                     <MapPin size={24} />
                   </div>
-                  <div className="min-w-0 overflow-hidden">
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">
                       Location
                     </p>
@@ -255,7 +259,7 @@ const Contact: React.FC = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="lg:col-span-8 bg-slate-900/30 p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden backdrop-blur-md"
+            className="lg:col-span-7 xl:col-span-7 bg-slate-900/30 p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden backdrop-blur-md w-full"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
 
