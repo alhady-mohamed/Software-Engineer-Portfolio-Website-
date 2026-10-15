@@ -115,7 +115,7 @@ const Hero: React.FC = () => {
         <div className="absolute right-0 bottom-0 -z-10 h-[310px] w-[310px] rounded-full bg-secondary/20 opacity-20 blur-[100px]"></div>
       </div>
 
-      <div className="max-w-7xl 2xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+      <div className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           
           {/* Left Column: Title, Intro text, CTAs, and featured technologies */}
@@ -123,7 +123,7 @@ const Hero: React.FC = () => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="lg:col-span-7 xl:col-span-7 flex flex-col justify-center w-full"
+            className="lg:col-span-7 xl:col-span-8 flex flex-col justify-center w-full min-w-0"
           >
             {/* Status pill badge with pulsing online dot indicator */}
             {hero.isBadgeVisible !== false && (
@@ -136,20 +136,20 @@ const Hero: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Main Title Heading styling dual accents and color transitions */}
+            {/* Main Title Heading styling dual accents and color transitions - Expanded Width */}
             <motion.h1
               variants={itemVariants}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.12] w-full max-w-full lg:max-w-3xl xl:max-w-4xl break-words"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.12] w-full max-w-none break-normal [overflow-wrap:break-word]"
             >
               {hero.titleLine1 || 'Building the'}{' '}
               <br className="hidden sm:inline" />
-              <span className="inline-block w-full max-w-full text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary animate-gradient-x">
+              <span className="inline-block w-full max-w-none text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary animate-gradient-x break-normal [overflow-wrap:break-word]">
                 {hero.titleLine2 || 'Digital Future'}
               </span>
             </motion.h1>
             
             {/* Short Bio snippet profiling competencies */}
-            <motion.p variants={itemVariants} className="text-lg text-gray-400 mb-8 max-w-xl leading-relaxed">
+            <motion.p variants={itemVariants} className="text-lg text-gray-400 mb-8 max-w-2xl leading-relaxed">
               {hero.bio}
             </motion.p>
             
@@ -220,8 +220,8 @@ const Hero: React.FC = () => {
               {hero.verticalBadgeText && (
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 py-4 px-2.5 bg-primary text-black rounded-full font-sans font-extrabold uppercase text-[8px] tracking-[0.15em] [writing-mode:vertical-lr] flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-105 transition-transform duration-300 z-10">
                   <span className="font-sans font-black">{hero.verticalBadgeText}</span>
-                  <span className="w-3 h-3 rounded-full bg-dark flex items-center justify-center shadow-inner border border-black/20 shrink-0">
-                    <span className="w-1 h-1 rounded-full bg-white shrink-0" />
+                  <span className="w-3.5 h-3.5 rounded-full bg-dark flex items-center justify-center shadow-inner border border-black/30 shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0 block shadow-xs" />
                   </span>
                 </div>
               )}

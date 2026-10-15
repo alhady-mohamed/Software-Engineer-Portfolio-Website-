@@ -12,7 +12,7 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const LANGUAGE_STORAGE_KEY = 'portfolio_preferred_language';
+const LANGUAGE_STORAGE_KEY = 'portfolio_preferred_language_v2';
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
@@ -24,10 +24,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch {
       // ignore
     }
-    return 'so'; // Default to Somali
+    return 'en'; // Default to English as the official language
   });
 
-  const currentOption = LANGUAGES.find((l) => l.code === language) || LANGUAGES[1];
+  const currentOption = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
   const dir = currentOption.dir;
   const isRTL = dir === 'rtl';
 

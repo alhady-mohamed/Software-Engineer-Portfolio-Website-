@@ -126,34 +126,34 @@ const Contact: React.FC = () => {
         </motion.div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Contact Info Group (Metadata channels, mail directory, and locations) */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:col-span-5 xl:col-span-5 space-y-8 w-full"
+            className="lg:col-span-5 xl:col-span-5 space-y-8 w-full min-w-0"
           >
-            <div className="bg-slate-900/50 p-6 sm:p-8 xl:p-9 rounded-3xl border border-white/5 backdrop-blur-sm w-full shadow-xl">
+            <div className="bg-slate-900/50 p-6 sm:p-8 xl:p-10 rounded-3xl border border-white/5 backdrop-blur-sm w-full min-w-0 shadow-xl overflow-hidden">
               <h3 className="text-2xl font-bold text-white mb-8">
                 Contact Info
               </h3>
 
               <div className="space-y-8">
                 {/* Email link items */}
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 min-w-0">
                   <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20 shrink-0">
                     <Mail size={24} />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">
                       Email
                     </p>
                     <a
                       href={`mailto:${contactEmail}`}
                       title={contactEmail}
-                      className="text-sm sm:text-base xl:text-lg text-white hover:text-primary transition-colors font-medium break-normal sm:break-words [overflow-wrap:anywhere] block"
+                      className="text-sm sm:text-base xl:text-lg text-white hover:text-primary transition-colors font-medium break-all [word-break:break-all] [overflow-wrap:anywhere] block leading-snug"
                     >
                       {contactEmail}
                     </a>
@@ -161,17 +161,17 @@ const Contact: React.FC = () => {
                 </div>
 
                 {/* Telephone link items */}
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 min-w-0">
                   <div className="p-4 bg-secondary/10 rounded-2xl text-secondary border border-secondary/20 shrink-0">
                     <Phone size={24} />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">
                       Phone
                     </p>
                     <a
                       href={`tel:${contactPhone.replace(/\s+/g, '')}`}
-                      className="text-base sm:text-lg text-white hover:text-secondary transition-colors font-medium block truncate"
+                      className="text-base sm:text-lg text-white hover:text-secondary transition-colors font-medium block break-all [word-break:break-all] [overflow-wrap:anywhere]"
                     >
                       {contactPhone}
                     </a>
@@ -179,15 +179,15 @@ const Contact: React.FC = () => {
                 </div>
 
                 {/* Geography listings */}
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 min-w-0">
                   <div className="p-4 bg-primary/10 rounded-2xl text-primary border border-primary/20 shrink-0">
                     <MapPin size={24} />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="text-sm text-gray-500 font-medium mb-1 tracking-wide uppercase">
                       Location
                     </p>
-                    <p className="text-base sm:text-lg text-white font-medium">
+                    <p className="text-base sm:text-lg text-white font-medium break-words [overflow-wrap:anywhere]">
                       West, Road 1, Hargeisa
                       <br />
                       <span className="text-sm text-primary font-normal">
