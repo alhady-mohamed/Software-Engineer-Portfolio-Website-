@@ -268,10 +268,10 @@ export const AdminAppearance: React.FC = () => {
     const newLogo: MarqueeLogoItem = {
       id: `logo_${Date.now()}`,
       name: finalName,
-      logoUrl: quickLogoUrl.trim() || undefined,
+      logoUrl: quickLogoUrl.trim() || '',
       iconName: 'code',
       displayMode: quickDisplayMode,
-      websiteUrl: quickWebsiteUrl.trim() || undefined,
+      websiteUrl: quickWebsiteUrl.trim() || '',
       category: 'Brand Partner',
       isActive: true,
     };
@@ -422,11 +422,26 @@ export const AdminAppearance: React.FC = () => {
   const handleSaveAll = async () => {
     setSaveStatus({ type: 'saving', message: 'Waa la badbaadinayaa...' });
     try {
+      const cleanedMarquee: MarqueeSectionSettings = {
+        ...marqueeForm,
+        sectionTitle: marqueeForm.sectionTitle || '',
+        items: (marqueeForm.items || []).map((item) => ({
+          id: item.id || `logo_${Date.now()}`,
+          name: item.name || '',
+          logoUrl: item.logoUrl || '',
+          iconName: item.iconName || 'code',
+          displayMode: item.displayMode || 'both',
+          websiteUrl: item.websiteUrl || '',
+          category: item.category || 'Technology',
+          isActive: item.isActive !== false,
+        })),
+      };
+
       const res = await updateSettings({
         hero: heroForm,
         branding: brandingForm,
         theme: themeForm,
-        marquee: marqueeForm,
+        marquee: cleanedMarquee,
         about: aboutForm,
         siteTitle: `${brandingForm.siteName} | ${brandingForm.tagline}`,
         whatsappNumber: brandingForm.tagline ? settings.whatsappNumber : settings.whatsappNumber,

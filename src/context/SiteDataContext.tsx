@@ -22,6 +22,28 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   return null;
 }
 
+// Helper to recursively remove all undefined properties from objects and arrays for Firestore safety
+function removeUndefinedFields<T>(obj: T): T {
+  if (obj === null || obj === undefined) {
+    return null as unknown as T;
+  }
+  if (Array.isArray(obj)) {
+    return obj
+      .filter((item) => item !== undefined)
+      .map((item) => removeUndefinedFields(item)) as unknown as T;
+  }
+  if (typeof obj === 'object') {
+    const cleaned: Record<string, any> = {};
+    for (const [key, val] of Object.entries(obj)) {
+      if (val !== undefined) {
+        cleaned[key] = removeUndefinedFields(val);
+      }
+    }
+    return cleaned as T;
+  }
+  return obj;
+}
+
 // Dynamically injects CSS variables to documentElement for full-site real-time retheming
 function applyThemeVariables(theme?: ThemeSettings) {
   if (typeof document === 'undefined' || !theme) return;
@@ -472,9 +494,9 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     try {
       if (completeUpdatedProject) {
-        await setDoc(doc(db, 'projects', String(id)), completeUpdatedProject, { merge: true });
+        await setDoc(doc(db, 'projects', String(id)), removeUndefinedFields(completeUpdatedProject), { merge: true });
       } else {
-        await setDoc(doc(db, 'projects', String(id)), updates, { merge: true });
+        await setDoc(doc(db, 'projects', String(id)), removeUndefinedFields(updates), { merge: true });
       }
     } catch (e) {
       console.warn('Firestore updateProject error:', e);
@@ -503,7 +525,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setTimelines(prev => [newItem, ...prev]);
 
     try {
-      await setDoc(doc(db, 'timelines', newId), {
+      await setDoc(doc(db, 'timelines', newId), removeUndefinedFields({
         type: newItem.type,
         title: newItem.title,
         institution: newItem.institution,
@@ -512,7 +534,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         skills: newItem.skills || [],
         displayOrder: newItem.displayOrder || 0,
         createdAt: newItem.createdAt,
-      });
+      }));
     } catch (e) {
       console.warn('Firestore addTimeline error:', e);
     }
@@ -526,7 +548,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
 
     try {
-      await setDoc(doc(db, 'timelines', id), updates, { merge: true });
+      await setDoc(doc(db, 'timelines', id), removeUndefinedFields(updates), { merge: true });
     } catch (e) {
       console.warn('Firestore updateTimeline error:', e);
     }
@@ -554,7 +576,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setTestimonials(prev => [newItem, ...prev]);
 
     try {
-      await setDoc(doc(db, 'testimonials', newId), {
+      await setDoc(doc(db, 'testimonials', newId), removeUndefinedFields({
         clientName: newItem.clientName,
         clientRole: newItem.clientRole,
         company: newItem.company || '',
@@ -563,7 +585,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         content: newItem.content,
         isApproved: newItem.isApproved,
         createdAt: newItem.createdAt,
-      });
+      }));
     } catch (e) {
       console.warn('Firestore addTestimonial error:', e);
     }
@@ -577,7 +599,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
 
     try {
-      await setDoc(doc(db, 'testimonials', id), updates, { merge: true });
+      await setDoc(doc(db, 'testimonials', id), removeUndefinedFields(updates), { merge: true });
     } catch (e) {
       console.warn('Firestore updateTestimonial error:', e);
     }
@@ -670,7 +692,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
 
     try {
-      await setDoc(doc(db, 'site_settings', 'current'), {
+      const rawPayload = {
         siteTitle: updated.siteTitle || '',
         adminEmail: updated.adminEmail || '',
         whatsappNumber: updated.whatsappNumber || '',
@@ -680,7 +702,11 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         marquee: updated.marquee || null,
         about: updated.about || null,
         updatedAt: new Date().toISOString(),
-      }, { merge: true });
+      };
+
+      const sanitizedPayload = removeUndefinedFields(rawPayload);
+
+      await setDoc(doc(db, 'site_settings', 'current'), sanitizedPayload, { merge: true });
 
       return { success: true, message: 'Settings saved successfully.' };
     } catch (e: any) {
