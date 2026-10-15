@@ -123,7 +123,7 @@ const Hero: React.FC = () => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="lg:col-span-7 xl:col-span-8 flex flex-col justify-center w-full min-w-0"
+            className="lg:col-span-7 xl:col-span-7 flex flex-col justify-center w-full min-w-0"
           >
             {/* Status pill badge with pulsing online dot indicator */}
             {hero.isBadgeVisible !== false && (
@@ -143,7 +143,7 @@ const Hero: React.FC = () => {
             >
               {hero.titleLine1 || 'Building the'}{' '}
               <br className="hidden sm:inline" />
-              <span className="inline-block w-full max-w-none text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary animate-gradient-x break-normal [overflow-wrap:break-word]">
+              <span className="inline-block w-full max-w-none text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary animate-gradient-x break-normal [overflow-wrap:break-word] mt-1 pb-3 pl-0 ml-0 mr-0">
                 {hero.titleLine2 || 'Digital Future'}
               </span>
             </motion.h1>
