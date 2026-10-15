@@ -1,14 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Code2, Palette, Zap, LayoutGrid, Github, ExternalLink, Video, Megaphone, Star, MessageSquareQuote, Sparkles, Upload } from 'lucide-react';
+import { ArrowRight, Code2, Palette, Zap, LayoutGrid, Github, ExternalLink, Video, Megaphone, Star, MessageSquareQuote, Sparkles } from 'lucide-react';
 import Hero from './Hero';
 import { PROJECTS, EXPERIENCE } from '../constants';
 import { useSiteData } from '../src/context/SiteDataContext';
-import { useAdminAuth } from '../src/context/AdminAuthContext';
 
 const Home: React.FC = () => {
-  const { user } = useAdminAuth();
   const { projects: dynamicProjects, testimonials, timelines, settings } = useSiteData();
   const allProjects = dynamicProjects.length > 0 ? dynamicProjects : PROJECTS;
 
@@ -109,17 +107,6 @@ const Home: React.FC = () => {
               </span>
               <span className="w-8 md:w-16 h-[1px] bg-gradient-to-l from-transparent via-primary/30 to-primary/60" />
             </div>
-
-            {user && (
-              <Link
-                to="/admin/appearance?tab=marquee"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 hover:bg-primary border border-slate-700/80 hover:border-primary text-slate-300 hover:text-slate-950 text-xs font-semibold shadow-lg transition-all absolute right-6 top-0"
-                title="Upload & edit brand logos"
-              >
-                <Upload size={12} className="text-primary group-hover:text-slate-950" />
-                <span>Upload Logos</span>
-              </Link>
-            )}
           </div>
 
           {/* Vignette mask overlays targeting seamless crop entries */}

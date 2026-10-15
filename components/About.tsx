@@ -64,11 +64,9 @@ const AnimatedCounter = ({ to, suffix, delay = 0 }: { to: number; suffix: string
  * 7. Call To Action (Project inquiry prompt)
  */
 import { useSiteData } from '../src/context/SiteDataContext';
-import { useAdminAuth } from '../src/context/AdminAuthContext';
 
 const About: React.FC = () => {
   const { timelines, settings } = useSiteData();
-  const { isAuthenticated } = useAdminAuth();
 
   const aboutSettings = settings.about || {
     introBadge: 'Get to know me',
@@ -183,20 +181,8 @@ const About: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-5 grid grid-cols-2 gap-4 relative group"
+              className="lg:col-span-5 grid grid-cols-2 gap-4"
             >
-              {isAuthenticated && (
-                <div className="col-span-2 flex justify-end -mt-3 mb-1">
-                  <Link
-                    to="/admin/appearance?tab=about"
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-slate-950 transition-all shadow-md shadow-amber-500/10 backdrop-blur-md"
-                    title="Beddel Metrics-kan Gudaha Admin-ka"
-                  >
-                    <Sparkles size={11} />
-                    <span>Beddel Metrics (Admin)</span>
-                  </Link>
-                </div>
-              )}
               {dynamicMetrics.map((m, idx) => (
                 <div
                   key={m.id || idx}
@@ -370,19 +356,7 @@ const About: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             {/* Skill Bars */}
-            <div className="lg:col-span-7 bg-slate-900/40 p-8 rounded-3xl border border-white/10 shadow-xl space-y-6 relative group">
-              {isAuthenticated && (
-                <div className="absolute top-5 right-5 z-10">
-                  <Link
-                    to="/admin/appearance?tab=about"
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-slate-950 transition-all shadow-md shadow-amber-500/10 backdrop-blur-md"
-                    title="Maamul Xirfadaha Gudaha Admin-ka"
-                  >
-                    <Sparkles size={11} />
-                    <span>Maamul Xirfadaha (Admin)</span>
-                  </Link>
-                </div>
-              )}
+            <div className="lg:col-span-7 bg-slate-900/40 p-8 rounded-3xl border border-white/10 shadow-xl space-y-6">
               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <Target size={20} className="text-primary" />
                 Core Competencies
@@ -410,19 +384,7 @@ const About: React.FC = () => {
 
             {/* Stack Highlights & Badges */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="bg-slate-900/40 p-8 rounded-3xl border border-white/10 shadow-xl relative group">
-                {isAuthenticated && (
-                  <div className="absolute top-5 right-5 z-10">
-                    <Link
-                      to="/admin/appearance?tab=about"
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-slate-950 transition-all shadow-md shadow-amber-500/10 backdrop-blur-md"
-                      title="Beddel Tech Stack Gudaha Admin-ka"
-                    >
-                      <Sparkles size={11} />
-                      <span>Beddel Stack (Admin)</span>
-                    </Link>
-                  </div>
-                )}
+              <div className="bg-slate-900/40 p-8 rounded-3xl border border-white/10 shadow-xl">
                 <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                   <Layers size={20} className="text-secondary" />
                   Technologies & Ecosystem
