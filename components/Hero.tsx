@@ -263,14 +263,14 @@ const Hero: React.FC = () => {
                 <motion.div
                   animate={{ y: [0, -6, 0] }}
                   transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }}
-                  className="absolute -top-3 sm:-top-5 -left-2 sm:-left-6 z-20 p-2.5 sm:p-3 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/10 hover:border-primary/40 shadow-2xl flex items-center gap-2.5 transition-all duration-300 hover:scale-105"
+                  className="absolute -top-3 sm:-top-5 left-0 sm:-left-6 z-20 p-2 sm:p-3 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/10 hover:border-primary/40 shadow-2xl flex items-center gap-2 sm:gap-2.5 transition-all duration-300 hover:scale-105 max-w-[85%] sm:max-w-none"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary shrink-0 shadow-sm shadow-primary/20">
-                    <Code2 size={16} />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary shrink-0 shadow-sm shadow-primary/20">
+                    <Code2 size={15} />
                   </div>
-                  <div className="text-left">
-                    <div className="text-[8px] font-bold text-primary uppercase tracking-widest leading-none mb-1">{t('hero_badge_fullstack')}</div>
-                    <div className="text-[11px] font-bold text-white tracking-tight leading-none whitespace-nowrap">{t('hero_badge_clean_code')}</div>
+                  <div className="text-left min-w-0">
+                    <div className="text-[8px] font-bold text-primary uppercase tracking-widest leading-none mb-1 truncate">{t('hero_badge_fullstack')}</div>
+                    <div className="text-[10px] sm:text-[11px] font-bold text-white tracking-tight leading-none whitespace-nowrap truncate">{t('hero_badge_clean_code')}</div>
                   </div>
                 </motion.div>
 
@@ -278,14 +278,14 @@ const Hero: React.FC = () => {
                 <motion.div
                   animate={{ y: [0, 6, 0] }}
                   transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 0.6 }}
-                  className="absolute top-4 sm:top-6 -right-2 sm:-right-8 z-20 p-2.5 sm:p-3 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/10 hover:border-secondary/40 shadow-2xl flex items-center gap-2.5 transition-all duration-300 hover:scale-105"
+                  className="absolute top-4 sm:top-6 right-0 sm:-right-8 z-20 p-2 sm:p-3 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/10 hover:border-secondary/40 shadow-2xl flex items-center gap-2 sm:gap-2.5 transition-all duration-300 hover:scale-105 max-w-[85%] sm:max-w-none"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-secondary/10 border border-secondary/25 flex items-center justify-center text-secondary shrink-0 shadow-sm shadow-secondary/20">
-                    <Cpu size={16} />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-secondary/10 border border-secondary/25 flex items-center justify-center text-secondary shrink-0 shadow-sm shadow-secondary/20">
+                    <Cpu size={15} />
                   </div>
-                  <div className="text-left">
-                    <div className="text-[8px] font-bold text-secondary uppercase tracking-widest leading-none mb-1">{t('hero_badge_ui_ux')}</div>
-                    <div className="text-[11px] font-bold text-white tracking-tight leading-none whitespace-nowrap">{t('hero_badge_scalable_apps')}</div>
+                  <div className="text-left min-w-0">
+                    <div className="text-[8px] font-bold text-secondary uppercase tracking-widest leading-none mb-1 truncate">{t('hero_badge_ui_ux')}</div>
+                    <div className="text-[10px] sm:text-[11px] font-bold text-white tracking-tight leading-none whitespace-nowrap truncate">{t('hero_badge_scalable_apps')}</div>
                   </div>
                 </motion.div>
 
@@ -293,14 +293,14 @@ const Hero: React.FC = () => {
                 <motion.div
                   animate={{ y: [0, -5, 0] }}
                   transition={{ repeat: Infinity, duration: 5.2, ease: "easeInOut", delay: 1.2 }}
-                  className="absolute bottom-20 sm:bottom-24 -left-2 sm:-left-8 z-20 p-2.5 sm:p-3 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/10 hover:border-emerald-500/40 shadow-2xl flex items-center gap-2.5 transition-all duration-300 hover:scale-105"
+                  className="absolute bottom-20 sm:bottom-24 left-0 sm:-left-8 z-20 p-2 sm:p-3 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/10 hover:border-emerald-500/40 shadow-2xl flex items-center gap-2 sm:gap-2.5 transition-all duration-300 hover:scale-105 max-w-[85%] sm:max-w-none"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0 shadow-sm shadow-emerald-500/20">
-                    <Database size={16} />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0 shadow-sm shadow-emerald-500/20">
+                    <Database size={15} />
                   </div>
-                  <div className="text-left">
-                    <div className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest leading-none mb-1">{t('hero_badge_cloud_api')}</div>
-                    <div className="text-[11px] font-bold text-white tracking-tight leading-none whitespace-nowrap">Node · APIs · Cloud</div>
+                  <div className="text-left min-w-0">
+                    <div className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest leading-none mb-1 truncate">{t('hero_badge_cloud_api')}</div>
+                    <div className="text-[10px] sm:text-[11px] font-bold text-white tracking-tight leading-none whitespace-nowrap truncate">Node · APIs · Cloud</div>
                   </div>
                 </motion.div>
 
@@ -308,15 +308,15 @@ const Hero: React.FC = () => {
                 <motion.div 
                   animate={{ y: [0, -7, 0] }}
                   transition={{ repeat: Infinity, duration: 4.8, ease: "easeInOut", delay: 0.3 }}
-                  className="absolute -bottom-4 sm:-bottom-6 -right-2 sm:-right-6 bg-slate-950/90 backdrop-blur-xl border border-white/10 hover:border-emerald-500/40 p-3 sm:p-4 rounded-2xl shadow-2xl flex items-center gap-3 z-20 transition-all duration-300"
+                  className="absolute -bottom-4 sm:-bottom-6 right-0 sm:-right-6 bg-slate-950/90 backdrop-blur-xl border border-white/10 hover:border-emerald-500/40 p-2.5 sm:p-4 rounded-2xl shadow-2xl flex items-center gap-2.5 sm:gap-3 z-20 transition-all duration-300 max-w-[90%] sm:max-w-none"
                 >
                   <div className="relative flex items-center justify-center">
-                    <div className="w-3 h-3 bg-emerald-400 rounded-full animate-ping absolute opacity-75"></div>
-                    <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full relative z-10 shadow-sm shadow-emerald-400/50"></div>
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-ping absolute opacity-75"></div>
+                    <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-emerald-400 rounded-full relative z-10 shadow-sm shadow-emerald-400/50"></div>
                   </div>
-                  <div className="text-left">
-                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-0.5 leading-none">{t('hero_status')}</p>
-                    <p className="text-xs sm:text-sm font-bold text-white leading-none whitespace-nowrap">{t('hero_accepting_projects')}</p>
+                  <div className="text-left min-w-0">
+                    <p className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-0.5 leading-none">{t('hero_status')}</p>
+                    <p className="text-xs sm:text-sm font-bold text-white leading-none whitespace-nowrap truncate">{t('hero_accepting_projects')}</p>
                   </div>
                 </motion.div>
               </>

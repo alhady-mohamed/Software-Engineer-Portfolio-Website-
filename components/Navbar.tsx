@@ -63,22 +63,28 @@ const Navbar: React.FC = () => {
     { label: t('nav_contact'), href: '/contact' },
   ];
 
-  const isFullLogo = branding?.logoType === 'full';
-  const showSiteName = !isFullLogo && (branding?.showSiteName !== false);
+  const [fullLogoError, setFullLogoError] = useState(false);
+  const [iconLogoError, setIconLogoError] = useState(false);
+
+  const hasFullLogoImage = Boolean(branding?.logoImageUrl && branding.logoImageUrl.trim() !== '');
+  const isFullLogo = branding?.logoType === 'full' && hasFullLogoImage && !fullLogoError;
+  const showSiteName = branding?.logoType === 'full'
+    ? (branding?.showSiteName === true || !hasFullLogoImage || fullLogoError)
+    : (branding?.showSiteName !== false);
   const logoOrientation = branding?.logoOrientation || 'auto';
 
   // Responsive styling according to orientation
   const getNavbarLogoClass = () => {
     switch (logoOrientation) {
       case 'landscape':
-        return 'h-9 sm:h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain';
+        return 'h-8 sm:h-10 w-auto max-w-[160px] sm:max-w-[240px] object-contain';
       case 'square':
-        return 'h-9 w-9 sm:h-10 sm:w-10 object-contain';
+        return 'h-8 w-8 sm:h-10 sm:w-10 object-contain';
       case 'vertical':
-        return 'h-10 sm:h-11 w-auto max-w-[120px] object-contain';
+        return 'h-9 sm:h-11 w-auto max-w-[100px] sm:max-w-[120px] object-contain';
       case 'auto':
       default:
-        return 'h-9 sm:h-10 w-auto max-w-[220px] object-contain';
+        return 'h-8 sm:h-10 w-auto max-w-[180px] sm:max-w-[220px] object-contain';
     }
   };
 
@@ -86,43 +92,39 @@ const Navbar: React.FC = () => {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-dark/95 backdrop-blur-md border-b border-white/10 py-4'
-          : 'bg-dark/50 backdrop-blur-sm py-6'
+          ? 'bg-dark/95 backdrop-blur-md border-b border-white/10 py-3 sm:py-4'
+          : 'bg-dark/50 backdrop-blur-sm py-4 sm:py-6'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center gap-3">
         {/* Brand Logo - Wraps back to top of root page */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          {isFullLogo && branding?.logoImageUrl ? (
+        <Link to="/" className="flex items-center gap-2.5 group min-w-0 shrink">
+          {isFullLogo && branding?.logoImageUrl && !fullLogoError ? (
             <div className="flex items-center group-hover:opacity-90 transition-opacity shrink-0">
               <img
                 src={branding.logoImageUrl}
-                alt={branding.siteName}
+                alt={branding.siteName || 'Logo'}
                 className={getNavbarLogoClass()}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
+                onError={() => setFullLogoError(true)}
               />
             </div>
-          ) : branding?.logoType === 'image' && branding?.logoImageUrl ? (
-            <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-tr from-primary/10 to-secondary/10 border border-white/10 rounded-xl group-hover:scale-105 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/10 p-1">
+          ) : branding?.logoType === 'image' && branding?.logoImageUrl && !iconLogoError ? (
+            <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-gradient-to-tr from-primary/10 to-secondary/10 border border-white/10 rounded-xl group-hover:scale-105 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/10 p-1">
               <img
                 src={branding.logoImageUrl}
-                alt={branding.siteName}
+                alt={branding.siteName || 'Logo'}
                 className="w-full h-full object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
+                onError={() => setIconLogoError(true)}
               />
             </div>
           ) : (
-            <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-tr from-primary to-secondary rounded-xl group-hover:scale-105 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/20">
-              <span className="text-white font-bold text-sm tracking-widest">{branding?.logoText || 'M&A'}</span>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-gradient-to-tr from-primary to-secondary rounded-xl group-hover:scale-105 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/20">
+              <span className="text-white font-bold text-xs sm:text-sm tracking-widest">{branding?.logoText || 'M&A'}</span>
             </div>
           )}
 
           {showSiteName && (
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+            <span className="text-base sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 truncate">
               {branding?.siteName || 'Mohamed Alhady'}
             </span>
           )}
