@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Mail,
   MapPin,
@@ -13,10 +14,14 @@ import {
   Youtube,
   Instagram,
   Video,
+  Globe,
+  ExternalLink,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSiteData } from "../src/context/SiteDataContext";
 import { useLanguage } from "../src/context/LanguageContext";
+import { useAdminAuth } from "../src/context/AdminAuthContext";
 
 /**
  * Contact Component
@@ -42,6 +47,7 @@ const Contact: React.FC = () => {
   >("idle");
 
   const { addMessage, settings } = useSiteData();
+  const { isAuthenticated } = useAdminAuth();
   const { t } = useLanguage();
 
   const contactEmail = settings?.adminEmail || "engmohamedabdurazak@gmail.com";
@@ -199,57 +205,151 @@ const Contact: React.FC = () => {
               </div>
             </div>
 
-            {/* Social channels block mapping media properties */}
-            <div className="bg-slate-900/50 p-8 rounded-3xl border border-white/5 backdrop-blur-sm pt-6">
-              <h3 className="text-lg font-bold text-white mb-6">
-                Social Profiles
-              </h3>
-              <div className="flex flex-wrap items-center gap-4">
-                <a
-                  href="https://github.com/alhady-mohamed"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-white hover:scale-110 transition-all"
-                  aria-label="GitHub"
-                >
-                  <Github size={20} />
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/alhady-mohamed"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#0A66C2] hover:scale-110 transition-all"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin size={20} />
-                </a>
-                <a
-                  href="https://www.facebook.com/Mohamet.Abdirisaak304"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#1877F2] hover:scale-110 transition-all"
-                  aria-label="Facebook"
-                >
-                  <Facebook size={20} />
-                </a>
-                <a
-                  href="https://www.instagram.com/alhady_mohamed301"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#E4405F] hover:scale-110 transition-all"
-                  aria-label="Instagram"
-                >
-                  <Instagram size={20} />
-                </a>
-                <a
-                  href="https://youtube.com/@mohamed-alhady01"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#FF0000] hover:scale-110 transition-all"
-                  aria-label="YouTube"
-                >
-                  <Youtube size={20} />
-                </a>
+            {/* Social channels block mapping media properties (Configurable via Admin Dashboard) */}
+            <div className="bg-slate-900/50 p-8 rounded-3xl border border-white/5 backdrop-blur-sm pt-6 group/social">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-white">
+                  Social Profiles
+                </h3>
+                {isAuthenticated && (
+                  <Link
+                    to="/admin/settings#social"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary text-xs font-semibold transition-all hover:scale-105"
+                    title="Wax ka beddel Baraha Bulshada gudaha Admin Dashboard"
+                  >
+                    <SettingsIcon size={12} />
+                    <span>Edit Profiles</span>
+                  </Link>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                {/* GitHub */}
+                {(settings?.socialLinks?.github !== undefined ? settings.socialLinks.github : 'https://github.com/alhady-mohamed') && (
+                  <a
+                    href={settings?.socialLinks?.github || 'https://github.com/alhady-mohamed'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-white hover:scale-110 transition-all shadow-sm"
+                    aria-label="GitHub"
+                    title="GitHub Profile"
+                  >
+                    <Github size={20} />
+                  </a>
+                )}
+
+                {/* LinkedIn */}
+                {(settings?.socialLinks?.linkedin !== undefined ? settings.socialLinks.linkedin : 'https://www.linkedin.com/in/alhady-mohamed') && (
+                  <a
+                    href={settings?.socialLinks?.linkedin || 'https://www.linkedin.com/in/alhady-mohamed'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#0A66C2] hover:scale-110 transition-all shadow-sm"
+                    aria-label="LinkedIn"
+                    title="LinkedIn Profile"
+                  >
+                    <Linkedin size={20} />
+                  </a>
+                )}
+
+                {/* Facebook */}
+                {(settings?.socialLinks?.facebook !== undefined ? settings.socialLinks.facebook : 'https://www.facebook.com/Mohamet.Abdirisaak304') && (
+                  <a
+                    href={settings?.socialLinks?.facebook || 'https://www.facebook.com/Mohamet.Abdirisaak304'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#1877F2] hover:scale-110 transition-all shadow-sm"
+                    aria-label="Facebook"
+                    title="Facebook Profile"
+                  >
+                    <Facebook size={20} />
+                  </a>
+                )}
+
+                {/* Instagram */}
+                {(settings?.socialLinks?.instagram !== undefined ? settings.socialLinks.instagram : 'https://www.instagram.com/alhady_mohamed301') && (
+                  <a
+                    href={settings?.socialLinks?.instagram || 'https://www.instagram.com/alhady_mohamed301'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#E4405F] hover:scale-110 transition-all shadow-sm"
+                    aria-label="Instagram"
+                    title="Instagram Profile"
+                  >
+                    <Instagram size={20} />
+                  </a>
+                )}
+
+                {/* YouTube */}
+                {(settings?.socialLinks?.youtube !== undefined ? settings.socialLinks.youtube : 'https://youtube.com/@mohamed-alhady01') && (
+                  <a
+                    href={settings?.socialLinks?.youtube || 'https://youtube.com/@mohamed-alhady01'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-[#FF0000] hover:scale-110 transition-all shadow-sm"
+                    aria-label="YouTube"
+                    title="YouTube Channel"
+                  >
+                    <Youtube size={20} />
+                  </a>
+                )}
+
+                {/* Twitter / X */}
+                {settings?.socialLinks?.twitter && (
+                  <a
+                    href={settings.socialLinks.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-sky-400 hover:scale-110 transition-all shadow-sm"
+                    aria-label="Twitter / X"
+                    title="Twitter / X Profile"
+                  >
+                    <Twitter size={20} />
+                  </a>
+                )}
+
+                {/* TikTok */}
+                {settings?.socialLinks?.tiktok && (
+                  <a
+                    href={settings.socialLinks.tiktok}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-pink-400 hover:scale-110 transition-all shadow-sm flex items-center justify-center font-bold text-sm"
+                    aria-label="TikTok"
+                    title="TikTok Profile"
+                  >
+                    🎵
+                  </a>
+                )}
+
+                {/* Telegram */}
+                {settings?.socialLinks?.telegram && (
+                  <a
+                    href={settings.socialLinks.telegram.startsWith('http') ? settings.socialLinks.telegram : `https://t.me/${settings.socialLinks.telegram.replace('@', '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-sky-400 hover:scale-110 transition-all shadow-sm"
+                    aria-label="Telegram"
+                    title="Telegram"
+                  >
+                    <Send size={20} />
+                  </a>
+                )}
+
+                {/* Custom Extra Profiles */}
+                {settings?.socialLinks?.customLinks?.map((c) => (
+                  <a
+                    key={c.id}
+                    href={c.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-gray-300 hover:text-primary hover:scale-105 transition-all text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                    title={c.label}
+                  >
+                    <Globe size={15} className="text-primary shrink-0" />
+                    <span>{c.label}</span>
+                  </a>
+                ))}
               </div>
             </div>
           </motion.div>

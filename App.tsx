@@ -25,6 +25,7 @@ import { AdminTestimonials } from './components/admin/AdminTestimonials';
 import { AdminMessages } from './components/admin/AdminMessages';
 import { AdminSettings } from './components/admin/AdminSettings';
 import { AdminAppearance } from './components/admin/AdminAppearance';
+import { AdminSecurityRoles } from './components/admin/AdminSecurityRoles';
 
 import { recordPageView } from './src/lib/analytics';
 
@@ -74,6 +75,7 @@ const AnimatedRoutes: React.FC = () => {
           <Route path="timeline" element={<AdminTimeline />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="messages" element={<AdminMessages />} />
+          <Route path="users-roles" element={<AdminSecurityRoles />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>

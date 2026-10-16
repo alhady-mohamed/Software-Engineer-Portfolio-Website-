@@ -186,6 +186,28 @@ export interface AboutSettings {
   standardsDescription?: string;
 }
 
+// Custom extra social links configured in admin
+export interface CustomSocialLink {
+  id: string;
+  label: string;
+  url: string;
+  iconName?: string;
+}
+
+// Social media channels and profile links configuration
+export interface SocialLinksSettings {
+  github?: string;
+  linkedin?: string;
+  facebook?: string;
+  instagram?: string;
+  youtube?: string;
+  twitter?: string;
+  tiktok?: string;
+  telegram?: string;
+  whatsapp?: string;
+  customLinks?: CustomSocialLink[];
+}
+
 // Configuration parameters for Portfolio CMS & Firebase
 export interface SiteSettings {
   siteTitle: string;
@@ -201,4 +223,85 @@ export interface SiteSettings {
   theme: ThemeSettings;
   marquee?: MarqueeSectionSettings;
   about?: AboutSettings;
+  socialLinks?: SocialLinksSettings;
+}
+
+// ==============================================================
+// ENTERPRISE ROLE-BASED ACCESS CONTROL (RBAC) & SECURITY TYPES
+// ==============================================================
+
+export type AccountStatus = 'active' | 'locked' | 'disabled';
+
+export interface SystemUser {
+  id: string;
+  fullName: string;
+  username: string;
+  email: string;
+  roleId: string; // References SystemRole.id
+  status: AccountStatus;
+  customOverrides?: Record<string, Record<string, boolean>>; // Optional Super Admin Page/Tab override
+  avatarUrl?: string;
+  createdAt: string;
+  lastLoginAt?: string;
+  lastLoginIp?: string;
+  notes?: string;
+}
+
+export interface TabPermission {
+  id: string;
+  name: string;
+  description?: string;
+  isEnabled: boolean;
+}
+
+export interface PagePermission {
+  id: string;
+  name: string;
+  path: string;
+  tabs: TabPermission[];
+}
+
+export interface SystemRole {
+  id: string;
+  name: string;
+  description: string;
+  isCoreLocked: boolean; // Core system roles cannot be deleted or unlocked by non-super-admins
+  color: string;
+  permissions: {
+    [pageId: string]: {
+      [tabId: string]: boolean;
+    };
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ActionLogType = 'create' | 'update' | 'delete' | 'login' | 'permission_change';
+
+export interface AuditLogItem {
+  id: string;
+  timestamp: string;
+  userId: string;
+  userName: string;
+  userRole: string;
+  actionType: ActionLogType;
+  targetPage: string;
+  targetTab?: string;
+  details: string;
+  deviceInfo?: string;
+  ipAddress?: string;
+}
+
+export type SecurityEventType = 'failed_login' | 'role_change' | 'permission_escalation' | 'account_lock';
+
+export interface SecurityAuditItem {
+  id: string;
+  timestamp: string;
+  eventType: SecurityEventType;
+  userId?: string;
+  userName?: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  ipAddress: string;
+  device: string;
+  details: string;
 }

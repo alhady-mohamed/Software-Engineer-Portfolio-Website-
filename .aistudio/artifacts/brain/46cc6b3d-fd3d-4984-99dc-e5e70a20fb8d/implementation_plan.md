@@ -1,143 +1,198 @@
-# Qorshaha Hirgelinta: Admin Dashboard & CMS (Supabase)
+# Enterprise RBAC & Security Management System
 
-Qorshahani wuxuu faahfaahinayaa dhismaha nidaam dhammaystiran oo **Admin Dashboard (Content Management System - CMS)** ah oo loogu talagalay websaytkaaga. Nidaamkan wuxuu ku xirnaan doonaa **Supabase** (Authentication & PostgreSQL Database), isagoo kuu oggolaanaya inaad si toos ah oo fudud uga maamusho dhammaan xogta websaytka adigoon koodh taaban.
-
----
-
-## 1. Dulmar Guud & Ujeeddada Nidaamka (Overview)
-
-Nidaamka CMS-ku wuxuu bixinayaa maamul toos ah oo loogu talagalay:
-1. **Mashaariicda & Sawirradooda (Projects Showcase CRUD):** Ku dar, wax ka beddel, tirtir, geli sawirro, faahfaahin buuxda, teknoolojiyada la isticmaalay, iyo xiriirinta GitHub/Live Demo.
-2. **Waayo-aragnimada & Waxbarashada (Experience & Education Timeline):** Maamul taariikhdaada xirfadeed (Software Engineering, jaamacadaha, shaqooyinkii hore, shahaadooyinka).
-3. **Marag-furka Macaamiisha (Client Testimonials):** Maamul dib-u-eegisyada macaamiisha, qiimeynta xiddigaha (star ratings), iyo sawirrada qofka wax amaanay.
-4. **Sanduuqa Farriimaha (Contact Inquiries Inbox):** Dhammaan farriimaha dadku kasoo diraan qaybta Contact-ka toos ayay usoo galayaan dashboard-ka iyadoo lagu arkayo xaaladda (Cusub/La Akhriyey), taariikhda, iyo faahfaahinta.
-
-Waxaa kaloo jira **Demo/Fallback Mode** xariif ah oo u shaqaynaya xataa haddii furayaasha Supabase aan weli la gelin, si aad isla markiiba ugu tijaabiso dashboard-ka browser-kaaga!
+A production-grade Role-Based Access Control (RBAC), User Administration, Capability Matrix, and Security Audit system seamlessly integrated into Mohamed Alhady's Portfolio Admin Dashboard.
 
 ---
 
-## 2. Naqshadda Keydka Xogta Supabase (Database Schema & SQL)
+## User Review & Critical Decisions
 
-Waxaan diyaarinaynaa SQL scripts-ka tooska loogu shubo Supabase SQL Editor:
+> [!IMPORTANT]
+> Based on your clarification responses, this system is integrated into your Admin Dashboard under **"Security & Access Control"** (`/admin/users-roles`). It uses portfolio and agency role presets (**Super Admin**, **Content Editor**, **Project Manager**, and **Client / Reviewer**) and persists data directly to **Google Cloud Firestore** with an offline local storage backup.
 
-```sql
--- 1. Jadwalka Mashaariicda (Projects Table)
-CREATE TABLE IF NOT EXISTS public.projects (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title TEXT NOT NULL,
-  category TEXT NOT NULL,
-  summary TEXT NOT NULL,
-  description TEXT,
-  image_url TEXT NOT NULL,
-  gallery_urls TEXT[] DEFAULT '{}',
-  tech_stack TEXT[] NOT NULL,
-  live_url TEXT,
-  github_url TEXT,
-  featured BOOLEAN DEFAULT false,
-  metrics JSONB DEFAULT '{}'::jsonb,
-  display_order INT DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+- **Confirmed Location**: Integrated inside Admin Dashboard as `/admin/users-roles` with direct navigation in the admin sidebar.
+- **Confirmed Role Presets**:
+  - `Super Admin`: Unrestricted system access, role locking, privilege elevation.
+  - `Content Editor`: Projects showcase, timeline milestones, and appearance styling.
+  - `Project Manager`: Testimonials moderation, contact messages, and project scheduling.
+  - `Client / Reviewer`: Read-only access to drafts, proposals, and project analytics.
+- **Confirmed Persistence**: Cloud Firestore collections (`system_users`, `system_roles`, `audit_logs`, `security_audit_logs`) synchronized with `SiteDataContext`.
 
--- 2. Jadwalka Waayo-aragnimada & Waxbarashada (Timeline Table)
-CREATE TABLE IF NOT EXISTS public.timelines (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  type TEXT CHECK (type IN ('education', 'experience')) NOT NULL,
-  title TEXT NOT NULL,
-  institution TEXT NOT NULL,
-  period TEXT NOT NULL,
-  description TEXT NOT NULL,
-  skills TEXT[] DEFAULT '{}',
-  display_order INT DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+---
 
--- 3. Jadwalka Marag-furka (Testimonials Table)
-CREATE TABLE IF NOT EXISTS public.testimonials (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  client_name TEXT NOT NULL,
-  client_role TEXT NOT NULL,
-  company TEXT,
-  avatar_url TEXT,
-  rating INT DEFAULT 5,
-  content TEXT NOT NULL,
-  is_approved BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+## 1. Overview & Core Concept
 
--- 4. Jadwalka Farriimaha Xiriirka (Inquiries / Messages Table)
-CREATE TABLE IF NOT EXISTS public.contact_messages (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  subject TEXT,
-  message TEXT NOT NULL,
-  is_read BOOLEAN DEFAULT false,
-  replied BOOLEAN DEFAULT false,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+### What It Delivers
+A unified enterprise governance console with 4 high-density operational tabs:
+1. **System Users**: Complete user directory, account lifecycle (Active / Locked / Disabled), role inheritance, and super-admin privilege overrides.
+2. **Powers & Roles**: Capability Matrix enabling granular Page-to-Tab access rules (`Role → Page → Tabs`). Disabled tabs are hidden from unauthorized roles, backed by route guards.
+3. **History Actions**: Filterable, searchable audit trail logging user mutations (Create, Update, Delete, Login, Permission Change).
+4. **Security Audit**: High-priority security log tracking failed authentication attempts, role modifications, permission escalations, and device/IP metadata.
+
+### Target Audience & Value
+- **Mohamed Alhady (Super Admin)**: Complete sovereignty over who can edit portfolio projects, review private client inquiries, or change live branding.
+- **Collaborators & Clients**: Granted scoped access to specific operational modules without compromising sensitive Firebase credentials, system logs, or administrative controls.
+
+---
+
+## 2. User Experience & Visual Design
+
+### Visual Identity & Theme
+- **Surface Elevation**: High-density obsidian dark palette (`#090D16` and `#0F172A`) with subtle 1px slate borders (`border-white/10`).
+- **Accent Signals**:
+  - Emerald Green (`#10B981`): Active accounts, granted permissions, nominal audit states.
+  - Amber Gold (`#F59E0B`): Locked accounts, warning alerts, role overrides.
+  - Crimson Red (`#EF4444`): Disabled accounts, security escalations, failed logins.
+  - Primary Brand Yellow (`#FACC15`): Super Admin badges and active tabs.
+- **Tabular Figures**: Monospace timestamps and tabular numerals (`tabular-nums`) for clean vertical log alignment.
+- **Anti-Slop Restraint**: Zero decorative candy pills; all metadata displayed with clean inline text separators (`·`), high-contrast icons, and functional interactive controls.
+
+### Tab Breakdown & Key Flows
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       ADMIN SECURITY & GOVERNANCE                           │
+│  [ Users (4) ]   [ Powers & Roles (4) ]   [ History Log ]   [ Security ]   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  TAB 1: SYSTEM USERS                                                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │ 🔍 Search users...    [ Status Filter ▾ ]    [ + Register New User ]  │  │
+│  ├───────────────────────────────────────────────────────────────────────┤  │
+│  │ Name             Username     Email            Role        Status     │  │
+│  │ Mohamed Alhady   @alhady      admin@domain     Super Admin ● Active   │  │
+│  │ Sarah Jenkins    @sjenkins    editor@domain    Editor      ● Active   │  │
+│  │ Omar K.          @omark       client@brand     Client      ⊘ Locked   │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  TAB 2: CAPABILITY MATRIX (Role → Page → Tabs)                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │ Selected Role: [ Content Editor ▾ ]        [ Clone Role ]  [ Lock ]   │  │
+│  ├───────────────────────────────────────────────────────────────────────┤  │
+│  │ Page: Projects Showcase (/admin/projects)                             │  │
+│  │   ├── Tab: All Projects List        [ ENABLED ]                       │  │
+│  │   ├── Tab: Create / Edit Form       [ ENABLED ]                       │  │
+│  │   └── Tab: Category Manager         [ DISABLED - HIDDEN ]             │  │
+│  │ Page: Appearance Settings (/admin/appearance)                         │  │
+│  │   ├── Tab: Hero & Branding          [ ENABLED ]                       │  │
+│  │   └── Tab: Security & DB Settings   [ DISABLED - HIDDEN ]             │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Qaab-dhismeedka Bogagga & Shaashadaha (Architecture & Pages)
+## 3. Key Product Decisions & Trade-Offs
 
-### A. Waddooyinka Cusub (New Routing):
-- `/admin/login` – Bogga gelitaanka ee sirta ah (Supabase Email/Password login ama One-Click Admin Master Key).
-- `/admin` – Xarunta guud (Dashboard Overview: Stats, tirada mashaariicda, farriimaha cusub, hawlaha degdegga ah).
-- `/admin/projects` – Maamulka mashaariicda (Liis, shaandheyn, ku-dar/wax-ka-beddel modal leh sawir preview).
-- `/admin/timeline` – Maamulka taariikhda xirfadeed iyo waxbarashada (Degree, shaqooyin, sanado).
-- `/admin/testimonials` – Maamulka faallooyinka macaamiisha (Darajooyinka xiddigaha, magacyada, xaaladda).
-- `/admin/messages` – Sanduuqa farriimaha soo dhacay (Inbox leh shaandheyn Akhriyey/Maan-akhrin, tirtirid, iyo reply).
-- `/admin/settings` – Meesha lagu xirayo Supabase URL & Anon Key haddii aad doonayso inaad toos browser-ka uga beddesho!
+### Decision 1: Hierarchical Permission Model (`Role → Page → Tab`)
+- **Chosen Approach**: Tab-level access flags stored in an explicit permissions dictionary `{ [pageId]: { [tabId]: boolean } }`.
+- **Why**: Allows fine-grained access without breaking standard routing. If a tab is disabled, it is cleanly excluded from the navigation bar and denied if directly requested.
+- **Alternatives Considered**: Global wildcard strings (e.g. `projects:write`). Passed over because the prompt explicitly mandates Page → Tab capability matrix representation.
 
-### B. Ilaalinta Amniga (Protected Route Guard):
-- Haddii qofku uusan soo galin `admin`, waxaa toos loogu celinayaa `/admin/login`.
-- Session token-ka waxa lagu xafidayaa hab sugan.
-- Waxaa jira badhan "Log Out" oo ku dhex yaal Dashboard-ka.
-
-### C. Xiriirka Frontend-ka Guud (Public Sync):
-- Bogga weyn (`/`, `/about`, `/projects`) wuxuu si toos ah u akhrin doonaa xogta Supabase marka ay jirto xiriir, haddii kalena wuxuu si dabiici ah u isticmaalayaa xogtii asalka ahayd ee `constants.ts` iyadoo wax cilad ah ama shaashad bannaan aysan dhacayn.
+### Decision 2: Cloud Firestore with Offline Local Fallback
+- **Chosen Approach**: Users, roles, and logs are synchronized to Firestore collections with transparent local fallback when working offline.
+- **Why**: Guarantees zero downtime while persisting user permissions across devices and browser sessions.
 
 ---
 
-## 4. Master Prompt-ka Diyaarka ah ee AI Studio (Copy & Paste / Execution Prompt)
+## 4. Technical Architecture & Data Strategy
 
-Haddii aad rabto inaad prompt-kan toos u siiso Google AI Studio ama aad halkan kaga sii waddo adigoo riixaya **Proceed**, waa kan prompt-ka oo dhammaystiran:
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           APPLICATION STATE                                 │
+│                                                                             │
+│   Firestore DB ◄────► SiteDataContext ◄────► AdminAuthContext               │
+│   (/system_users)     (Settings, Roles)     (Current Active User)           │
+│   (/system_roles)                               │                           │
+│   (/audit_logs)                                 │                           │
+│                                                 ▼                           │
+│                                       RolePermissionGuard                   │
+│                                                 │                           │
+│                    ┌────────────────────────────┴─────────────────────┐     │
+│                    ▼                                                  ▼     │
+│         Authorized View (Render Tabs)                      Access Denied    │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
-```text
-Build a production-grade Admin Dashboard and CMS for this developer portfolio website using Supabase for Authentication and Data Storage, with a seamless zero-friction local fallback:
+### Data Schema
 
-1. DEPENDENCIES & BACKEND SETUP:
-   - Install `@supabase/supabase-js`.
-   - Create `src/lib/supabase.ts` configured with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, with localStorage settings fallback so the user can easily paste their Supabase credentials directly from the Admin Settings tab without rebuilding.
-   - Include sample SQL schema file `src/lib/schema.sql` ready to be copied into Supabase SQL editor.
-   - If Supabase is not connected or in offline mode, smoothly fall back to a rich localStorage-backed mock store initialized with the website's default constants (so the dashboard is 100% interactive and testable immediately!).
+#### 1. System User Entity (`SystemUser`)
+```typescript
+export interface SystemUser {
+  id: string;
+  fullName: string;
+  username: string;
+  email: string;
+  roleId: string; // References SystemRole.id
+  status: 'active' | 'locked' | 'disabled';
+  customOverrides?: Record<string, Record<string, boolean>>; // Optional super-admin override
+  avatarUrl?: string;
+  createdAt: string;
+  lastLoginAt?: string;
+  lastLoginIp?: string;
+}
+```
 
-2. AUTHENTICATION & SECURITY:
-   - Create route `/admin/login` with dark cyber-themed authentication UI (email/password login with Supabase Auth, plus a quick developer demo bypass button).
-   - Create an `AdminRouteGuard` component protecting all `/admin/*` routes.
-   - Add a subtle, professional "Admin Portal" link or lock icon in the footer and quick key shortcut (Ctrl + Shift + A).
+#### 2. System Role Preset (`SystemRole`)
+```typescript
+export interface SystemRole {
+  id: string;
+  name: string;
+  description: string;
+  isCoreLocked: boolean; // Super Admin protected core roles cannot be deleted
+  color: string;
+  permissions: {
+    [pageId: string]: {
+      [tabId: string]: boolean;
+    };
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+```
 
-3. CMS ADMIN DASHBOARD MODULES (/admin):
-   - Admin Layout: Sleek collapsible dark sidebar (Dashboard, Projects, Timeline/Education, Testimonials, Messages Inbox, Supabase Settings), top header with quick stats, user avatar, and Logout button.
-   - Overview Tab: Quick analytics cards (Total Projects, Total Testimonials, Unread Inquiries, Timeline Entries), recent messages preview, and quick-action buttons.
-   - Projects Management (/admin/projects): Full CRUD table and card grid with image preview, category filters, featured toggles, tech stack badge editor, GitHub/live URL fields, and rich description editor.
-   - Timeline & Education Management (/admin/timeline): Manage work experience and education (B.S. in Software Engineering, roles, institutions, dates, bullet descriptions).
-   - Testimonials Management (/admin/testimonials): Manage client reviews, rating stars (1-5), company/role, avatar image URLs, and live visibility toggles.
-   - Inquiries & Contact Inbox (/admin/messages): Real-time list of messages submitted through the `/contact` form, with badge indicators for unread status, view details modal, mark-as-read, and delete actions.
-   - Settings Tab (/admin/settings): Form to view or input Supabase Project URL and Anon Key, test connection button, and Export/Import JSON backup button.
+#### 3. Audit Log Entry (`AuditLogItem`)
+```typescript
+export interface AuditLogItem {
+  id: string;
+  timestamp: string;
+  userId: string;
+  userName: string;
+  userRole: string;
+  actionType: 'create' | 'update' | 'delete' | 'login' | 'permission_change';
+  targetPage: string;
+  targetTab?: string;
+  details: string;
+  deviceInfo?: string;
+  ipAddress?: string;
+}
+```
 
-4. LIVE SITE INTEGRATION:
-   - Update `App.tsx` routes with the new Admin routes.
-   - Wrap the application with a `SiteDataContext` provider that reactively serves projects, timeline, and testimonials to `Home.tsx`, `About.tsx`, `Projects.tsx`, and `ProjectDetail.tsx`.
-   - Update `Contact.tsx` so form submissions write directly to the Supabase/Local inquiries store.
-   - Maintain all existing animations (framer-motion), responsive styling, and modern UI theme.
+#### 4. Security Audit Log (`SecurityAuditItem`)
+```typescript
+export interface SecurityAuditItem {
+  id: string;
+  timestamp: string;
+  eventType: 'failed_login' | 'role_change' | 'permission_escalation' | 'account_lock';
+  userId?: string;
+  userName?: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  ipAddress: string;
+  device: string;
+  details: string;
+}
 ```
 
 ---
 
-## 5. Tallaabooyinka Xiga (Next Steps)
+## 5. Execution Steps
 
-1. **Riiix "Proceed":** Haddii aad doonayso inaan hadda toos kuugu dhisno nidaamkan oo dhan, riix badhanka **Proceed** ee hoose.
-2. **Haddii aad wax ku kordhinayso:** Qor faallo ama codsi dheeraad ah ka hor inta aynaan bilaabin koodhka.
+1. **Types & Schema**: Define `SystemUser`, `SystemRole`, `AuditLogItem`, and `SecurityAuditItem` in `types.ts`.
+2. **Initial Data**: Seed initial core roles (**Super Admin**, **Content Editor**, **Project Manager**, **Client / Reviewer**) and initial admin user in `src/data/initialData.ts`.
+3. **Context Store**: Add user and role CRUD actions + audit logging helpers to `SiteDataContext.tsx` with Firestore live sync.
+4. **Management Component**: Build `components/admin/AdminSecurityRoles.tsx` with all 4 functional tabs:
+   - Tab 1: User listing, search, status toggles, user registration modal with role selector and super-admin overrides.
+   - Tab 2: Role Preset cards, Capability Matrix with Page-to-Tab interactive toggle switches, clone role, and core role locking.
+   - Tab 3: History Actions filterable data table (by user, action type, date range) with export option.
+   - Tab 4: Security Audit timeline monitoring failed attempts, escalations, and device fingerprints.
+5. **Route & Navigation**: Register `/admin/users-roles` in `App.tsx` and add a high-priority "Security & Roles" menu item in `AdminLayout.tsx`.
+6. **Enforcement Guard**: Implement `RolePermissionGuard` to enforce tab visibility and return a refined "Access Denied" view for restricted routes.

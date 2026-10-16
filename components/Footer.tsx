@@ -73,22 +73,42 @@ const Footer: React.FC = () => {
             <p className="text-gray-400 text-sm leading-relaxed mb-6 pr-4">
               {branding?.footerBio || 'Building high-performance web applications with a focus on exceptional user experiences, robust architecture, and clean code. Located in Hargeisa, Somaliland.'}
             </p>
-            <div className="flex flex-wrap items-center gap-4">
-              <a href="https://github.com/alhady-mohamed" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="GitHub">
-                <Github size={18} className="group-hover:scale-110 transition-transform" />
-              </a>
-              <a href="https://www.linkedin.com/in/alhady-mohamed" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#0A66C2] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="LinkedIn">
-                <Linkedin size={18} className="group-hover:scale-110 transition-transform" />
-              </a>
-              <a href="https://www.facebook.com/Mohamet.Abdirisaak304" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#1877F2] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="Facebook">
-                <Facebook size={18} className="group-hover:scale-110 transition-transform" />
-              </a>
-              <a href="https://www.instagram.com/alhady_mohamed301" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#E4405F] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="Instagram">
-                <Instagram size={18} className="group-hover:scale-110 transition-transform" />
-              </a>
-              <a href="https://youtube.com/@mohamed-alhady01" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#FF0000] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="YouTube">
-                <Youtube size={18} className="group-hover:scale-110 transition-transform" />
-              </a>
+            <div className="flex flex-wrap items-center gap-3">
+              {(settings?.socialLinks?.github !== undefined ? settings.socialLinks.github : 'https://github.com/alhady-mohamed') && (
+                <a href={settings?.socialLinks?.github || 'https://github.com/alhady-mohamed'} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="GitHub">
+                  <Github size={18} className="group-hover:scale-110 transition-transform" />
+                </a>
+              )}
+              {(settings?.socialLinks?.linkedin !== undefined ? settings.socialLinks.linkedin : 'https://www.linkedin.com/in/alhady-mohamed') && (
+                <a href={settings?.socialLinks?.linkedin || 'https://www.linkedin.com/in/alhady-mohamed'} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#0A66C2] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="LinkedIn">
+                  <Linkedin size={18} className="group-hover:scale-110 transition-transform" />
+                </a>
+              )}
+              {(settings?.socialLinks?.facebook !== undefined ? settings.socialLinks.facebook : 'https://www.facebook.com/Mohamet.Abdirisaak304') && (
+                <a href={settings?.socialLinks?.facebook || 'https://www.facebook.com/Mohamet.Abdirisaak304'} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#1877F2] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="Facebook">
+                  <Facebook size={18} className="group-hover:scale-110 transition-transform" />
+                </a>
+              )}
+              {(settings?.socialLinks?.instagram !== undefined ? settings.socialLinks.instagram : 'https://www.instagram.com/alhady_mohamed301') && (
+                <a href={settings?.socialLinks?.instagram || 'https://www.instagram.com/alhady_mohamed301'} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#E4405F] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="Instagram">
+                  <Instagram size={18} className="group-hover:scale-110 transition-transform" />
+                </a>
+              )}
+              {(settings?.socialLinks?.youtube !== undefined ? settings.socialLinks.youtube : 'https://youtube.com/@mohamed-alhady01') && (
+                <a href={settings?.socialLinks?.youtube || 'https://youtube.com/@mohamed-alhady01'} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#FF0000] hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="YouTube">
+                  <Youtube size={18} className="group-hover:scale-110 transition-transform" />
+                </a>
+              )}
+              {settings?.socialLinks?.twitter && (
+                <a href={settings.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-sky-400 hover:bg-white/10 hover:border-white/20 transition-all group" aria-label="Twitter / X">
+                  <Twitter size={18} className="group-hover:scale-110 transition-transform" />
+                </a>
+              )}
+              {settings?.socialLinks?.tiktok && (
+                <a href={settings.socialLinks.tiktok} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-pink-400 hover:bg-white/10 hover:border-white/20 transition-all group text-xs flex items-center justify-center font-bold" aria-label="TikTok">
+                  🎵
+                </a>
+              )}
             </div>
           </div>
 

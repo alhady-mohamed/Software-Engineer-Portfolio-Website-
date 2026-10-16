@@ -1,6 +1,28 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Project, TimelineItem, TestimonialItem, ContactMessage, SiteSettings, ThemeSettings } from '../../types';
-import { INITIAL_PROJECTS, INITIAL_TIMELINES, INITIAL_TESTIMONIALS, INITIAL_MESSAGES, INITIAL_SETTINGS } from '../data/initialData';
+import {
+  Project,
+  TimelineItem,
+  TestimonialItem,
+  ContactMessage,
+  SiteSettings,
+  ThemeSettings,
+  SystemUser,
+  SystemRole,
+  AuditLogItem,
+  SecurityAuditItem,
+} from '../../types';
+import {
+  INITIAL_PROJECTS,
+  INITIAL_TIMELINES,
+  INITIAL_TESTIMONIALS,
+  INITIAL_MESSAGES,
+  INITIAL_SETTINGS,
+  INITIAL_ROLES,
+  INITIAL_SYSTEM_USERS,
+  INITIAL_AUDIT_LOGS,
+  INITIAL_SECURITY_LOGS,
+  RBAC_PAGES_CATALOG,
+} from '../data/initialData';
 import { db } from '../lib/firebase';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from 'firebase/firestore';
 
@@ -146,7 +168,27 @@ interface SiteDataContextType {
   addMessage: (msg: { name: string; email: string; subject: string; message: string }) => Promise<ContactMessage>;
   markMessageRead: (id: string, isRead?: boolean) => Promise<void>;
   deleteMessage: (id: string) => Promise<void>;
-  
+
+  // Enterprise RBAC & Security State & Actions
+  users: SystemUser[];
+  roles: SystemRole[];
+  auditLogs: AuditLogItem[];
+  securityAuditLogs: SecurityAuditItem[];
+  currentUser: SystemUser | null;
+  setCurrentUser: (user: SystemUser | null) => void;
+  addUser: (userData: Omit<SystemUser, 'id' | 'createdAt'>) => Promise<{ success: boolean; id?: string; message?: string }>;
+  updateUser: (id: string, updates: Partial<SystemUser>) => Promise<{ success: boolean; message?: string }>;
+  toggleUserLock: (id: string) => Promise<{ success: boolean; message?: string }>;
+  deleteUser: (id: string) => Promise<{ success: boolean; message?: string }>;
+  addRole: (roleData: Omit<SystemRole, 'id' | 'createdAt' | 'updatedAt'>) => Promise<{ success: boolean; id?: string; message?: string }>;
+  updateRole: (id: string, updates: Partial<SystemRole>) => Promise<{ success: boolean; message?: string }>;
+  cloneRole: (id: string, newName: string) => Promise<{ success: boolean; id?: string; message?: string }>;
+  toggleRoleLock: (id: string) => Promise<{ success: boolean; message?: string }>;
+  deleteRole: (id: string) => Promise<{ success: boolean; message?: string }>;
+  logAction: (log: Omit<AuditLogItem, 'id' | 'timestamp'>) => Promise<void>;
+  logSecurityEvent: (event: Omit<SecurityAuditItem, 'id' | 'timestamp'>) => Promise<void>;
+  hasTabPermission: (pageId: string, tabId: string, customRoleId?: string) => boolean;
+
   updateSettings: (newSettings: Partial<SiteSettings>) => Promise<{ success: boolean; message: string }>;
   syncAllToFirebase: () => Promise<{ success: boolean; message: string; counts?: { projects: number; timelines: number; testimonials: number } }>;
   resetToDefaults: () => void;
@@ -161,6 +203,10 @@ const STORAGE_KEYS = {
   TESTIMONIALS: 'portfolio_cms_testimonials',
   MESSAGES: 'portfolio_cms_messages',
   SETTINGS: 'portfolio_cms_settings',
+  USERS: 'portfolio_cms_users',
+  ROLES: 'portfolio_cms_roles',
+  AUDIT_LOGS: 'portfolio_cms_audit_logs',
+  SECURITY_LOGS: 'portfolio_cms_security_logs',
 };
 
 export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -219,6 +265,53 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return INITIAL_SETTINGS;
     } catch {
       return INITIAL_SETTINGS;
+    }
+  });
+
+  // RBAC & Security Administration State
+  const [users, setUsers] = useState<SystemUser[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.USERS);
+      return saved ? JSON.parse(saved) : INITIAL_SYSTEM_USERS;
+    } catch {
+      return INITIAL_SYSTEM_USERS;
+    }
+  });
+
+  const [roles, setRoles] = useState<SystemRole[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.ROLES);
+      return saved ? JSON.parse(saved) : INITIAL_ROLES;
+    } catch {
+      return INITIAL_ROLES;
+    }
+  });
+
+  const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS);
+      return saved ? JSON.parse(saved) : INITIAL_AUDIT_LOGS;
+    } catch {
+      return INITIAL_AUDIT_LOGS;
+    }
+  });
+
+  const [securityAuditLogs, setSecurityAuditLogs] = useState<SecurityAuditItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SECURITY_LOGS);
+      return saved ? JSON.parse(saved) : INITIAL_SECURITY_LOGS;
+    } catch {
+      return INITIAL_SECURITY_LOGS;
+    }
+  });
+
+  const [currentUser, setCurrentUser] = useState<SystemUser | null>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.USERS);
+      const parsed = saved ? JSON.parse(saved) : INITIAL_SYSTEM_USERS;
+      return parsed.find((u: SystemUser) => u.roleId === 'super_admin') || parsed[0] || null;
+    } catch {
+      return INITIAL_SYSTEM_USERS[0] || null;
     }
   });
 
@@ -392,8 +485,106 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           updatedAt: data.updatedAt,
         }));
       }
+    // 6. System Users
+    const unsubUsers = onSnapshot(collection(db, 'system_users'), (snapshot) => {
+      if (!snapshot.empty) {
+        const remoteUsers: SystemUser[] = [];
+        snapshot.forEach((docSnap) => {
+          const d = docSnap.data();
+          remoteUsers.push({
+            id: docSnap.id,
+            fullName: d.fullName || 'User',
+            username: d.username || docSnap.id,
+            email: d.email || '',
+            roleId: d.roleId || 'content_editor',
+            status: d.status || 'active',
+            customOverrides: d.customOverrides,
+            avatarUrl: d.avatarUrl,
+            createdAt: d.createdAt || new Date().toISOString(),
+            lastLoginAt: d.lastLoginAt,
+            lastLoginIp: d.lastLoginIp,
+            notes: d.notes,
+          });
+        });
+        setUsers(remoteUsers);
+      }
     }, (err) => {
-      console.warn('Firestore settings listener error:', err);
+      console.warn('Firestore users listener error:', err);
+    });
+
+    // 7. System Roles
+    const unsubRoles = onSnapshot(collection(db, 'system_roles'), (snapshot) => {
+      if (!snapshot.empty) {
+        const remoteRoles: SystemRole[] = [];
+        snapshot.forEach((docSnap) => {
+          const d = docSnap.data();
+          remoteRoles.push({
+            id: docSnap.id,
+            name: d.name || 'Role',
+            description: d.description || '',
+            isCoreLocked: Boolean(d.isCoreLocked),
+            color: d.color || '#3b82f6',
+            permissions: d.permissions || {},
+            createdAt: d.createdAt || new Date().toISOString(),
+            updatedAt: d.updatedAt || new Date().toISOString(),
+          });
+        });
+        setRoles(remoteRoles);
+      }
+    }, (err) => {
+      console.warn('Firestore roles listener error:', err);
+    });
+
+    // 8. Audit Logs (History Actions)
+    const unsubAudit = onSnapshot(collection(db, 'audit_logs'), (snapshot) => {
+      if (!snapshot.empty) {
+        const remoteLogs: AuditLogItem[] = [];
+        snapshot.forEach((docSnap) => {
+          const d = docSnap.data();
+          remoteLogs.push({
+            id: docSnap.id,
+            timestamp: d.timestamp || new Date().toISOString(),
+            userId: d.userId || '',
+            userName: d.userName || 'System',
+            userRole: d.userRole || 'Admin',
+            actionType: d.actionType || 'update',
+            targetPage: d.targetPage || '',
+            targetTab: d.targetTab,
+            details: d.details || '',
+            deviceInfo: d.deviceInfo,
+            ipAddress: d.ipAddress,
+          });
+        });
+        remoteLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        setAuditLogs(remoteLogs);
+      }
+    }, (err) => {
+      console.warn('Firestore audit logs error:', err);
+    });
+
+    // 9. Security Audit Logs
+    const unsubSec = onSnapshot(collection(db, 'security_audit_logs'), (snapshot) => {
+      if (!snapshot.empty) {
+        const remoteSec: SecurityAuditItem[] = [];
+        snapshot.forEach((docSnap) => {
+          const d = docSnap.data();
+          remoteSec.push({
+            id: docSnap.id,
+            timestamp: d.timestamp || new Date().toISOString(),
+            eventType: d.eventType || 'failed_login',
+            userId: d.userId,
+            userName: d.userName,
+            severity: d.severity || 'medium',
+            ipAddress: d.ipAddress || '127.0.0.1',
+            device: d.device || 'Unknown',
+            details: d.details || '',
+          });
+        });
+        remoteSec.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        setSecurityAuditLogs(remoteSec);
+      }
+    }, (err) => {
+      console.warn('Firestore security logs error:', err);
     });
 
     return () => {
@@ -402,6 +593,10 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       unsubTestimonials();
       unsubMessages();
       unsubSettings();
+      unsubUsers();
+      unsubRoles();
+      unsubAudit();
+      unsubSec();
     };
   }, []);
 
@@ -445,6 +640,38 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.warn('Failed to cache settings:', e);
     }
   }, [settings]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    } catch (e) {
+      console.warn('Failed to cache users:', e);
+    }
+  }, [users]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.ROLES, JSON.stringify(roles));
+    } catch (e) {
+      console.warn('Failed to cache roles:', e);
+    }
+  }, [roles]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify(auditLogs));
+    } catch (e) {
+      console.warn('Failed to cache audit logs:', e);
+    }
+  }, [auditLogs]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.SECURITY_LOGS, JSON.stringify(securityAuditLogs));
+    } catch (e) {
+      console.warn('Failed to cache security logs:', e);
+    }
+  }, [securityAuditLogs]);
 
   // Project Actions
   const addProject = async (projectData: Omit<Project, 'id'>): Promise<Project> => {
@@ -849,6 +1076,378 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  // Helper to log user actions into the Audit Log (History Actions)
+  const logAction = async (log: Omit<AuditLogItem, 'id' | 'timestamp'>) => {
+    const newId = 'log_' + Date.now();
+    const entry: AuditLogItem = {
+      ...log,
+      id: newId,
+      timestamp: new Date().toISOString(),
+    };
+    setAuditLogs((prev) => [entry, ...prev]);
+    try {
+      await setDoc(doc(db, 'audit_logs', newId), removeUndefinedFields(entry));
+    } catch (e) {
+      console.warn('Failed to persist audit log to Firestore:', e);
+    }
+  };
+
+  // Helper to log security events into the Security Audit Log
+  const logSecurityEvent = async (event: Omit<SecurityAuditItem, 'id' | 'timestamp'>) => {
+    const newId = 'sec_' + Date.now();
+    const entry: SecurityAuditItem = {
+      ...event,
+      id: newId,
+      timestamp: new Date().toISOString(),
+    };
+    setSecurityAuditLogs((prev) => [entry, ...prev]);
+    try {
+      await setDoc(doc(db, 'security_audit_logs', newId), removeUndefinedFields(entry));
+    } catch (e) {
+      console.warn('Failed to persist security audit log to Firestore:', e);
+    }
+  };
+
+  // User Actions
+  const addUser = async (userData: Omit<SystemUser, 'id' | 'createdAt'>): Promise<{ success: boolean; id?: string; message?: string }> => {
+    const newId = 'usr_' + Date.now();
+    const newUser: SystemUser = {
+      ...userData,
+      id: newId,
+      createdAt: new Date().toISOString(),
+      status: userData.status || 'active',
+    };
+
+    setUsers((prev) => [newUser, ...prev]);
+
+    // Record audit logs
+    await logAction({
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.fullName || 'Super Admin',
+      userRole: currentUser?.roleId || 'super_admin',
+      actionType: 'create',
+      targetPage: 'Security & Access Control',
+      targetTab: 'System Users',
+      details: `Registered new user "${newUser.fullName}" (@${newUser.username}) with role ${newUser.roleId}`,
+    });
+
+    try {
+      await setDoc(doc(db, 'system_users', newId), removeUndefinedFields(newUser));
+      return { success: true, id: newId, message: 'Isticmaalaha cusub si guul leh ayaa loo diiwaangeliyay!' };
+    } catch (e: any) {
+      console.warn('Firestore addUser error:', e);
+      return { success: true, id: newId, message: 'Isticmaalaha waxaa lagu kaydiyay kaydka browser-ka (offline).' };
+    }
+  };
+
+  const updateUser = async (id: string, updates: Partial<SystemUser>): Promise<{ success: boolean; message?: string }> => {
+    const existing = users.find((u) => u.id === id);
+    if (!existing) return { success: false, message: 'Isticmaalaha lama helin' };
+
+    const updatedUser = { ...existing, ...updates };
+    setUsers((prev) => prev.map((u) => (u.id === id ? updatedUser : u)));
+
+    if (currentUser?.id === id) {
+      setCurrentUser(updatedUser);
+    }
+
+    await logAction({
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.fullName || 'Super Admin',
+      userRole: currentUser?.roleId || 'super_admin',
+      actionType: 'update',
+      targetPage: 'Security & Access Control',
+      targetTab: 'System Users',
+      details: `Updated profile details for user "${updatedUser.fullName}" (@${updatedUser.username})`,
+    });
+
+    try {
+      await setDoc(doc(db, 'system_users', id), removeUndefinedFields(updatedUser), { merge: true });
+      return { success: true, message: 'Xogta isticmaalaha waa la cusboonaysiiyay!' };
+    } catch (e: any) {
+      console.warn('Firestore updateUser error:', e);
+      return { success: true, message: 'Xogta waxaa lagu cusboonaysiiyay kaydka browser-ka.' };
+    }
+  };
+
+  const toggleUserLock = async (id: string): Promise<{ success: boolean; message?: string }> => {
+    const target = users.find((u) => u.id === id);
+    if (!target) return { success: false, message: 'Isticmaalaha lama helin' };
+
+    // Prevent locking the primary super admin
+    if (target.roleId === 'super_admin' && users.filter((u) => u.roleId === 'super_admin' && u.status === 'active').length <= 1 && target.status === 'active') {
+      return { success: false, message: 'Ma qufuli kartid Super Admin-ka kaliya ee firfircoon!' };
+    }
+
+    const nextStatus: AccountStatus = target.status === 'locked' ? 'active' : 'locked';
+    const updated = { ...target, status: nextStatus };
+    setUsers((prev) => prev.map((u) => (u.id === id ? updated : u)));
+
+    await logAction({
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.fullName || 'Super Admin',
+      userRole: currentUser?.roleId || 'super_admin',
+      actionType: 'update',
+      targetPage: 'Security & Access Control',
+      targetTab: 'System Users',
+      details: nextStatus === 'locked' ? `Locked user account for @${target.username}` : `Unlocked user account for @${target.username}`,
+    });
+
+    await logSecurityEvent({
+      eventType: 'account_lock',
+      userId: target.id,
+      userName: target.fullName,
+      severity: nextStatus === 'locked' ? 'medium' : 'low',
+      ipAddress: target.lastLoginIp || '127.0.0.1',
+      device: 'Admin Console Event',
+      details: nextStatus === 'locked' ? `Account @${target.username} was locked by ${currentUser?.fullName || 'Super Admin'}` : `Account @${target.username} was unlocked by ${currentUser?.fullName || 'Super Admin'}`,
+    });
+
+    try {
+      await setDoc(doc(db, 'system_users', id), { status: nextStatus }, { merge: true });
+    } catch (e) {
+      console.warn('Firestore toggle lock error:', e);
+    }
+
+    return {
+      success: true,
+      message: nextStatus === 'locked' ? `Account-ka @${target.username} hadda waa la qufulay!` : `Account-ka @${target.username} hadda waa la furay oo waa firfircoon yahay!`,
+    };
+  };
+
+  const deleteUser = async (id: string): Promise<{ success: boolean; message?: string }> => {
+    const target = users.find((u) => u.id === id);
+    if (!target) return { success: false, message: 'Isticmaalaha lama helin' };
+
+    if (target.roleId === 'super_admin') {
+      return { success: false, message: 'Lama tirtiri karo Super Admin!' };
+    }
+
+    setUsers((prev) => prev.filter((u) => u.id !== id));
+
+    await logAction({
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.fullName || 'Super Admin',
+      userRole: currentUser?.roleId || 'super_admin',
+      actionType: 'delete',
+      targetPage: 'Security & Access Control',
+      targetTab: 'System Users',
+      details: `Deleted user @${target.username} (${target.fullName})`,
+    });
+
+    try {
+      await deleteDoc(doc(db, 'system_users', id));
+    } catch (e) {
+      console.warn('Firestore delete user error:', e);
+    }
+
+    return { success: true, message: `Isticmaalaha @${target.username} waa la tirtiray!` };
+  };
+
+  // Role Actions
+  const addRole = async (roleData: Omit<SystemRole, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ success: boolean; id?: string; message?: string }> => {
+    const newId = 'role_' + Date.now();
+    const newRole: SystemRole = {
+      ...roleData,
+      id: newId,
+      isCoreLocked: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setRoles((prev) => [...prev, newRole]);
+
+    await logAction({
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.fullName || 'Super Admin',
+      userRole: currentUser?.roleId || 'super_admin',
+      actionType: 'create',
+      targetPage: 'Security & Access Control',
+      targetTab: 'Powers & Role Matrix',
+      details: `Created new custom Role Preset: "${newRole.name}"`,
+    });
+
+    try {
+      await setDoc(doc(db, 'system_roles', newId), removeUndefinedFields(newRole));
+      return { success: true, id: newId, message: `Doorka cusub ee "${newRole.name}" si guul leh ayaa loo abuuray!` };
+    } catch (e: any) {
+      console.warn('Firestore addRole error:', e);
+      return { success: true, id: newId, message: `Doorka "${newRole.name}" waxaa lagu keydiyay kaydka browser-ka.` };
+    }
+  };
+
+  const updateRole = async (id: string, updates: Partial<SystemRole>): Promise<{ success: boolean; message?: string }> => {
+    const existing = roles.find((r) => r.id === id);
+    if (!existing) return { success: false, message: 'Doorka lama helin' };
+
+    // Disallow modifying permissions of core super admin if unauthorized
+    if (existing.id === 'super_admin' && updates.permissions && currentUser?.roleId !== 'super_admin') {
+      return { success: false, message: 'Kaliya Super Admin ayaa wax ka beddeli kara doorka Super Admin!' };
+    }
+
+    const updatedRole: SystemRole = {
+      ...existing,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setRoles((prev) => prev.map((r) => (r.id === id ? updatedRole : r)));
+
+    await logAction({
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.fullName || 'Super Admin',
+      userRole: currentUser?.roleId || 'super_admin',
+      actionType: 'permission_change',
+      targetPage: 'Security & Access Control',
+      targetTab: 'Powers & Role Matrix',
+      details: `Modified capability matrix / permissions for Role "${updatedRole.name}"`,
+    });
+
+    await logSecurityEvent({
+      eventType: 'role_change',
+      userId: currentUser?.id,
+      userName: currentUser?.fullName,
+      severity: 'low',
+      ipAddress: currentUser?.lastLoginIp || '127.0.0.1',
+      device: 'Capability Matrix Editor',
+      details: `Role "${updatedRole.name}" capability matrix modified and synchronized to all assigned users.`,
+    });
+
+    try {
+      await setDoc(doc(db, 'system_roles', id), removeUndefinedFields(updatedRole), { merge: true });
+      return { success: true, message: `Doorka "${updatedRole.name}" awoodihiisa waa la cusboonaysiiyay!` };
+    } catch (e: any) {
+      console.warn('Firestore updateRole error:', e);
+      return { success: true, message: `Doorka awoodihiisa waxaa lagu cusboonaysiiyay browser-ka.` };
+    }
+  };
+
+  const cloneRole = async (id: string, newName: string): Promise<{ success: boolean; id?: string; message?: string }> => {
+    const source = roles.find((r) => r.id === id);
+    if (!source) return { success: false, message: 'Doorka asalka ah lama helin' };
+
+    const newId = 'role_clone_' + Date.now();
+    const clonedRole: SystemRole = {
+      ...source,
+      id: newId,
+      name: newName.trim() || `${source.name} (Nuqul)`,
+      description: `Cloned from ${source.name}. ${source.description}`,
+      isCoreLocked: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setRoles((prev) => [...prev, clonedRole]);
+
+    await logAction({
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.fullName || 'Super Admin',
+      userRole: currentUser?.roleId || 'super_admin',
+      actionType: 'create',
+      targetPage: 'Security & Access Control',
+      targetTab: 'Powers & Role Matrix',
+      details: `Cloned role "${source.name}" into new role "${clonedRole.name}"`,
+    });
+
+    try {
+      await setDoc(doc(db, 'system_roles', newId), removeUndefinedFields(clonedRole));
+      return { success: true, id: newId, message: `Doorka "${clonedRole.name}" nuqulkiisa waa la abuuray!` };
+    } catch (e: any) {
+      console.warn('Firestore cloneRole error:', e);
+      return { success: true, id: newId, message: `Nuqulka doorka waxaa lagu keydiyay browser-ka.` };
+    }
+  };
+
+  const toggleRoleLock = async (id: string): Promise<{ success: boolean; message?: string }> => {
+    const role = roles.find((r) => r.id === id);
+    if (!role) return { success: false, message: 'Doorka lama helin' };
+
+    if (role.id === 'super_admin') {
+      return { success: false, message: 'Doorka Super Admin waa mid xidhan oo aan marna la furi karin!' };
+    }
+
+    const nextLock = !role.isCoreLocked;
+    const updated = { ...role, isCoreLocked: nextLock, updatedAt: new Date().toISOString() };
+    setRoles((prev) => prev.map((r) => (r.id === id ? updated : r)));
+
+    await logAction({
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.fullName || 'Super Admin',
+      userRole: currentUser?.roleId || 'super_admin',
+      actionType: 'permission_change',
+      targetPage: 'Security & Access Control',
+      targetTab: 'Powers & Role Matrix',
+      details: nextLock ? `Locked core role "${role.name}"` : `Unlocked role "${role.name}"`,
+    });
+
+    try {
+      await setDoc(doc(db, 'system_roles', id), { isCoreLocked: nextLock }, { merge: true });
+    } catch (e) {
+      console.warn('Firestore toggleRoleLock error:', e);
+    }
+
+    return {
+      success: true,
+      message: nextLock ? `Doorka "${role.name}" hadda waa la xidhay (Core Protected)!` : `Doorka "${role.name}" hadda waa la furay waxna waa laga beddeli karaa.`,
+    };
+  };
+
+  const deleteRole = async (id: string): Promise<{ success: boolean; message?: string }> => {
+    const role = roles.find((r) => r.id === id);
+    if (!role) return { success: false, message: 'Doorka lama helin' };
+
+    if (role.isCoreLocked || role.id === 'super_admin') {
+      return { success: false, message: 'Ma tirtiri kartid door core ah oo nidaamku ku shaqeeyo!' };
+    }
+
+    const assignedUsers = users.filter((u) => u.roleId === id);
+    if (assignedUsers.length > 0) {
+      return {
+        success: false,
+        message: `Ma tirtiri kartid doorkan sababtoo ah waxaa ku jira ${assignedUsers.length} isticmaale. Fadlan marka hore u wareeji door kale.`,
+      };
+    }
+
+    setRoles((prev) => prev.filter((r) => r.id !== id));
+
+    await logAction({
+      userId: currentUser?.id || 'admin',
+      userName: currentUser?.fullName || 'Super Admin',
+      userRole: currentUser?.roleId || 'super_admin',
+      actionType: 'delete',
+      targetPage: 'Security & Access Control',
+      targetTab: 'Powers & Role Matrix',
+      details: `Deleted custom role preset "${role.name}"`,
+    });
+
+    try {
+      await deleteDoc(doc(db, 'system_roles', id));
+    } catch (e) {
+      console.warn('Firestore deleteRole error:', e);
+    }
+
+    return { success: true, message: `Doorka "${role.name}" waa la tirtiray!` };
+  };
+
+  // Permission resolution helper: Role -> Page -> Tab + User Overrides
+  const hasTabPermission = (pageId: string, tabId: string, customRoleId?: string): boolean => {
+    const effectiveRoleId = customRoleId || currentUser?.roleId || 'super_admin';
+
+    // Super Admin has unrestricted access everywhere
+    if (effectiveRoleId === 'super_admin') return true;
+
+    // Check optional custom super-admin overrides on the current user
+    if (!customRoleId && currentUser?.customOverrides?.[pageId]?.[tabId] !== undefined) {
+      return Boolean(currentUser.customOverrides[pageId][tabId]);
+    }
+
+    // Check role preset capability matrix
+    const role = roles.find((r) => r.id === effectiveRoleId);
+    if (!role || !role.permissions) return false;
+
+    return Boolean(role.permissions[pageId]?.[tabId]);
+  };
+
   return (
     <SiteDataContext.Provider
       value={{
@@ -859,6 +1458,24 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         settings,
         isFirebaseConnected,
         isLoading,
+        users,
+        roles,
+        auditLogs,
+        securityAuditLogs,
+        currentUser,
+        setCurrentUser,
+        addUser,
+        updateUser,
+        toggleUserLock,
+        deleteUser,
+        addRole,
+        updateRole,
+        cloneRole,
+        toggleRoleLock,
+        deleteRole,
+        logAction,
+        logSecurityEvent,
+        hasTabPermission,
         addProject,
         updateProject,
         deleteProject,

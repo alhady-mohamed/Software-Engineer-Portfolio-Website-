@@ -11,6 +11,7 @@ import {
   AboutSettings,
   SkillItem,
   AboutMetricItem,
+  SocialLinksSettings,
 } from '../../types';
 import {
   Palette,
@@ -50,6 +51,14 @@ import {
   Target,
   Award,
   User,
+  Share2,
+  Github,
+  Linkedin,
+  Facebook,
+  Instagram,
+  Youtube,
+  Twitter,
+  Send,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ImageUploader } from './ImageUploader';
@@ -83,28 +92,42 @@ export const AdminAppearance: React.FC = () => {
   const { t } = useLanguage();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'hero' | 'branding' | 'marquee' | 'theme' | 'about'>(() => {
+  const [activeTab, setActiveTab] = useState<'hero' | 'branding' | 'marquee' | 'theme' | 'about' | 'social'>(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'marquee' || tab === 'branding' || tab === 'theme' || tab === 'about') return tab;
+    if (tab === 'marquee' || tab === 'branding' || tab === 'theme' || tab === 'about' || tab === 'social') return tab;
     return 'hero';
   });
 
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'marquee' || tab === 'branding' || tab === 'theme' || tab === 'hero' || tab === 'about') {
-      setActiveTab(tab);
+    if (tab === 'marquee' || tab === 'branding' || tab === 'theme' || tab === 'hero' || tab === 'about' || tab === 'social') {
+      setActiveTab(tab as any);
     }
   }, [searchParams]);
 
-  const handleTabChange = (tab: 'hero' | 'branding' | 'marquee' | 'theme' | 'about') => {
+  const handleTabChange = (tab: 'hero' | 'branding' | 'marquee' | 'theme' | 'about' | 'social') => {
     setActiveTab(tab);
     setSearchParams(tab === 'hero' ? {} : { tab });
   };
 
-  // Local editable copies of Hero, Branding, Theme, and Marquee
+  // Local editable copies of Hero, Branding, Theme, Marquee, and Social
   const [heroForm, setHeroForm] = useState<HeroSettings>(settings.hero);
   const [brandingForm, setBrandingForm] = useState<BrandingSettings>(settings.branding);
   const [themeForm, setThemeForm] = useState<ThemeSettings>(settings.theme);
+  const [socialForm, setSocialForm] = useState<SocialLinksSettings>(() => {
+    return settings.socialLinks || {
+      github: 'https://github.com/alhady-mohamed',
+      linkedin: 'https://www.linkedin.com/in/alhady-mohamed',
+      facebook: 'https://www.facebook.com/Mohamet.Abdirisaak304',
+      instagram: 'https://www.instagram.com/alhady_mohamed301',
+      youtube: 'https://youtube.com/@mohamed-alhady01',
+      twitter: '',
+      tiktok: '',
+      telegram: '',
+      whatsapp: 'https://wa.link/cs6dy4',
+      customLinks: [],
+    };
+  });
   const [marqueeForm, setMarqueeForm] = useState<MarqueeSectionSettings>(() => {
     return settings.marquee || {
       isEnabled: true,
@@ -443,8 +466,9 @@ export const AdminAppearance: React.FC = () => {
         theme: themeForm,
         marquee: cleanedMarquee,
         about: aboutForm,
+        socialLinks: socialForm,
         siteTitle: `${brandingForm.siteName} | ${brandingForm.tagline}`,
-        whatsappNumber: brandingForm.tagline ? settings.whatsappNumber : settings.whatsappNumber,
+        whatsappNumber: socialForm.whatsapp?.trim() || settings.whatsappNumber,
       });
 
       if (res.success) {
@@ -608,6 +632,19 @@ export const AdminAppearance: React.FC = () => {
           <span className="ml-1 text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-primary/20 text-primary border border-primary/30">
             {aboutForm.skills.length + aboutForm.metrics.length}
           </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleTabChange('social')}
+          className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'social'
+              ? 'bg-slate-800 text-white border-b-2 border-primary shadow-sm'
+              : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+          }`}
+        >
+          <Share2 size={18} className={activeTab === 'social' ? 'text-primary' : 'text-slate-500'} />
+          <span>Baraha Bulshada (Social)</span>
         </button>
       </div>
 
@@ -3479,6 +3516,238 @@ export const AdminAppearance: React.FC = () => {
                 <Save size={16} />
                 <span>Badbaadi Dhammaan Isbeddelka About-ka</span>
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* TAB 6: SOCIAL MEDIA PROFILES & CHANNELS                        */}
+      {/* ============================================================== */}
+      {activeTab === 'social' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Form Settings */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="p-6 md:p-8 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                    <Share2 size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white">Baraha Bulshada (Social Channels)</h3>
+                    <p className="text-xs text-slate-400">
+                      Geli cinwaannada barahaaga bulshada si ay toos uga dhex muuqdaan bogga Contact iyo Footer-ka
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* GitHub */}
+                <div className="space-y-1.5 bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+                  <label className="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <Github size={16} className="text-white" />
+                    <span>GitHub Profile URL</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={socialForm.github || ''}
+                    onChange={(e) => setSocialForm({ ...socialForm, github: e.target.value })}
+                    placeholder="https://github.com/alhady-mohamed"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none font-mono"
+                  />
+                </div>
+
+                {/* LinkedIn */}
+                <div className="space-y-1.5 bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+                  <label className="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <Linkedin size={16} className="text-[#0A66C2]" />
+                    <span>LinkedIn Profile URL</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={socialForm.linkedin || ''}
+                    onChange={(e) => setSocialForm({ ...socialForm, linkedin: e.target.value })}
+                    placeholder="https://linkedin.com/in/alhady-mohamed"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none font-mono"
+                  />
+                </div>
+
+                {/* Facebook */}
+                <div className="space-y-1.5 bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+                  <label className="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <Facebook size={16} className="text-[#1877F2]" />
+                    <span>Facebook Profile URL</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={socialForm.facebook || ''}
+                    onChange={(e) => setSocialForm({ ...socialForm, facebook: e.target.value })}
+                    placeholder="https://facebook.com/Mohamet.Abdirisaak304"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none font-mono"
+                  />
+                </div>
+
+                {/* Instagram */}
+                <div className="space-y-1.5 bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+                  <label className="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <Instagram size={16} className="text-[#E4405F]" />
+                    <span>Instagram Profile URL</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={socialForm.instagram || ''}
+                    onChange={(e) => setSocialForm({ ...socialForm, instagram: e.target.value })}
+                    placeholder="https://instagram.com/alhady_mohamed301"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none font-mono"
+                  />
+                </div>
+
+                {/* YouTube */}
+                <div className="space-y-1.5 bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+                  <label className="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <Youtube size={16} className="text-[#FF0000]" />
+                    <span>YouTube Channel URL</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={socialForm.youtube || ''}
+                    onChange={(e) => setSocialForm({ ...socialForm, youtube: e.target.value })}
+                    placeholder="https://youtube.com/@mohamed-alhady01"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none font-mono"
+                  />
+                </div>
+
+                {/* Twitter / X */}
+                <div className="space-y-1.5 bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+                  <label className="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <Twitter size={16} className="text-sky-400" />
+                    <span>Twitter / X Profile URL</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={socialForm.twitter || ''}
+                    onChange={(e) => setSocialForm({ ...socialForm, twitter: e.target.value })}
+                    placeholder="https://x.com/username"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none font-mono"
+                  />
+                </div>
+
+                {/* TikTok */}
+                <div className="space-y-1.5 bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+                  <label className="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <span className="text-pink-400 font-bold text-xs">🎵</span>
+                    <span>TikTok Profile URL</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={socialForm.tiktok || ''}
+                    onChange={(e) => setSocialForm({ ...socialForm, tiktok: e.target.value })}
+                    placeholder="https://tiktok.com/@username"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none font-mono"
+                  />
+                </div>
+
+                {/* Telegram */}
+                <div className="space-y-1.5 bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+                  <label className="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <Send size={16} className="text-sky-400" />
+                    <span>Telegram URL / Username</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={socialForm.telegram || ''}
+                    onChange={(e) => setSocialForm({ ...socialForm, telegram: e.target.value })}
+                    placeholder="https://t.me/username"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Bottom Action Button */}
+              <div className="pt-4 flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleSaveAll}
+                  disabled={saveStatus.type === 'saving'}
+                  className="px-6 py-3 rounded-xl bg-primary hover:opacity-90 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-primary/25 flex items-center gap-2 cursor-pointer disabled:opacity-60"
+                >
+                  <Save size={16} />
+                  <span>Keydi Dhammaan Baraha Bulshada</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Live Interactive Preview Card */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="p-6 md:p-8 rounded-2xl bg-slate-900/80 border border-slate-800 sticky top-24 space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2 text-white font-bold text-sm">
+                  <Eye size={18} className="text-primary" />
+                  <span>Muuqaalka Tooska ah (Live Preview)</span>
+                </div>
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  CONTACT & FOOTER
+                </span>
+              </div>
+
+              {/* Preview Box imitating Contact page card */}
+              <div className="bg-slate-950/80 p-6 rounded-2xl border border-white/5 space-y-4">
+                <h4 className="text-sm font-bold text-white uppercase tracking-wider text-slate-300">
+                  Social Profiles (Sida ay u muuqdaan)
+                </h4>
+                <div className="flex flex-wrap items-center gap-3">
+                  {socialForm.github && (
+                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-gray-300" title="GitHub">
+                      <Github size={20} />
+                    </div>
+                  )}
+                  {socialForm.linkedin && (
+                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-[#0A66C2]" title="LinkedIn">
+                      <Linkedin size={20} />
+                    </div>
+                  )}
+                  {socialForm.facebook && (
+                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-[#1877F2]" title="Facebook">
+                      <Facebook size={20} />
+                    </div>
+                  )}
+                  {socialForm.instagram && (
+                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-[#E4405F]" title="Instagram">
+                      <Instagram size={20} />
+                    </div>
+                  )}
+                  {socialForm.youtube && (
+                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-[#FF0000]" title="YouTube">
+                      <Youtube size={20} />
+                    </div>
+                  )}
+                  {socialForm.twitter && (
+                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-sky-400" title="Twitter / X">
+                      <Twitter size={20} />
+                    </div>
+                  )}
+                  {socialForm.tiktok && (
+                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-pink-400 text-sm font-bold flex items-center justify-center" title="TikTok">
+                      🎵
+                    </div>
+                  )}
+                  {socialForm.telegram && (
+                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-sky-400" title="Telegram">
+                      <Send size={20} />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-4 bg-primary/5 rounded-xl border border-primary/20 text-xs text-slate-300 space-y-1">
+                <span className="font-bold text-primary block">Talo / Note:</span>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Goob kasta oo aad maran kaga tagto (blank) kama soo muuqan doonto website-ka. Kaliya profiles-ka aad link u geliso ayaa si toos ah u soo bixi doona.
+                </p>
+              </div>
             </div>
           </div>
         </div>

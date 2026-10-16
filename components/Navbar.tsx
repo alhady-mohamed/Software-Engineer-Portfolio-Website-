@@ -185,11 +185,11 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Mobile Toolbar Trigger Controls */}
-        <div className="flex items-center gap-3 md:hidden">
-          <LanguageSelector variant="public" compact />
+        <div className="flex items-center gap-1.5 sm:gap-2 md:hidden">
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+            aria-label="Toggle theme"
           >
             {isDark ? <Sun size={20} /> : <Moon size={20} />}
           </button>

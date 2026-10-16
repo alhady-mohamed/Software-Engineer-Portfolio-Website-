@@ -37,5 +37,31 @@ service cloud.firestore {
       allow read: if true;
       allow write: if true;
     }
+
+    // System Users: RBAC user accounts
+    match /system_users/{userId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // System Roles: Capability matrix presets
+    match /system_roles/{roleId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Audit Logs: Action history
+    match /audit_logs/{logId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false; // Read-only audit log protection
+    }
+
+    // Security Audit Logs: Brute force & escalation events
+    match /security_audit_logs/{securityLogId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false; // Read-only security audit protection
+    }
   }
 }

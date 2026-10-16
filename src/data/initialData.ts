@@ -1,4 +1,14 @@
-import { TimelineItem, TestimonialItem, ContactMessage, Project, SiteSettings } from '../../types';
+import {
+  TimelineItem,
+  TestimonialItem,
+  ContactMessage,
+  Project,
+  SiteSettings,
+  SystemUser,
+  SystemRole,
+  AuditLogItem,
+  SecurityAuditItem,
+} from '../../types';
 import { PROJECTS as DEFAULT_PROJECTS, EXPERIENCE as DEFAULT_EXPERIENCE } from '../../constants';
 import defaultHeroPortrait from '../assets/images/hero_portrait_1781209944400.jpg';
 
@@ -210,4 +220,360 @@ export const INITIAL_SETTINGS: SiteSettings = {
     standardsTitle: 'Architecture Standards',
     standardsDescription: 'All projects adhere to WCAG accessibility, strict TypeScript validation, responsive design patterns, and SEO best practices.',
   },
+  socialLinks: {
+    github: 'https://github.com/alhady-mohamed',
+    linkedin: 'https://www.linkedin.com/in/alhady-mohamed',
+    facebook: 'https://www.facebook.com/Mohamet.Abdirisaak304',
+    instagram: 'https://www.instagram.com/alhady_mohamed301',
+    youtube: 'https://youtube.com/@mohamed-alhady01',
+    twitter: '',
+    tiktok: '',
+    telegram: '',
+    whatsapp: 'https://wa.link/cs6dy4',
+    customLinks: [],
+  },
 };
+
+// Complete catalog of system pages and their operational tabs for the Capability Matrix
+export const RBAC_PAGES_CATALOG = [
+  {
+    id: 'projects',
+    name: 'Projects Showcase',
+    path: '/admin/projects',
+    tabs: [
+      { id: 'all_projects', name: 'Projects Directory', description: 'Inspect, filter, and search all portfolio projects' },
+      { id: 'create_edit', name: 'Project Editor / Form', description: 'Create new project entries and edit metadata' },
+      { id: 'featured_order', name: 'Feature & Sort Order', description: 'Toggle home spotlight and change order' },
+    ],
+  },
+  {
+    id: 'appearance',
+    name: 'Appearance & CMS Modules',
+    path: '/admin/appearance',
+    tabs: [
+      { id: 'hero', name: 'Hero Section', description: 'Edit hero titles, image, call-to-actions, and vertical badge' },
+      { id: 'branding', name: 'Branding & Logo', description: 'Site name, logo uploads, favicon, and copyright info' },
+      { id: 'marquee', name: 'Marquee & Partners', description: 'Manage animated brand partner logos and speed' },
+      { id: 'theme', name: 'Theme & Palettes', description: 'Color presets, custom gradients, and background modes' },
+      { id: 'about', name: 'About & Metrics', description: 'Biography, skill proficiency bars, and counter metrics' },
+      { id: 'social', name: 'Social Profiles', description: 'Configure external social channels and custom links' },
+    ],
+  },
+  {
+    id: 'timeline',
+    name: 'Career & Education Timeline',
+    path: '/admin/timeline',
+    tabs: [
+      { id: 'experience', name: 'Work Experience', description: 'Manage career milestones, roles, and descriptions' },
+      { id: 'education', name: 'Academic Degrees', description: 'Manage university degrees and training certifications' },
+    ],
+  },
+  {
+    id: 'testimonials',
+    name: 'Client Testimonials',
+    path: '/admin/testimonials',
+    tabs: [
+      { id: 'approved', name: 'Published Reviews', description: 'Client reviews visible on public website' },
+      { id: 'pending', name: 'Pending Review / Drafts', description: 'Incoming testimonials awaiting approval' },
+    ],
+  },
+  {
+    id: 'messages',
+    name: 'Contact Inquiries',
+    path: '/admin/messages',
+    tabs: [
+      { id: 'inbox', name: 'Inquiry Inbox', description: 'Review client contact form submissions' },
+      { id: 'archived', name: 'Archived Messages', description: 'Stored and replied messages' },
+    ],
+  },
+  {
+    id: 'security_users',
+    name: 'Security & Access Control',
+    path: '/admin/users-roles',
+    tabs: [
+      { id: 'system_users', name: 'System Users Directory', description: 'Account statuses, roles, and registration' },
+      { id: 'powers_roles', name: 'Powers & Role Matrix', description: 'Capability matrix and tab permission configuration' },
+      { id: 'history_actions', name: 'History Actions Log', description: 'Action auditing and user tracking log' },
+      { id: 'security_audit', name: 'Security Audit', description: 'Failed attempts, role escalations, and device logs' },
+    ],
+  },
+  {
+    id: 'settings',
+    name: 'System Settings',
+    path: '/admin/settings',
+    tabs: [
+      { id: 'general', name: 'General Settings', description: 'Site title, notification email, and WhatsApp' },
+      { id: 'database', name: 'Cloud Firestore Diagnostics', description: 'Firebase live connection, counters, and sync' },
+      { id: 'backup', name: 'Data Backup & Export', description: 'JSON download and data reset operations' },
+    ],
+  },
+];
+
+// Helper to build a permission map with a default value
+const createPermissions = (allowed: Record<string, string[]>): Record<string, Record<string, boolean>> => {
+  const result: Record<string, Record<string, boolean>> = {};
+  RBAC_PAGES_CATALOG.forEach((page) => {
+    result[page.id] = {};
+    page.tabs.forEach((tab) => {
+      const isAllowed = allowed[page.id]?.includes(tab.id) ?? false;
+      result[page.id][tab.id] = isAllowed;
+    });
+  });
+  return result;
+};
+
+// Initial Core Role Presets
+export const INITIAL_ROLES: SystemRole[] = [
+  {
+    id: 'super_admin',
+    name: 'Super Admin',
+    description: 'Full sovereign access to all modules, security settings, core roles, and user management.',
+    isCoreLocked: true,
+    color: '#facc15', // Brand Yellow
+    permissions: createPermissions({
+      projects: ['all_projects', 'create_edit', 'featured_order'],
+      appearance: ['hero', 'branding', 'marquee', 'theme', 'about', 'social'],
+      timeline: ['experience', 'education'],
+      testimonials: ['approved', 'pending'],
+      messages: ['inbox', 'archived'],
+      security_users: ['system_users', 'powers_roles', 'history_actions', 'security_audit'],
+      settings: ['general', 'database', 'backup'],
+    }),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'content_editor',
+    name: 'Content Editor',
+    description: 'Can manage showcase projects, milestones, and visual appearance without access to security or DB settings.',
+    isCoreLocked: false,
+    color: '#10b981', // Emerald
+    permissions: createPermissions({
+      projects: ['all_projects', 'create_edit', 'featured_order'],
+      appearance: ['hero', 'branding', 'marquee', 'about', 'social'],
+      timeline: ['experience', 'education'],
+      testimonials: ['approved', 'pending'],
+      messages: ['inbox'],
+      security_users: [],
+      settings: [],
+    }),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'project_manager',
+    name: 'Project Manager',
+    description: 'Focuses on client relations, project status updates, testimonials, and contact inquiries.',
+    isCoreLocked: false,
+    color: '#38bdf8', // Sky Blue
+    permissions: createPermissions({
+      projects: ['all_projects', 'create_edit'],
+      appearance: [],
+      timeline: ['experience'],
+      testimonials: ['approved', 'pending'],
+      messages: ['inbox', 'archived'],
+      security_users: [],
+      settings: [],
+    }),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'client_reviewer',
+    name: 'Client / Reviewer',
+    description: 'Restricted read-only access to review draft projects, proposals, and testimonials.',
+    isCoreLocked: false,
+    color: '#a855f7', // Purple
+    permissions: createPermissions({
+      projects: ['all_projects'],
+      appearance: ['about'],
+      timeline: ['experience', 'education'],
+      testimonials: ['approved'],
+      messages: [],
+      security_users: [],
+      settings: [],
+    }),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial System Users
+export const INITIAL_SYSTEM_USERS: SystemUser[] = [
+  {
+    id: 'usr_super_admin',
+    fullName: 'Mohamed Alhady',
+    username: 'alhady',
+    email: 'admin@portfolio.local',
+    roleId: 'super_admin',
+    status: 'active',
+    avatarUrl: defaultHeroPortrait,
+    createdAt: '2026-01-01T08:00:00.000Z',
+    lastLoginAt: new Date().toISOString(),
+    lastLoginIp: '197.231.18.42',
+    notes: 'Primary System Architect & Super Administrator',
+  },
+  {
+    id: 'usr_editor_1',
+    fullName: 'Sarah Jenkins',
+    username: 'sjenkins',
+    email: 'sarah.jenkins@studio.co',
+    roleId: 'content_editor',
+    status: 'active',
+    createdAt: '2026-02-15T11:20:00.000Z',
+    lastLoginAt: '2026-10-14T09:15:22.000Z',
+    lastLoginIp: '185.191.171.12',
+    notes: 'Content & Showcase Curator',
+  },
+  {
+    id: 'usr_pm_1',
+    fullName: 'Alex Rivera',
+    username: 'arivera',
+    email: 'alex.rivera@partners.io',
+    roleId: 'project_manager',
+    status: 'active',
+    createdAt: '2026-03-01T14:45:00.000Z',
+    lastLoginAt: '2026-10-12T16:30:10.000Z',
+    lastLoginIp: '104.28.214.99',
+    notes: 'Managing client onboarding and inquiry follow-ups',
+  },
+  {
+    id: 'usr_client_demo',
+    fullName: 'Enterprise Client Reviewer',
+    username: 'client_demo',
+    email: 'client@enterprise.com',
+    roleId: 'client_reviewer',
+    status: 'locked',
+    createdAt: '2026-04-10T10:00:00.000Z',
+    lastLoginAt: '2026-09-28T13:40:00.000Z',
+    lastLoginIp: '198.51.100.23',
+    notes: 'Temporary review account - currently locked pending contract signature',
+  },
+];
+
+// Initial Audit Logs (History Actions)
+export const INITIAL_AUDIT_LOGS: AuditLogItem[] = [
+  {
+    id: 'log_01',
+    timestamp: '2026-10-16T04:45:00.000Z',
+    userId: 'usr_super_admin',
+    userName: 'Mohamed Alhady',
+    userRole: 'Super Admin',
+    actionType: 'update',
+    targetPage: 'Appearance & CMS Modules',
+    targetTab: 'Social Profiles',
+    details: 'Configured dynamic social media links for GitHub, LinkedIn, and Instagram',
+    deviceInfo: 'Chrome 129 / macOS',
+    ipAddress: '197.231.18.42',
+  },
+  {
+    id: 'log_02',
+    timestamp: '2026-10-15T18:20:00.000Z',
+    userId: 'usr_super_admin',
+    userName: 'Mohamed Alhady',
+    userRole: 'Super Admin',
+    actionType: 'permission_change',
+    targetPage: 'Security & Access Control',
+    targetTab: 'Powers & Role Matrix',
+    details: 'Updated Capability Matrix for Content Editor role (Enabled Projects & Branding)',
+    deviceInfo: 'Chrome 129 / macOS',
+    ipAddress: '197.231.18.42',
+  },
+  {
+    id: 'log_03',
+    timestamp: '2026-10-15T11:05:00.000Z',
+    userId: 'usr_editor_1',
+    userName: 'Sarah Jenkins',
+    userRole: 'Content Editor',
+    actionType: 'create',
+    targetPage: 'Projects Showcase',
+    targetTab: 'Project Editor / Form',
+    details: 'Published new case study project "Cloud Scale Architecture"',
+    deviceInfo: 'Safari 18 / macOS',
+    ipAddress: '185.191.171.12',
+  },
+  {
+    id: 'log_04',
+    timestamp: '2026-10-14T09:15:00.000Z',
+    userId: 'usr_editor_1',
+    userName: 'Sarah Jenkins',
+    userRole: 'Content Editor',
+    actionType: 'login',
+    targetPage: 'Admin Portal',
+    targetTab: 'Overview',
+    details: 'Successful user authentication via secure credentials',
+    deviceInfo: 'Safari 18 / macOS',
+    ipAddress: '185.191.171.12',
+  },
+  {
+    id: 'log_05',
+    timestamp: '2026-10-12T16:30:00.000Z',
+    userId: 'usr_pm_1',
+    userName: 'Alex Rivera',
+    userRole: 'Project Manager',
+    actionType: 'update',
+    targetPage: 'Contact Inquiries',
+    targetTab: 'Inquiry Inbox',
+    details: 'Marked message from "Acme Corp" as replied with status note',
+    deviceInfo: 'Firefox 130 / Windows',
+    ipAddress: '104.28.214.99',
+  },
+];
+
+// Initial Security Audit Logs
+export const INITIAL_SECURITY_LOGS: SecurityAuditItem[] = [
+  {
+    id: 'sec_01',
+    timestamp: '2026-10-16T02:14:20.000Z',
+    eventType: 'failed_login',
+    userName: 'unknown_root',
+    severity: 'medium',
+    ipAddress: '194.26.29.112',
+    device: 'Linux / Python-requests scanner',
+    details: 'Attempted brute-force login with username "root". Access automatically rejected.',
+  },
+  {
+    id: 'sec_02',
+    timestamp: '2026-10-15T18:22:10.000Z',
+    eventType: 'role_change',
+    userId: 'usr_super_admin',
+    userName: 'Mohamed Alhady',
+    severity: 'low',
+    ipAddress: '197.231.18.42',
+    device: 'Chrome 129 / macOS (Verified)',
+    details: 'Capability matrix reconfigured for role "Content Editor". Tab access saved.',
+  },
+  {
+    id: 'sec_03',
+    timestamp: '2026-10-14T21:40:00.000Z',
+    eventType: 'account_lock',
+    userId: 'usr_client_demo',
+    userName: 'Enterprise Client Reviewer',
+    severity: 'high',
+    ipAddress: '197.231.18.42',
+    device: 'Chrome 129 / macOS',
+    details: 'Account manually locked by Super Admin pending NDA confirmation.',
+  },
+  {
+    id: 'sec_04',
+    timestamp: '2026-10-13T08:12:00.000Z',
+    eventType: 'failed_login',
+    userId: 'usr_client_demo',
+    userName: 'client_demo',
+    severity: 'medium',
+    ipAddress: '198.51.100.23',
+    device: 'Edge 128 / Windows',
+    details: 'Login denied: Account is currently in Locked state. User notified to contact admin.',
+  },
+  {
+    id: 'sec_05',
+    timestamp: '2026-10-11T14:05:00.000Z',
+    eventType: 'permission_escalation',
+    userId: 'usr_super_admin',
+    userName: 'Mohamed Alhady',
+    severity: 'low',
+    ipAddress: '197.231.18.42',
+    device: 'Chrome 129 / macOS (Verified)',
+    details: 'Super Admin security session initialized with full system access tokens.',
+  },
+];

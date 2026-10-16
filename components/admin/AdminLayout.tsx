@@ -25,6 +25,7 @@ import {
   Moon,
   Sparkles,
   Cpu,
+  Share2,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -165,6 +166,16 @@ export const AdminLayout: React.FC = () => {
       title: t('admin_system'),
       items: [
         {
+          to: '/admin/users-roles',
+          label: t('admin_users_roles_nav', 'Security & Access'),
+          icon: ShieldCheck,
+        },
+        {
+          to: '/admin/settings#social',
+          label: 'Social Profiles',
+          icon: Share2,
+        },
+        {
           to: '/admin/settings',
           label: t('admin_settings'),
           icon: Settings,
@@ -182,6 +193,7 @@ export const AdminLayout: React.FC = () => {
     if (path.startsWith('/admin/timeline')) return { title: t('admin_timeline'), icon: GraduationCap };
     if (path.startsWith('/admin/testimonials')) return { title: t('admin_testimonials'), icon: Star };
     if (path.startsWith('/admin/messages')) return { title: t('admin_messages'), icon: MessageSquare };
+    if (path.startsWith('/admin/users-roles')) return { title: t('admin_users_roles_title', 'Security & Access'), icon: ShieldCheck };
     if (path.startsWith('/admin/settings')) return { title: t('admin_settings'), icon: Settings };
     return { title: t('admin_portal'), icon: Layers };
   };

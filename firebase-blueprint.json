@@ -80,6 +80,74 @@
         "theme": { "type": "object" },
         "updatedAt": { "type": "string" }
       }
+    },
+    "SystemUser": {
+      "title": "SystemUser",
+      "description": "Enterprise system user account with role assignment and status",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "roleId": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "locked", "disabled"] },
+        "customOverrides": { "type": "object" },
+        "avatarUrl": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "lastLoginAt": { "type": "string" },
+        "lastLoginIp": { "type": "string" }
+      },
+      "required": ["fullName", "username", "email", "roleId", "status"]
+    },
+    "SystemRole": {
+      "title": "SystemRole",
+      "description": "Role preset with capability matrix page-to-tab permissions",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "isCoreLocked": { "type": "boolean" },
+        "color": { "type": "string" },
+        "permissions": { "type": "object" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "isCoreLocked", "permissions"]
+    },
+    "AuditLogItem": {
+      "title": "AuditLogItem",
+      "description": "Read-only history action audit log entry",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userRole": { "type": "string" },
+        "actionType": { "type": "string", "enum": ["create", "update", "delete", "login", "permission_change"] },
+        "targetPage": { "type": "string" },
+        "targetTab": { "type": "string" },
+        "details": { "type": "string" },
+        "deviceInfo": { "type": "string" },
+        "ipAddress": { "type": "string" }
+      },
+      "required": ["timestamp", "userId", "userName", "userRole", "actionType", "targetPage", "details"]
+    },
+    "SecurityAuditItem": {
+      "title": "SecurityAuditItem",
+      "description": "Security event monitoring log (failed logins, role changes, escalations, locks)",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "string" },
+        "eventType": { "type": "string", "enum": ["failed_login", "role_change", "permission_escalation", "account_lock"] },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "ipAddress": { "type": "string" },
+        "device": { "type": "string" },
+        "details": { "type": "string" }
+      },
+      "required": ["timestamp", "eventType", "severity", "ipAddress", "device", "details"]
     }
   },
   "firestore": {
@@ -102,6 +170,22 @@
     "/site_settings/{settingsId}": {
       "schema": { "$ref": "#/entities/SiteSettings" },
       "description": "Configurable portfolio settings and branding"
+    },
+    "/system_users/{userId}": {
+      "schema": { "$ref": "#/entities/SystemUser" },
+      "description": "Enterprise system user accounts"
+    },
+    "/system_roles/{roleId}": {
+      "schema": { "$ref": "#/entities/SystemRole" },
+      "description": "Role presets with page-to-tab permissions matrix"
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLogItem" },
+      "description": "System history audit logs"
+    },
+    "/security_audit_logs/{securityLogId}": {
+      "schema": { "$ref": "#/entities/SecurityAuditItem" },
+      "description": "High-priority security logs and brute force alerts"
     }
   }
 }

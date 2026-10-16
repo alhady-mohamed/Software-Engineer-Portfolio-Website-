@@ -877,5 +877,20 @@ export const translations = {
     so: 'Halkan ka upload-gareey sawirka astaanta (Favicon) ee browser tab-ka, bookmarks-ka, iyo apps-ka mobilka.',
     ar: 'ارفع أيقونة الموقع للتبويب والإشارات المرجعية وتطبيقات الويب.',
   },
+  admin_users_roles_nav: {
+    en: 'Security & Access',
+    so: 'Amniga & Awoodaha',
+    ar: 'الأمان وإدارة الصلاحيات',
+  },
+  admin_users_roles_title: {
+    en: 'Security & Access Governance',
+    so: 'Maamulka Amniga & Awoodaha',
+    ar: 'إدارة الصلاحيات والأمان المؤسسي',
+  },
+  admin_users_roles_subtitle: {
+    en: 'Manage system users, fine-grained Role Presets, Capability Matrices (Role → Page → Tabs), and live audit logs.',
+    so: 'Maamul isticmaaleyaasha nidaamka, noocyada doorarka (RBAC), awoodaha tab-yada, iyo raadraaca amniga.',
+    ar: 'إدارة مستخدمي النظام ومصفوفة الصلاحيات وسجلات التدقيق والأمان المباشرة.',
+  },
 };
 
