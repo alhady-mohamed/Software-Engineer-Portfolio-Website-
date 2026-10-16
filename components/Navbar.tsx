@@ -63,28 +63,22 @@ const Navbar: React.FC = () => {
     { label: t('nav_contact'), href: '/contact' },
   ];
 
-  const [fullLogoError, setFullLogoError] = useState(false);
-  const [iconLogoError, setIconLogoError] = useState(false);
-
-  const hasFullLogoImage = Boolean(branding?.logoImageUrl && branding.logoImageUrl.trim() !== '');
-  const isFullLogo = branding?.logoType === 'full' && hasFullLogoImage && !fullLogoError;
-  const showSiteName = branding?.logoType === 'full'
-    ? (branding?.showSiteName === true || !hasFullLogoImage || fullLogoError)
-    : (branding?.showSiteName !== false);
+  const isFullLogo = branding?.logoType === 'full';
+  const showSiteName = !isFullLogo && (branding?.showSiteName !== false);
   const logoOrientation = branding?.logoOrientation || 'auto';
 
   // Responsive styling according to orientation
   const getNavbarLogoClass = () => {
     switch (logoOrientation) {
       case 'landscape':
-        return 'h-8 sm:h-10 w-auto max-w-[160px] sm:max-w-[240px] object-contain';
+        return 'h-9 sm:h-10 w-auto max-w-[200px] sm:max-w-[240px] object-contain';
       case 'square':
-        return 'h-8 w-8 sm:h-10 sm:w-10 object-contain';
+        return 'h-9 w-9 sm:h-10 sm:w-10 object-contain';
       case 'vertical':
-        return 'h-9 sm:h-11 w-auto max-w-[100px] sm:max-w-[120px] object-contain';
+        return 'h-10 sm:h-11 w-auto max-w-[120px] object-contain';
       case 'auto':
       default:
-        return 'h-8 sm:h-10 w-auto max-w-[180px] sm:max-w-[220px] object-contain';
+        return 'h-9 sm:h-10 w-auto max-w-[220px] object-contain';
     }
   };
 
@@ -92,91 +86,102 @@ const Navbar: React.FC = () => {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-dark/95 backdrop-blur-md border-b border-white/10 py-3 sm:py-4'
-          : 'bg-dark/50 backdrop-blur-sm py-4 sm:py-6'
+          ? 'bg-dark/95 backdrop-blur-md border-b border-white/10 py-3 lg:py-4'
+          : 'bg-dark/50 backdrop-blur-sm py-4 lg:py-6'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center gap-3">
+      <div className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center gap-4">
         {/* Brand Logo - Wraps back to top of root page */}
-        <Link to="/" className="flex items-center gap-2.5 group min-w-0 shrink">
-          {isFullLogo && branding?.logoImageUrl && !fullLogoError ? (
+        <Link to="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0 min-w-0">
+          {isFullLogo && branding?.logoImageUrl ? (
             <div className="flex items-center group-hover:opacity-90 transition-opacity shrink-0">
               <img
                 src={branding.logoImageUrl}
-                alt={branding.siteName || 'Logo'}
+                alt={branding.siteName}
                 className={getNavbarLogoClass()}
-                onError={() => setFullLogoError(true)}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
               />
             </div>
-          ) : branding?.logoType === 'image' && branding?.logoImageUrl && !iconLogoError ? (
-            <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-gradient-to-tr from-primary/10 to-secondary/10 border border-white/10 rounded-xl group-hover:scale-105 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/10 p-1">
+          ) : branding?.logoType === 'image' && branding?.logoImageUrl ? (
+            <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 flex items-center justify-center bg-gradient-to-tr from-primary/10 to-secondary/10 border border-white/10 rounded-xl group-hover:scale-105 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/10 p-1">
               <img
                 src={branding.logoImageUrl}
-                alt={branding.siteName || 'Logo'}
+                alt={branding.siteName}
                 className="w-full h-full object-contain"
-                onError={() => setIconLogoError(true)}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
               />
             </div>
           ) : (
-            <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-gradient-to-tr from-primary to-secondary rounded-xl group-hover:scale-105 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/20">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 flex items-center justify-center bg-gradient-to-tr from-primary to-secondary rounded-xl group-hover:scale-105 transition-transform overflow-hidden shrink-0 shadow-md shadow-primary/20">
               <span className="text-white font-bold text-xs sm:text-sm tracking-widest">{branding?.logoText || 'M&A'}</span>
             </div>
           )}
 
           {showSiteName && (
-            <span className="text-base sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 truncate">
+            <span className="text-base sm:text-lg lg:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 whitespace-nowrap truncate max-w-[130px] sm:max-w-[180px] lg:max-w-none">
               {branding?.siteName || 'Mohamed Alhady'}
             </span>
           )}
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <div className="hidden md:flex items-center gap-6">
-          {navLinks.map((item) => (
-            <NavLink
-              key={item.href}
-              to={item.href}
-              className={({ isActive }) =>
-                `text-sm font-medium relative group transition-colors ${
-                  isActive ? 'text-primary' : 'text-gray-300 hover:text-white'
-                }`
-              }
+        {/* Desktop & Laptop Navigation Links */}
+        <div className="hidden md:flex items-center gap-2.5 md:gap-3.5 lg:gap-5 xl:gap-6 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-2.5 lg:gap-4 xl:gap-5">
+            {navLinks.map((item) => (
+              <NavLink
+                key={item.href}
+                to={item.href}
+                className={({ isActive }) =>
+                  `text-xs md:text-[13px] lg:text-sm font-medium px-2 py-1 rounded-lg relative group transition-colors whitespace-nowrap ${
+                    isActive ? 'text-primary font-semibold' : 'text-gray-300 hover:text-white'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {item.label}
+                    {/* Decorative glowing bottom slider line active upon navigation */}
+                    <span
+                      className={`absolute -bottom-1 left-2 right-2 h-0.5 bg-primary transition-all duration-300 ${
+                        isActive ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                      }`}
+                    />
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </div>
+
+          <div className="h-4 w-px bg-white/10 hidden md:block" />
+
+          {/* Controls group */}
+          <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3">
+            {/* Language Switcher Dropdown (English, Somali, Arabic) */}
+            <LanguageSelector variant="public" />
+
+            {/* Light/Dark Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 sm:p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer shrink-0"
+              aria-label="Toggle theme"
             >
-              {({ isActive }) => (
-                <>
-                  {item.label}
-                  {/* Decorative glowing bottom slider line active upon navigation */}
-                  <span
-                    className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${
-                      isActive ? 'w-full' : 'w-0 group-hover:w-full'
-                    }`}
-                  />
-                </>
-              )}
-            </NavLink>
-          ))}
+              {isDark ? <Sun size={18} className="lg:w-5 lg:h-5" /> : <Moon size={18} className="lg:w-5 lg:h-5" />}
+            </button>
 
-          {/* Language Switcher Dropdown (English, Somali, Arabic) */}
-          <LanguageSelector variant="public" />
-
-          {/* Light/Dark Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
-            aria-label="Toggle theme"
-          >
-            {isDark ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-
-          {/* Action Call for custom engagement */}
-          <a
-            href={settings.whatsappNumber || "https://wa.link/cs6dy4"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-sm font-medium text-white shadow-sm"
-          >
-            {t('nav_hire_me')}
-          </a>
+            {/* Action Call for custom engagement */}
+            <a
+              href={settings.whatsappNumber || "https://wa.link/cs6dy4"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 md:px-3.5 md:py-1.5 lg:px-5 lg:py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-xs lg:text-sm font-medium text-white shadow-sm whitespace-nowrap shrink-0 hover:border-white/20 hover:scale-[1.02]"
+            >
+              {t('nav_hire_me')}
+            </a>
+          </div>
         </div>
 
         {/* Mobile Toolbar Trigger Controls */}

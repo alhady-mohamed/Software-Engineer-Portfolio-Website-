@@ -43,13 +43,13 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         title="Change Language / Dooro Luqadda / تغيير اللغة"
         aria-label="Switch Language / Dooro Luqadda / تغيير اللغة"
-        className={`flex items-center gap-2 rounded-xl transition-all cursor-pointer font-medium select-none shadow-sm ${
+        className={`flex items-center gap-1.5 md:gap-2 rounded-xl transition-all cursor-pointer font-medium select-none shadow-sm ${
           isPublic
-            ? 'px-3 py-2 text-xs text-gray-200 hover:text-white bg-white/5 hover:bg-white/10 border border-white/15 hover:border-primary/40'
+            ? 'px-2 py-1.5 md:px-2.5 md:py-1.5 lg:px-3 lg:py-2 text-xs text-gray-200 hover:text-white bg-white/5 hover:bg-white/10 border border-white/15 hover:border-primary/40'
             : 'px-3 py-2 text-xs text-slate-200 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-primary/40'
         }`}
       >
-        <LanguagesIcon size={16} className="text-primary shrink-0" />
+        <LanguagesIcon size={15} className="text-primary shrink-0 lg:w-4 lg:h-4" />
         <span className="text-sm leading-none">{activeLang.flag}</span>
         {!compact && (
           <span className="font-bold uppercase tracking-wider text-[11px] text-white">

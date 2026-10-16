@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Github, Twitter, Linkedin, Mail, Code2, ArrowRight, Facebook, Youtube, Instagram, Video } from 'lucide-react';
 import { useSiteData } from '../src/context/SiteDataContext';
@@ -12,28 +12,22 @@ import { useLanguage } from '../src/context/LanguageContext';
 const Footer: React.FC = () => {
   const { settings } = useSiteData();
   const { t } = useLanguage();
-  const branding = settings?.branding;
-  const [fullLogoError, setFullLogoError] = useState(false);
-  const [iconLogoError, setIconLogoError] = useState(false);
-
-  const hasFullLogoImage = Boolean(branding?.logoImageUrl && branding.logoImageUrl.trim() !== '');
-  const isFullLogo = branding?.logoType === 'full' && hasFullLogoImage && !fullLogoError;
-  const showSiteName = branding?.logoType === 'full'
-    ? (branding?.showSiteName === true || !hasFullLogoImage || fullLogoError)
-    : (branding?.showSiteName !== false);
+  const branding = settings.branding;
+  const isFullLogo = branding?.logoType === 'full';
+  const showSiteName = !isFullLogo && (branding?.showSiteName !== false);
   const logoOrientation = branding?.logoOrientation || 'auto';
 
   const getFooterLogoClass = () => {
     switch (logoOrientation) {
       case 'landscape':
-        return 'h-9 sm:h-11 w-auto max-w-[200px] sm:max-w-[260px] object-contain';
+        return 'h-9 sm:h-11 w-auto max-w-[220px] sm:max-w-[260px] object-contain';
       case 'square':
         return 'h-10 w-10 sm:h-11 sm:w-11 object-contain';
       case 'vertical':
-        return 'h-10 sm:h-12 w-auto max-w-[120px] sm:max-w-[130px] object-contain';
+        return 'h-11 sm:h-12 w-auto max-w-[130px] object-contain';
       case 'auto':
       default:
-        return 'h-9 sm:h-11 w-auto max-w-[200px] sm:max-w-[240px] object-contain';
+        return 'h-9 sm:h-11 w-auto max-w-[240px] object-contain';
     }
   };
 
@@ -43,27 +37,25 @@ const Footer: React.FC = () => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-8 mb-16">
           
           {/* Brand Column: Title, summary details, and direct developer connection links */}
-          <div className="lg:col-span-4">
-            <Link to="/" className="flex items-center gap-2.5 mb-6 w-fit group min-w-0">
-              {isFullLogo && branding?.logoImageUrl && !fullLogoError ? (
+          <div className="col-span-2 md:col-span-2 lg:col-span-4">
+            <Link to="/" className="flex items-center gap-2.5 mb-6 w-fit group">
+              {isFullLogo && branding?.logoImageUrl ? (
                 <div className="flex items-center group-hover:opacity-90 transition-opacity shrink-0">
                   <img
                     src={branding.logoImageUrl}
-                    alt={branding.siteName || 'Logo'}
+                    alt={branding.siteName}
                     className={getFooterLogoClass()}
-                    onError={() => setFullLogoError(true)}
                   />
                 </div>
-              ) : branding?.logoType === 'image' && branding?.logoImageUrl && !iconLogoError ? (
+              ) : branding?.logoType === 'image' && branding?.logoImageUrl ? (
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-white/10 flex items-center justify-center shadow-lg shadow-primary/10 group-hover:scale-105 transition-transform overflow-hidden shrink-0 p-1">
                   <img
                     src={branding.logoImageUrl}
-                    alt={branding.siteName || 'Logo'}
+                    alt={branding.siteName}
                     className="w-full h-full object-contain"
-                    onError={() => setIconLogoError(true)}
                   />
                 </div>
               ) : (
@@ -73,7 +65,7 @@ const Footer: React.FC = () => {
               )}
 
               {showSiteName && (
-                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 truncate">
+                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
                   {branding?.siteName || 'Mohamed Alhady'}
                 </span>
               )}
@@ -100,10 +92,10 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick links: Routed application links */}
-          <div className="lg:col-span-2 lg:col-start-6">
-            <h4 className="text-white font-bold mb-6">{t('footer_quick_links')}</h4>
-            <ul className="space-y-4">
+          {/* Quick links: Routed application links - Side by side on mobile & tablet */}
+          <div className="col-span-1 md:col-span-1 lg:col-span-2 lg:col-start-6">
+            <h4 className="text-white font-bold mb-4 sm:mb-6">{t('footer_quick_links')}</h4>
+            <ul className="space-y-3.5 sm:space-y-4">
               <li>
                 <Link to="/" className="text-gray-400 text-sm hover:text-primary transition-colors flex items-center gap-2 group">
                   <span className="w-1 h-1 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" /> {t('nav_home')}
@@ -127,10 +119,10 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Core Services: Areas of active engineering expertise */}
-          <div className="lg:col-span-2">
-            <h4 className="text-white font-bold mb-6">Services</h4>
-            <ul className="space-y-4">
+          {/* Core Services: Areas of active engineering expertise - Side by side on mobile & tablet */}
+          <div className="col-span-1 md:col-span-1 lg:col-span-2">
+            <h4 className="text-white font-bold mb-4 sm:mb-6">Services</h4>
+            <ul className="space-y-3.5 sm:space-y-4">
               <li className="text-gray-400 text-sm hover:text-white transition-colors cursor-pointer">Web Development</li>
               <li className="text-gray-400 text-sm hover:text-white transition-colors cursor-pointer">UI/UX Design</li>
               <li className="text-gray-400 text-sm hover:text-white transition-colors cursor-pointer">Performance Audits</li>
@@ -139,7 +131,7 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Newsletter: Lead generation input field */}
-          <div className="lg:col-span-3">
+          <div className="col-span-2 md:col-span-2 lg:col-span-3">
             <h4 className="text-white font-bold mb-6">Stay Updated</h4>
             <p className="text-gray-400 text-sm mb-4">
               Subscribe to my newsletter for the latest articles, tutorials, and insights.
