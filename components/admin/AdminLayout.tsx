@@ -23,14 +23,16 @@ import {
   ChevronLeft,
   ChevronRight,
   Moon,
+  Sun,
+  Monitor,
   Sparkles,
-  Cpu,
-  Share2,
 } from 'lucide-react';
+
+export type ThemeMode = 'day' | 'night' | 'system';
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAdminAuth();
-  const { messages, isFirebaseConnected, settings, updateSettings } = useSiteData();
+  const { messages, isFirebaseConnected, settings, updateSettings, users } = useSiteData();
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -75,41 +77,89 @@ export const AdminLayout: React.FC = () => {
     navigate('/admin/login');
   };
 
-  // Theme toggle state: Emerald Green (Default) vs High-Contrast 'Midnight' dark mode
-  const isMidnight = settings?.theme?.bgPalette === 'midnight';
-  const [isThemeToggling, setIsThemeToggling] = useState(false);
-
-  const handleToggleTheme = async () => {
-    setIsThemeToggling(true);
+  // Theme mode management: Day / Night / System
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
     try {
-      const nextPalette = isMidnight ? 'emerald' : 'midnight';
-      await updateSettings({
-        theme: {
-          ...(settings?.theme || { primaryColor: '#facc15', secondaryColor: '#22c55e' }),
-          bgPalette: nextPalette,
-        },
-      });
-    } finally {
-      setIsThemeToggling(false);
+      const saved = localStorage.getItem('theme_mode');
+      if (saved === 'day' || saved === 'night' || saved === 'system') {
+        return saved as ThemeMode;
+      }
+      if (localStorage.getItem('theme') === 'light') return 'day';
+      if (localStorage.getItem('theme') === 'dark') return 'night';
+      return 'system';
+    } catch {
+      return 'system';
+    }
+  });
+
+  const [isSystemDark, setIsSystemDark] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return true;
+  });
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsSystemDark(media.matches);
+    const listener = (e: MediaQueryListEvent) => {
+      setIsSystemDark(e.matches);
+    };
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, []);
+
+  const isMidnight = settings?.theme?.bgPalette === 'midnight';
+  const effectiveTheme = themeMode === 'system' ? (isSystemDark ? 'night' : 'day') : themeMode;
+  const isDayMode = effectiveTheme === 'day';
+
+  const handleSelectThemeMode = (mode: ThemeMode) => {
+    setThemeMode(mode);
+    try {
+      localStorage.setItem('theme_mode', mode);
+      const isNight = mode === 'system' ? isSystemDark : mode === 'night';
+      if (!isNight) {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.remove('midnight-theme');
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+    } catch (e) {
+      console.warn('Failed to save theme mode:', e);
     }
   };
 
-  // Determine active nav item accounting for query parameters like ?tab=marquee
+  // Keep DOM classList synchronized with active theme mode
+  React.useEffect(() => {
+    try {
+      if (isDayMode) {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.remove('midnight-theme');
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+    } catch {}
+  }, [isDayMode]);
+
+  // Determine active nav item cleanly without duplicate query hacks
   const isItemActive = (to: string, exact?: boolean) => {
-    if (to.includes('?')) {
-      const [path, search] = to.split('?');
-      return location.pathname === path && location.search.includes(search);
-    }
-    if (to === '/admin/appearance') {
-      return location.pathname === '/admin/appearance' && !location.search.includes('tab=marquee') && !location.search.includes('tab=about');
-    }
-    return exact ? location.pathname === to : location.pathname.startsWith(to);
+    if (exact) return location.pathname === to;
+    return location.pathname.startsWith(to);
   };
 
-  // Clean grouped navigation structure without repetitive single-item categories
+  // Streamlined, deduplicated 3-pillar navigation structure
   const navSections = [
     {
-      title: t('admin_overview'),
+      title: t('admin_portal', 'Governance & Dashboard'),
       items: [
         {
           to: '/admin',
@@ -118,26 +168,15 @@ export const AdminLayout: React.FC = () => {
           exact: true,
         },
         {
-          to: '/admin/appearance',
-          label: t('admin_appearance'),
-          icon: Palette,
-        },
-        {
-          to: '/admin/appearance?tab=marquee',
-          label: t('admin_marquee_nav'),
-          icon: Sparkles,
-          badge: settings?.marquee?.items?.length ? `${settings.marquee.items.length}` : undefined,
-        },
-        {
-          to: '/admin/appearance?tab=about',
-          label: t('admin_about_nav'),
-          icon: Cpu,
-          badge: settings?.about?.skills?.length ? `${settings.about.skills.length}` : undefined,
+          to: '/admin/users-roles',
+          label: t('admin_users_roles_nav', 'Security & Access'),
+          icon: ShieldCheck,
+          badge: users?.length ? `${users.length}` : undefined,
         },
       ],
     },
     {
-      title: t('admin_modules'),
+      title: t('admin_modules', 'Content Modules'),
       items: [
         {
           to: '/admin/projects',
@@ -163,17 +202,12 @@ export const AdminLayout: React.FC = () => {
       ],
     },
     {
-      title: t('admin_system'),
+      title: t('admin_system', 'Design & Settings'),
       items: [
         {
-          to: '/admin/users-roles',
-          label: t('admin_users_roles_nav', 'Security & Access'),
-          icon: ShieldCheck,
-        },
-        {
-          to: '/admin/settings#social',
-          label: 'Social Profiles',
-          icon: Share2,
+          to: '/admin/appearance',
+          label: t('admin_appearance'),
+          icon: Palette,
         },
         {
           to: '/admin/settings',
@@ -204,42 +238,55 @@ export const AdminLayout: React.FC = () => {
   return (
     <div
       className={`min-h-screen ${
-        isMidnight ? 'bg-[#030712]' : 'bg-slate-950'
-      } text-slate-100 flex flex-col md:flex-row font-sans selection:bg-primary selection:text-white ${
+        isDayMode
+          ? 'bg-slate-100 text-slate-900'
+          : isMidnight
+            ? 'bg-[#030712] text-slate-100'
+            : 'bg-slate-950 text-slate-100'
+      } flex flex-col md:flex-row font-sans selection:bg-primary selection:text-white ${
         isRTL ? 'rtl' : 'ltr'
       }`}
     >
       {/* Mobile Top Header */}
       <header
         className={`md:hidden flex items-center justify-between px-4 py-3 ${
-          isMidnight ? 'bg-[#070d19] border-slate-800' : 'bg-slate-900 border-slate-800'
-        } border-b sticky top-0 z-40`}
+          isDayMode
+            ? 'bg-white border-slate-200 shadow-sm'
+            : isMidnight
+              ? 'bg-[#070d19] border-slate-800'
+              : 'bg-slate-900 border-slate-800'
+        } border-b sticky top-0 z-40 transition-colors`}
       >
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-bold">
             <ShieldCheck size={18} />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white leading-tight">{t('admin_portal')}</h2>
-            <span className="text-[10px] text-slate-400 font-mono">{t('admin_control_center')}</span>
+            <h2 className={`text-sm font-bold leading-tight ${isDayMode ? 'text-slate-900' : 'text-white'}`}>{t('admin_portal')}</h2>
+            <span className={`text-[10px] font-mono ${isDayMode ? 'text-slate-500' : 'text-slate-400'}`}>{t('admin_control_center')}</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Mobile Theme Toggle Button */}
+          {/* Mobile Theme Toggle Button: Day / Night / System */}
           <button
             type="button"
-            onClick={handleToggleTheme}
-            disabled={isThemeToggling}
-            title={isMidnight ? 'U beddel Emerald Green' : 'U beddel Midnight Dark Mode'}
-            className={`p-2 rounded-xl border transition-all cursor-pointer ${
-              isMidnight
-                ? 'bg-slate-900 border-indigo-500/50 text-cyan-300 hover:text-white shadow-[0_0_10px_rgba(99,102,241,0.25)]'
-                : 'bg-slate-900 border-emerald-500/40 text-emerald-300 hover:text-white shadow-[0_0_10px_rgba(34,197,94,0.18)]'
+            onClick={() => {
+              const nextMode: ThemeMode = themeMode === 'day' ? 'night' : themeMode === 'night' ? 'system' : 'day';
+              handleSelectThemeMode(nextMode);
+            }}
+            title={`Mode: ${themeMode.toUpperCase()} (Day / Night / System)`}
+            className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center gap-1 ${
+              isDayMode
+                ? 'bg-slate-100 border-slate-300 text-amber-600'
+                : 'bg-slate-900 border-slate-800 text-slate-200'
             }`}
-            aria-label="Toggle Theme"
+            aria-label="Toggle Theme Mode"
           >
-            {isMidnight ? <Moon size={16} className="fill-cyan-400/20" /> : <Sparkles size={16} />}
+            {themeMode === 'day' && <Sun size={16} className="text-amber-500 fill-amber-400/30" />}
+            {themeMode === 'night' && <Moon size={16} className="text-indigo-400 fill-indigo-400/30" />}
+            {themeMode === 'system' && <Monitor size={16} className="text-emerald-400" />}
+            <span className="text-[10px] font-mono uppercase font-bold">{themeMode}</span>
           </button>
 
           {/* Mobile Language Switcher */}
@@ -533,62 +580,130 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Pane */}
-      <main className={`flex-1 min-h-screen ${isMidnight ? 'bg-[#030712]' : 'bg-slate-950'} flex flex-col overflow-x-hidden`}>
+      <main className={`flex-1 min-h-screen ${
+        isDayMode
+          ? 'bg-slate-50'
+          : isMidnight
+            ? 'bg-[#030712]'
+            : 'bg-slate-950'
+      } flex flex-col overflow-x-hidden transition-colors`}>
         {/* Clean, High-Polish Top Bar on Desktop */}
         <div
-          className={`hidden md:flex items-center justify-between px-8 py-3.5 border-b border-slate-800/80 ${
-            isMidnight ? 'bg-[#070d19]/80' : 'bg-slate-900/40'
-          } backdrop-blur-md sticky top-0 z-30`}
+          className={`hidden md:flex items-center justify-between px-8 py-3.5 border-b ${
+            isDayMode
+              ? 'bg-white/90 border-slate-200/90 text-slate-800'
+              : isMidnight
+                ? 'bg-[#070d19]/90 border-slate-800/80 text-white'
+                : 'bg-slate-900/60 border-slate-800/80 text-white'
+          } backdrop-blur-md sticky top-0 z-30 transition-colors duration-200 shadow-sm`}
         >
           <div className="flex items-center gap-3">
             {/* Active Screen Indicator */}
-            <div className="flex items-center gap-1.5 text-white font-bold bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/60 shadow-sm text-xs">
+            <div
+              className={`flex items-center gap-2 font-bold px-3.5 py-1.5 rounded-xl border shadow-sm text-xs transition-colors ${
+                isDayMode
+                  ? 'bg-slate-100 border-slate-200 text-slate-900'
+                  : 'bg-slate-800/80 border-slate-700/60 text-white'
+              }`}
+            >
               <ActiveIcon size={14} className="text-primary" />
               <span>{activeBreadcrumb.title}</span>
             </div>
           </div>
 
-          {/* Header Actions: Theme Toggle, Language Switcher, Live Site */}
+          {/* Header Actions: Day/Night/System Theme Segmented Control, Language Switcher, Live Site */}
           <div className="flex items-center gap-3">
-            {/* High-Contrast Midnight vs Emerald Green Theme Toggle */}
-            <button
-              type="button"
-              onClick={handleToggleTheme}
-              disabled={isThemeToggling}
-              title={
-                isMidnight
-                  ? 'Guji si aad ugu beddesho Naqshadda Cagaarka ah (Switch to Emerald Green)'
-                  : "Guji si aad ugu beddesho High-Contrast 'Midnight' Dark Mode"
-              }
-              className={`group flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs font-semibold transition-all duration-200 cursor-pointer shadow-sm select-none ${
-                isMidnight
-                  ? 'bg-slate-900/90 border-indigo-500/50 text-indigo-200 hover:border-indigo-400 hover:text-white hover:bg-indigo-950/40 shadow-[0_0_15px_rgba(99,102,241,0.25)]'
-                  : 'bg-slate-900/90 border-emerald-500/40 text-emerald-200 hover:border-emerald-400 hover:text-white hover:bg-emerald-950/30 shadow-[0_0_15px_rgba(34,197,94,0.18)]'
+            {/* Professional Day / Night / System Theme Switcher */}
+            <div
+              className={`flex items-center p-1 rounded-xl border shadow-inner transition-colors ${
+                isDayMode
+                  ? 'bg-slate-100 border-slate-300/80'
+                  : 'bg-slate-900/95 border-slate-800'
               }`}
-              aria-label="Toggle High-Contrast Midnight or Emerald Green Theme"
+              role="radiogroup"
+              aria-label="Theme mode selector"
             >
-              {isMidnight ? (
-                <>
-                  <div className="w-5 h-5 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-cyan-300">
-                    <Moon size={12} className="fill-cyan-400/30" />
-                  </div>
-                  <span className="font-mono text-white text-xs font-bold">Midnight</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-mono font-medium">
-                    High-Contrast
+              {/* Day Option */}
+              <button
+                type="button"
+                onClick={() => handleSelectThemeMode('day')}
+                title="Day Mode / Maalin (Iftiin)"
+                aria-checked={themeMode === 'day'}
+                role="radio"
+                className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  themeMode === 'day'
+                    ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 shadow-sm font-bold scale-[1.02]'
+                    : isDayMode
+                      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                }`}
+              >
+                <Sun
+                  size={14}
+                  className={`transition-transform duration-200 group-hover:rotate-45 ${
+                    themeMode === 'day' ? 'text-amber-500 fill-amber-400/30' : ''
+                  }`}
+                />
+                <span className="tracking-wide">Day</span>
+              </button>
+
+              {/* Night Option */}
+              <button
+                type="button"
+                onClick={() => handleSelectThemeMode('night')}
+                title="Night Mode / Habeen (Mugdi)"
+                aria-checked={themeMode === 'night'}
+                role="radio"
+                className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  themeMode === 'night'
+                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm font-bold scale-[1.02]'
+                    : isDayMode
+                      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                }`}
+              >
+                <Moon
+                  size={14}
+                  className={`transition-transform duration-200 group-hover:-rotate-12 ${
+                    themeMode === 'night' ? 'text-indigo-400 fill-indigo-400/30' : ''
+                  }`}
+                />
+                <span className="tracking-wide">Night</span>
+              </button>
+
+              {/* System Option */}
+              <button
+                type="button"
+                onClick={() => handleSelectThemeMode('system')}
+                title="System Auto Mode / Nidaamka Qalabka (Auto Detect)"
+                aria-checked={themeMode === 'system'}
+                role="radio"
+                className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  themeMode === 'system'
+                    ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 shadow-sm font-bold scale-[1.02]'
+                    : isDayMode
+                      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                }`}
+              >
+                <Monitor
+                  size={14}
+                  className={`transition-transform duration-200 group-hover:scale-110 ${
+                    themeMode === 'system' ? 'text-emerald-500' : ''
+                  }`}
+                />
+                <span className="tracking-wide">System</span>
+                {themeMode === 'system' && (
+                  <span className={`text-[9px] font-mono px-1 py-0.2 rounded border uppercase ${
+                    isSystemDark
+                      ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30'
+                      : 'bg-amber-100 text-amber-700 border-amber-300'
+                  }`}>
+                    {isSystemDark ? 'Dark' : 'Light'}
                   </span>
-                </>
-              ) : (
-                <>
-                  <div className="w-5 h-5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300">
-                    <Sparkles size={12} />
-                  </div>
-                  <span className="font-mono text-white text-xs font-bold">Emerald</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono font-medium">
-                    Green
-                  </span>
-                </>
-              )}
-            </button>
+                )}
+              </button>
+            </div>
 
             {/* Multi-language Selector (English, Somali, Arabic) */}
             <LanguageSelector variant="admin" />
@@ -599,7 +714,11 @@ export const AdminLayout: React.FC = () => {
               target="_blank"
               rel="noreferrer"
               title={t('admin_live_site')}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-750 border border-slate-700 px-3 py-1.5 rounded-xl transition-all shadow-sm"
+              className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl transition-all shadow-sm ${
+                isDayMode
+                  ? 'text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 border border-slate-300'
+                  : 'text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-750 border border-slate-700'
+              }`}
             >
               <ExternalLink size={13} />
               <span>{t('admin_live_site')}</span>

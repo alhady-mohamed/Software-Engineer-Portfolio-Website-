@@ -237,6 +237,7 @@ export interface SystemUser {
   fullName: string;
   username: string;
   email: string;
+  password?: string; // Secret authentication password for RBAC login
   roleId: string; // References SystemRole.id
   status: AccountStatus;
   customOverrides?: Record<string, Record<string, boolean>>; // Optional Super Admin Page/Tab override
@@ -292,7 +293,7 @@ export interface AuditLogItem {
   ipAddress?: string;
 }
 
-export type SecurityEventType = 'failed_login' | 'role_change' | 'permission_escalation' | 'account_lock';
+export type SecurityEventType = 'failed_login' | 'login_success' | 'role_change' | 'permission_escalation' | 'account_lock';
 
 export interface SecurityAuditItem {
   id: string;

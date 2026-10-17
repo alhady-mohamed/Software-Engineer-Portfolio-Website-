@@ -24,6 +24,9 @@ import {
   Upload,
   Trash2,
   Loader2,
+  ShieldCheck,
+  Shield,
+  Clock,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -49,6 +52,9 @@ export const AdminOverview: React.FC = () => {
     syncAllToFirebase,
     clearAllData,
     settings,
+    users,
+    roles,
+    securityAuditLogs,
   } = useSiteData();
   const { t } = useLanguage();
 
@@ -147,83 +153,198 @@ export const AdminOverview: React.FC = () => {
 
   return (
     <div className="space-y-7 animate-fadeIn">
-      {/* Organized Welcome Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-800/40 border border-slate-800/80 shadow-xl">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="p-1 rounded-md bg-primary/20 text-primary">
-              <Sparkles size={14} />
-            </span>
-            <span className="text-[11px] font-mono uppercase tracking-widest text-primary font-bold">
-              {t('admin_control_center')}
-            </span>
-          </div>
-          <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">
-            {t('admin_welcome_title')}
-          </h1>
-          <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
-            {t('admin_welcome_subtitle')}
-          </p>
-        </div>
+      {/* Organized Welcome Header - Executive Polish */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-950 border border-slate-800/90 shadow-2xl p-6 sm:p-7 backdrop-blur-xl transition-all">
+        {/* Ambient Top Glow Accents */}
+        <div className="pointer-events-none absolute -top-24 -right-12 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-70" />
+        <div className="pointer-events-none absolute -bottom-24 -left-12 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl opacity-60" />
+        <div className="pointer-events-none absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-        {/* Quick Shortcut Buttons */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          <Link
-            to="/admin/appearance"
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold transition-all hover:scale-105"
-          >
-            <Palette size={14} className="text-primary" />
-            <span>{t('admin_appearance')}</span>
-          </Link>
-          <Link
-            to="/admin/projects"
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-semibold shadow-md shadow-primary/25 transition-all hover:scale-105"
-          >
-            <Plus size={14} />
-            <span>{t('admin_new_project')}</span>
-          </Link>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          <div className="space-y-2 max-w-2xl">
+            {/* Live Status Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-[11px] font-mono tracking-wider uppercase font-bold shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              <Sparkles size={13} className="text-primary" />
+              <span>{t('admin_control_center')}</span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+              {t('admin_welcome_title')}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
+              {t('admin_welcome_subtitle')}
+            </p>
+          </div>
+
+          {/* Quick Shortcut Buttons */}
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <Link
+              to="/admin/users-roles"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-slate-200 hover:text-white text-xs font-semibold shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <div className="w-5 h-5 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+                <ShieldCheck size={13} />
+              </div>
+              <span>{t('admin_users_roles_nav', 'Security & Access')}</span>
+            </Link>
+
+            <Link
+              to="/admin/projects"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/95 hover:to-primary text-white text-xs font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <Plus size={15} className="stroke-[2.5]" />
+              <span>{t('admin_new_project')}</span>
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* FIREBASE FIRESTORE CLOUD DATABASE RIBBON */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/30 via-slate-900 to-slate-900/90 border border-amber-500/30 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
-            <Database size={20} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white">Firebase Firestore Database</span>
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                {isFirebaseConnected ? 'KUXIRAN (mohamed-kayga)' : 'CONNECTING...'}
-              </span>
+      {/* UNIFIED OPERATIONAL STATUS BAR: Cloud Database Sync & RBAC Governance (Professional Executive Tabs) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+        {/* Tile 1: Cloud Firestore Database & Storage */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900/95 via-slate-900/80 to-slate-950 border border-slate-800 hover:border-amber-500/35 transition-all duration-300 p-5 sm:p-6 shadow-xl flex flex-col justify-between group">
+          {/* Subtle top indicator bar */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500/50 to-transparent group-hover:via-amber-400 transition-colors" />
+
+          <div className="space-y-4">
+            {/* Header info */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-400 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-200">
+                  <Database size={20} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <h3 className="text-sm font-bold text-white tracking-wide">Firestore Database & Storage</h3>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wide border shadow-sm ${
+                      isFirebaseConnected
+                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                        : 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${isFirebaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                      {isFirebaseConnected ? 'Cloud Synced' : 'Browser Storage'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">
+                    State synchronization engine for live portfolio persistence
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              Kaydka: {projects.length} Mashaariic · {timelines.length} Timelines · {testimonials.length} Marag-fur
-            </p>
+
+            {/* Live Metrics Chips */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700/60 text-slate-300 text-xs font-medium">
+                <FolderGit2 size={13} className="text-amber-400" />
+                <span>{projects.length} <strong className="font-semibold text-white">Mashaariic</strong></span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700/60 text-slate-300 text-xs font-medium">
+                <Clock size={13} className="text-amber-400" />
+                <span>{timelines.length} <strong className="font-semibold text-white">Timelines</strong></span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700/60 text-slate-300 text-xs font-medium">
+                <Sparkles size={13} className="text-amber-400" />
+                <span>{testimonials.length} <strong className="font-semibold text-white">Marag-fur</strong></span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Ribbon */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-4 mt-4 border-t border-slate-800/80">
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono">
+              <CheckCircle2 size={12} className={isFirebaseConnected ? "text-emerald-400" : "text-amber-400"} />
+              <span>{isFirebaseConnected ? 'Firebase Online' : 'Local Storage Mode'}</span>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={handleQuickClear}
+                disabled={isClearing || isFirebaseSyncing}
+                className="px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-300 hover:text-red-200 border border-red-500/25 hover:border-red-500/40 text-xs font-semibold flex items-center gap-2 transition-all duration-200 cursor-pointer disabled:opacity-50 active:scale-95 shadow-sm"
+                title="Tirtir xogtii dummy-ga ahayd si aad adigu xogtaada dhabta ah u geliso"
+              >
+                {isClearing ? <Loader2 size={13} className="animate-spin text-red-400" /> : <Trash2 size={13} className="text-red-400" />}
+                <span>Ka Saar Dummy Data</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleQuickSeed}
+                disabled={isFirebaseSyncing || isClearing}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20 hover:shadow-amber-500/35 flex items-center gap-2 transition-all duration-200 cursor-pointer disabled:opacity-50 active:scale-95"
+                title="Dhammaan xogta toos ugu shub Firebase Firestore"
+              >
+                {isFirebaseSyncing ? <Loader2 size={13} className="animate-spin text-slate-950" /> : <Upload size={13} className="text-slate-950 stroke-[2.5]" />}
+                <span>Ku Shub Firebase</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={handleQuickClear}
-            disabled={isClearing || isFirebaseSyncing}
-            className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/20 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
-            title="Tirtir xogtii dummy-ga ahayd si aad adigu xogtaada dhabta ah u geliso"
-          >
-            {isClearing ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
-            <span>Ka Saar Dummy Data</span>
-          </button>
+        {/* Tile 2: Security, Roles & Access Control (RBAC) */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900/95 via-slate-900/80 to-slate-950 border border-slate-800 hover:border-indigo-500/35 transition-all duration-300 p-5 sm:p-6 shadow-xl flex flex-col justify-between group">
+          {/* Subtle top indicator bar */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent group-hover:via-indigo-400 transition-colors" />
 
-          <button
-            onClick={handleQuickSeed}
-            disabled={isFirebaseSyncing || isClearing}
-            className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 text-xs font-bold shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
-            title="Dhammaan xogta toos ugu shub Firebase Firestore"
-          >
-            {isFirebaseSyncing ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
-            <span>Ku Shub Firebase</span>
-          </button>
+          <div className="space-y-4">
+            {/* Header info */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-200">
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <h3 className="text-sm font-bold text-white tracking-wide">Security & Access Governance (RBAC)</h3>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wide bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Active Protection
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Multi-user permissions, role presets & capability enforcement
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Metrics Chips */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700/60 text-slate-300 text-xs font-medium">
+                <Users size={13} className="text-indigo-400" />
+                <span>Users: <strong className="font-semibold text-white">{users?.length || 0}</strong></span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700/60 text-slate-300 text-xs font-medium">
+                <Shield size={13} className="text-indigo-400" />
+                <span>Roles: <strong className="font-semibold text-indigo-300">{roles?.length || 0}</strong></span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700/60 text-slate-300 text-xs font-medium">
+                <Activity size={13} className="text-amber-400" />
+                <span>Audit Logs: <strong className="font-semibold text-amber-300">{securityAuditLogs?.length || 0}</strong></span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Ribbon */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-4 mt-4 border-t border-slate-800/80">
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono">
+              <ShieldCheck size={12} className="text-emerald-400" />
+              <span>Full RBAC Matrix Enabled</span>
+            </div>
+
+            <Link
+              to="/admin/users-roles"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/25 hover:shadow-indigo-600/40 transition-all duration-200 active:scale-95 group/btn"
+            >
+              <span>Manage Access & Roles</span>
+              <ArrowRight size={13} className="transition-transform group-hover/btn:translate-x-0.5" />
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -233,35 +354,6 @@ export const AdminOverview: React.FC = () => {
           <span>{firebaseFeedback}</span>
         </div>
       )}
-
-      {/* ANIMATED MARQUEE & PARTNER LOGOS QUICK ACTION BANNER */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/30 to-slate-900 border border-indigo-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-cyan-400 border border-indigo-500/20 shrink-0">
-            <Sparkles size={20} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white">Homepage Animated Marquee Logos</span>
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                {(settings?.marquee?.items?.length ?? 6)} Logos Configured
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              Qaybta wareegaysa ee homepage-ka: Waxaad si toos ah uga upload-garayn kartaa sawirrada logoyinka shirkadaha & tech stack-ka.
-            </p>
-          </div>
-        </div>
-
-        <Link
-          to="/admin/appearance?tab=marquee"
-          className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/25 flex items-center gap-1.5 transition-all self-start sm:self-auto shrink-0"
-        >
-          <Upload size={13} />
-          <span>Maamul & Upload-garee Logoyinka</span>
-          <ArrowUpRight size={13} />
-        </Link>
-      </div>
 
       {/* SUMMARY CARDS SECTION USING RECHARTS (Key Metrics: Visitor Count, Total Projects, Pending Messages) */}
       <div className="space-y-3">

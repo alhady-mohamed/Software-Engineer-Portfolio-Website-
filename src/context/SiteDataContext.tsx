@@ -10,6 +10,7 @@ import {
   SystemRole,
   AuditLogItem,
   SecurityAuditItem,
+  AccountStatus,
 } from '../../types';
 import {
   INITIAL_PROJECTS,
@@ -318,6 +319,17 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFirebaseConnected, setIsFirebaseConnected] = useState<boolean>(true);
 
+  // RBAC system users localStorage persistence effect
+  useEffect(() => {
+    if (users && users.length > 0) {
+      try {
+        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+      } catch (e) {
+        console.warn('Failed to sync users to localStorage:', e);
+      }
+    }
+  }, [users]);
+
   // Apply theme variables dynamically whenever settings.theme changes
   useEffect(() => {
     if (settings.theme) {
@@ -485,28 +497,53 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           updatedAt: data.updatedAt,
         }));
       }
+    }, (err) => {
+      console.warn('Firestore settings error:', err);
+    });
+
     // 6. System Users
-    const unsubUsers = onSnapshot(collection(db, 'system_users'), (snapshot) => {
+    const unsubUsers = onSnapshot(collection(db, 'system_users'), async (snapshot) => {
       if (!snapshot.empty) {
         const remoteUsers: SystemUser[] = [];
         snapshot.forEach((docSnap) => {
           const d = docSnap.data();
+          const fallbackUser = INITIAL_SYSTEM_USERS.find(
+            (u) => u.id === docSnap.id || u.username === (d.username || docSnap.id)
+          );
           remoteUsers.push({
             id: docSnap.id,
-            fullName: d.fullName || 'User',
+            fullName: d.fullName || fallbackUser?.fullName || 'User',
             username: d.username || docSnap.id,
-            email: d.email || '',
-            roleId: d.roleId || 'content_editor',
-            status: d.status || 'active',
-            customOverrides: d.customOverrides,
-            avatarUrl: d.avatarUrl,
-            createdAt: d.createdAt || new Date().toISOString(),
+            email: d.email || fallbackUser?.email || '',
+            password: d.password !== undefined && d.password !== '' ? d.password : (fallbackUser?.password || (d.roleId === 'super_admin' ? 'Admin@2026' : undefined)),
+            roleId: d.roleId || fallbackUser?.roleId || 'content_editor',
+            status: d.status || fallbackUser?.status || 'active',
+            customOverrides: d.customOverrides || fallbackUser?.customOverrides,
+            avatarUrl: d.avatarUrl || fallbackUser?.avatarUrl,
+            createdAt: d.createdAt || fallbackUser?.createdAt || new Date().toISOString(),
             lastLoginAt: d.lastLoginAt,
             lastLoginIp: d.lastLoginIp,
             notes: d.notes,
           });
         });
         setUsers(remoteUsers);
+        try {
+          localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(remoteUsers));
+        } catch (e) {
+          console.warn('LocalStorage save error:', e);
+        }
+      } else {
+        // Auto-seed initial RBAC users into Firestore if collection is empty
+        try {
+          const batch = writeBatch(db);
+          INITIAL_SYSTEM_USERS.forEach((u) => {
+            const ref = doc(db, 'system_users', u.id);
+            batch.set(ref, removeUndefinedFields(u));
+          });
+          await batch.commit();
+        } catch (e) {
+          console.warn('Auto-seed system_users Firestore error:', e);
+        }
       }
     }, (err) => {
       console.warn('Firestore users listener error:', err);
@@ -1003,6 +1040,19 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         });
       });
 
+      // Also sync RBAC system users (including passwords) and roles to Firestore
+      const usersToPush = (users && users.length > 0 ? users : INITIAL_SYSTEM_USERS);
+      usersToPush.forEach((u) => {
+        const ref = doc(db, 'system_users', u.id);
+        batch.set(ref, removeUndefinedFields(u), { merge: true });
+      });
+
+      const rolesToPush = (roles && roles.length > 0 ? roles : INITIAL_ROLES);
+      rolesToPush.forEach((r) => {
+        const ref = doc(db, 'system_roles', r.id);
+        batch.set(ref, removeUndefinedFields(r), { merge: true });
+      });
+
       await batch.commit();
       setIsFirebaseConnected(true);
 
@@ -1118,7 +1168,11 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       status: userData.status || 'active',
     };
 
-    setUsers((prev) => [newUser, ...prev]);
+    const updatedList = [newUser, ...users];
+    setUsers(updatedList);
+    try {
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedList));
+    } catch {}
 
     // Record audit logs
     await logAction({
@@ -1133,7 +1187,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     try {
       await setDoc(doc(db, 'system_users', newId), removeUndefinedFields(newUser));
-      return { success: true, id: newId, message: 'Isticmaalaha cusub si guul leh ayaa loo diiwaangeliyay!' };
+      return { success: true, id: newId, message: 'Isticmaalaha cusub si guul leh ayaa loo diiwaangeliyay looguna kaydiyay database-ka!' };
     } catch (e: any) {
       console.warn('Firestore addUser error:', e);
       return { success: true, id: newId, message: 'Isticmaalaha waxaa lagu kaydiyay kaydka browser-ka (offline).' };
@@ -1145,7 +1199,11 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (!existing) return { success: false, message: 'Isticmaalaha lama helin' };
 
     const updatedUser = { ...existing, ...updates };
-    setUsers((prev) => prev.map((u) => (u.id === id ? updatedUser : u)));
+    const updatedList = users.map((u) => (u.id === id ? updatedUser : u));
+    setUsers(updatedList);
+    try {
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedList));
+    } catch {}
 
     if (currentUser?.id === id) {
       setCurrentUser(updatedUser);
@@ -1158,12 +1216,14 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       actionType: 'update',
       targetPage: 'Security & Access Control',
       targetTab: 'System Users',
-      details: `Updated profile details for user "${updatedUser.fullName}" (@${updatedUser.username})`,
+      details: updates.password
+        ? `Updated password and credentials for user "${updatedUser.fullName}" (@${updatedUser.username})`
+        : `Updated profile details for user "${updatedUser.fullName}" (@${updatedUser.username})`,
     });
 
     try {
       await setDoc(doc(db, 'system_users', id), removeUndefinedFields(updatedUser), { merge: true });
-      return { success: true, message: 'Xogta isticmaalaha waa la cusboonaysiiyay!' };
+      return { success: true, message: 'Xogta isticmaalaha iyo furaha sirta ah (Password) si toos ah ayaa loogu kaydiyay database-ka Firestore!' };
     } catch (e: any) {
       console.warn('Firestore updateUser error:', e);
       return { success: true, message: 'Xogta waxaa lagu cusboonaysiiyay kaydka browser-ka.' };
@@ -1181,7 +1241,11 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const nextStatus: AccountStatus = target.status === 'locked' ? 'active' : 'locked';
     const updated = { ...target, status: nextStatus };
-    setUsers((prev) => prev.map((u) => (u.id === id ? updated : u)));
+    const updatedList = users.map((u) => (u.id === id ? updated : u));
+    setUsers(updatedList);
+    try {
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedList));
+    } catch {}
 
     await logAction({
       userId: currentUser?.id || 'admin',
@@ -1223,7 +1287,11 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return { success: false, message: 'Lama tirtiri karo Super Admin!' };
     }
 
-    setUsers((prev) => prev.filter((u) => u.id !== id));
+    const updatedList = users.filter((u) => u.id !== id);
+    setUsers(updatedList);
+    try {
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(updatedList));
+    } catch {}
 
     await logAction({
       userId: currentUser?.id || 'admin',
