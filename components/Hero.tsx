@@ -106,7 +106,7 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-dark">
+    <section id="home" className="relative min-h-screen flex items-center lg:items-end pt-20 overflow-hidden bg-dark">
       {/* Decorative Professional Grid System Backdrop */}
       <div className="absolute inset-0 w-full h-full">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -116,14 +116,14 @@ const Hero: React.FC = () => {
       </div>
 
       <div className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 xl:gap-8 items-center lg:items-end w-full">
           
           {/* Left Column: Title, Intro text, CTAs, and featured technologies */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="lg:col-span-7 xl:col-span-7 flex flex-col justify-center items-center lg:items-start text-center lg:text-left w-full min-w-0 max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-none mx-auto lg:mx-0"
+            className="lg:col-span-7 xl:col-span-7 flex flex-col justify-center items-center lg:items-start text-center lg:text-left w-full min-w-0 max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-none mx-auto lg:mx-0 lg:pb-10 xl:pb-14"
           >
             {/* Status pill badge with pulsing online dot indicator */}
             {hero.isBadgeVisible !== false && (
@@ -176,7 +176,7 @@ const Hero: React.FC = () => {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="lg:col-span-5 xl:col-span-5 relative flex items-center justify-center mt-10 lg:mt-0 w-full"
+            className="lg:col-span-5 xl:col-span-5 relative flex items-center lg:items-end justify-center mt-10 lg:mt-0 w-full lg:self-end"
           >
             {/* Dynamic background lighting layers */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-tr from-secondary/10 via-primary/5 to-transparent rounded-full blur-3xl -z-10" />
@@ -184,8 +184,8 @@ const Hero: React.FC = () => {
             {/* Clean, Frameless Hero Portrait Container with dynamic 1:1 Auto-Scale */}
             <div className={`relative mx-auto transition-all duration-500 group ${
               isSquare
-                ? 'max-w-[420px] sm:max-w-[450px] aspect-square flex items-center justify-center'
-                : 'max-w-[420px] aspect-[4/5] flex items-end justify-center'
+                ? 'max-w-[420px] sm:max-w-[460px] lg:max-w-[490px] xl:max-w-[530px] aspect-square flex items-center lg:items-end justify-center'
+                : 'max-w-[420px] sm:max-w-[450px] lg:max-w-[480px] xl:max-w-[520px] aspect-[4/5] flex items-end justify-center'
             } ${
               hero.isTransparentImage !== false
                 ? 'bg-transparent border-0 shadow-none overflow-visible'
@@ -195,12 +195,13 @@ const Hero: React.FC = () => {
                 src={hero.imageUrl || defaultHeroPortrait}
                 alt={hero.imageAlt || 'Hero portrait'}
                 onLoad={handleImageLoad}
-                className={`w-full h-full transition-all duration-700 ease-out group-hover:scale-105 ${
+                style={{ marginBottom: '-40px' }}
+                className={`w-full h-full -mb-[40px] transition-all duration-700 ease-out lg:scale-[1.06] xl:scale-[1.10] origin-bottom group-hover:scale-[1.14] ${
                   hero.isTransparentImage !== false || hero.imageFit === 'contain'
                     ? isSquare
-                      ? 'object-contain object-center drop-shadow-[0_20px_35px_rgba(0,0,0,0.7)]'
+                      ? 'object-contain object-bottom drop-shadow-[0_20px_35px_rgba(0,0,0,0.7)]'
                       : 'object-contain object-bottom drop-shadow-[0_20px_35px_rgba(0,0,0,0.7)]'
-                    : 'object-cover object-center'
+                    : 'object-cover object-bottom'
                 }`}
                 referrerPolicy="no-referrer"
                 onError={(e) => {
