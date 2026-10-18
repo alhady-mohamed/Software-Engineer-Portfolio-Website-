@@ -433,7 +433,8 @@ export const AdminLayout: React.FC = () => {
                 <img
                   src={siteFaviconUrl}
                   alt={settings?.branding?.siteName || 'Favicon'}
-                  className="w-[40px] h-[42px] rounded-xl object-contain border border-slate-700/80 shadow-md shrink-0 p-0 bg-slate-900/90"
+                  className="w-[40px] h-[42px] rounded-[20px] object-contain border border-dashed border-slate-700/80 shadow-md shrink-0 p-0 bg-slate-900/90"
+                  style={{ borderRadius: '20px', borderStyle: 'dashed' }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%2322c55e'/%3E%3Ctext x='50' y='67' font-size='52' font-family='sans-serif' font-weight='900' text-anchor='middle' fill='%23050b14'%3EM%3C/text%3E%3C/svg%3E";
@@ -798,7 +799,8 @@ export const AdminLayout: React.FC = () => {
                 aria-expanded={userProfileDropdownOpen}
                 aria-haspopup="dialog"
                 title={`${displayName} (@${username}) • Riix si aad u aragto profile-ka`}
-                className={`flex items-center gap-2.5 py-1.5 px-3 rounded-xl border transition-all duration-200 cursor-pointer shadow-sm group ${
+                style={{ borderRadius: '16px' }}
+                className={`flex items-center gap-2.5 py-1.5 px-3 rounded-[16px] border transition-all duration-200 cursor-pointer shadow-sm group ${
                   userProfileDropdownOpen
                     ? isDayMode
                       ? 'bg-primary/10 border-primary text-slate-900 ring-2 ring-primary/20'
@@ -815,10 +817,14 @@ export const AdminLayout: React.FC = () => {
                     <img
                       src={avatarUrl}
                       alt={displayName}
-                      className="w-7 h-7 rounded-lg object-cover border border-slate-700/80 shadow-sm"
+                      style={{ borderRadius: '15px' }}
+                      className="w-7 h-7 rounded-[15px] object-cover border border-slate-700/80 shadow-sm"
                     />
                   ) : (
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-[11px] shadow-sm">
+                    <div
+                      style={{ borderRadius: '15px' }}
+                      className="w-7 h-7 rounded-[15px] bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-[11px] shadow-sm"
+                    >
                       {initials}
                     </div>
                   )}

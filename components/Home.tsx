@@ -187,6 +187,28 @@ const Home: React.FC = () => {
 
   const approvedTestimonials = testimonials.filter((t) => t.isApproved);
 
+  const getShortDescription = (proj?: { summary?: string; description?: string }) => {
+    if (!proj) return '';
+    if (proj.summary && proj.summary.trim()) {
+      return proj.summary
+        .replace(/<[^>]*>/g, '')
+        .replace(/^[#*>-]+\s*/gm, '')
+        .replace(/[*_~`]/g, '')
+        .trim();
+    }
+    if (proj.description && proj.description.trim()) {
+      const plain = proj.description
+        .replace(/<[^>]*>/g, '')
+        .replace(/^[#*>-]+\s*/gm, '')
+        .replace(/[*_~`]/g, '')
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+        .replace(/\n+/g, ' ')
+        .trim();
+      return plain.length > 140 ? `${plain.slice(0, 140)}...` : plain;
+    }
+    return '';
+  };
+
   return (
     <div className="bg-dark min-h-screen">
       {/* Intro hero showcasing title assets */}
@@ -470,7 +492,7 @@ const Home: React.FC = () => {
                     </h3>
                   </Link>
                   <p className="text-gray-400 text-sm mb-6 leading-relaxed flex-grow line-clamp-3">
-                    {project.description}
+                    {getShortDescription(project)}
                   </p>
                   
                   {/* Skill technology indicators */}

@@ -15,8 +15,10 @@ import {
   Image as ImageIcon,
   Check,
   Tag,
+  Sparkles,
 } from 'lucide-react';
 import { ImageUploader } from './ImageUploader';
+import { RichDescriptionEditor } from './RichDescriptionEditor';
 
 export const AdminProjects: React.FC = () => {
   const { projects, addProject, updateProject, deleteProject } = useSiteData();
@@ -300,7 +302,7 @@ export const AdminProjects: React.FC = () => {
                     {p.title}
                   </h3>
                   <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
-                    {p.description}
+                    {p.summary || (p.description ? p.description.replace(/<[^>]*>/g, '').replace(/^[#*>-]+\s*/gm, '').replace(/[*_~`]/g, '').trim() : '')}
                   </p>
 
                   {/* Tech Badges */}
@@ -370,7 +372,7 @@ export const AdminProjects: React.FC = () => {
       {/* Add / Edit Project Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 md:p-8 space-y-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[92vh] overflow-y-auto shadow-2xl p-6 md:p-8 space-y-6">
             <div className="flex items-center justify-between pb-4 border-b border-slate-800">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
                 <FolderGit2 className="text-primary" size={20} />
@@ -384,7 +386,7 @@ export const AdminProjects: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase text-slate-300 mb-1.5">
@@ -418,19 +420,31 @@ export const AdminProjects: React.FC = () => {
                 </div>
               </div>
 
+              {/* Brief Executive Summary (Controls the box directly next to/under project title) */}
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-300 mb-1.5">
-                  Sharraxaad Dhammaystiran (Description) *
+                <label className="block text-xs font-semibold uppercase text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-slate-200">
+                    <Sparkles size={13} className="text-primary" />
+                    <span>Faah-faahin Kooban / Dulmar (Brief Overview)</span>
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-normal">Box-ka ku hoos qoran magaca mashruuca</span>
                 </label>
-                <textarea
-                  rows={3}
-                  required
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Sharrax ujeeddada mashruuca, dhibaatooyinka uu xalliyo, iyo natiijooyinkiisa..."
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-primary"
+                <input
+                  type="text"
+                  value={formData.summary}
+                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                  placeholder="Qor 1-2 jumladood oo kooban oo dulmar u ah mashruuca (e.g. Madal casri ah oo u sahlaysa macaamiisha...)"
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:outline-none focus:border-primary placeholder-slate-500"
                 />
               </div>
+
+              {/* Rich Professional Description Editor (MS Word Style Tools) */}
+              <RichDescriptionEditor
+                value={formData.description}
+                onChange={(newDesc) => setFormData({ ...formData, description: newDesc })}
+                label="Sharraxaad Dhammaystiran (Project Case Study & Description)"
+                required
+              />
 
               <div className="pt-1">
                 <ImageUploader

@@ -40,13 +40,34 @@ const Projects: React.FC = () => {
     featuredProjects[0] ||
     allProjects[0];
 
-  // Dynamic filter query scanning metadata fields
   const filteredProjects =
     activeCategory === "All"
       ? allProjects
       : activeCategory === "Featured ⭐"
       ? allProjects.filter((p) => p.featured)
       : allProjects.filter((p) => p.category === activeCategory);
+
+  const getShortDescription = (proj?: { summary?: string; description?: string }) => {
+    if (!proj) return '';
+    if (proj.summary && proj.summary.trim()) {
+      return proj.summary
+        .replace(/<[^>]*>/g, '')
+        .replace(/^[#*>-]+\s*/gm, '')
+        .replace(/[*_~`]/g, '')
+        .trim();
+    }
+    if (proj.description && proj.description.trim()) {
+      const plain = proj.description
+        .replace(/<[^>]*>/g, '')
+        .replace(/^[#*>-]+\s*/gm, '')
+        .replace(/[*_~`]/g, '')
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+        .replace(/\n+/g, ' ')
+        .trim();
+      return plain.length > 140 ? `${plain.slice(0, 140)}...` : plain;
+    }
+    return '';
+  };
 
   return (
     <div className="pt-32 pb-24 min-h-screen bg-dark">
@@ -120,7 +141,7 @@ const Projects: React.FC = () => {
               </h2>
 
               <p className="text-gray-400 text-lg leading-relaxed mb-8">
-                {spotlightProject.summary || spotlightProject.description}
+                {getShortDescription(spotlightProject)}
               </p>
 
               {/* In-spotlight impact metrics block */}
@@ -282,8 +303,8 @@ const Projects: React.FC = () => {
                       {project.title}
                     </h3>
                   </Link>
-                  <p className="text-gray-400 text-sm mb-6 leading-relaxed flex-grow">
-                    {project.description}
+                  <p className="text-gray-400 text-sm mb-6 leading-relaxed flex-grow line-clamp-3">
+                    {getShortDescription(project)}
                   </p>
 
                   {/* Skill technology label items */}
