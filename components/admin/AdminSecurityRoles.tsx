@@ -99,21 +99,7 @@ export const AdminSecurityRoles: React.FC = () => {
   const [customOverrides, setCustomOverrides] = useState<Record<string, Record<string, boolean>>>({});
   const [isSubmittingUser, setIsSubmittingUser] = useState(false);
 
-  // Quick table password display & copy states
-  const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
-  const [copiedPassId, setCopiedPassId] = useState<string | null>(null);
 
-  const toggleRevealPassword = (id: string) => {
-    setRevealedPasswords((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const handleCopyPassword = (u: SystemUser) => {
-    const pass = u.password || (u.roleId === 'super_admin' ? 'Admin@2026' : 'User@2026');
-    navigator.clipboard.writeText(pass);
-    setCopiedPassId(u.id);
-    showToast(`Furaha sirta ah ee @${u.username} waa la koobiyeeyay: "${pass}"`);
-    setTimeout(() => setCopiedPassId(null), 2500);
-  };
 
   const generateStrongPassword = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%';
@@ -698,12 +684,6 @@ export const AdminSecurityRoles: React.FC = () => {
                     <th className="py-3.5 px-4 font-semibold">Full Name & Profile</th>
                     <th className="py-3.5 px-4 font-semibold">Username</th>
                     <th className="py-3.5 px-4 font-semibold">Email</th>
-                    <th className="py-3.5 px-4 font-semibold text-slate-300">
-                      <div className="flex items-center gap-1.5">
-                        <KeyRound className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Password & Auth (Database Synced)</span>
-                      </div>
-                    </th>
                     <th className="py-3.5 px-4 font-semibold">Role Preset (Read-Only)</th>
                     <th className="py-3.5 px-4 font-semibold">Account Status</th>
                     <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
@@ -712,7 +692,7 @@ export const AdminSecurityRoles: React.FC = () => {
                 <tbody className="divide-y divide-white/5">
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-12 text-center text-slate-400">
+                      <td colSpan={6} className="py-12 text-center text-slate-400">
                         <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
                         <p className="text-sm font-medium">Lama helin isticmaale u dhigma shaandhadaada.</p>
                         <p className="text-xs text-slate-500 mt-1">Isku day inaad nadiifiso raadinta ama filter-ka.</p>
@@ -767,72 +747,6 @@ export const AdminSecurityRoles: React.FC = () => {
                           {/* Email */}
                           <td className="py-3.5 px-4 font-mono text-slate-400">
                             {u.email}
-                          </td>
-
-                          {/* Password & Auth Indicator with Direct Database Verification */}
-                          <td className="py-3.5 px-4 font-mono text-[11px]">
-                            <div className="flex flex-col gap-1.5">
-                              <div className="flex items-center gap-1.5">
-                                {/* Visual Masked or Plain Password */}
-                                <div className="flex items-center gap-1.5 bg-slate-950/90 px-2.5 py-1 rounded-lg border border-white/10 shadow-inner">
-                                  <KeyRound className="w-3 h-3 text-amber-400 shrink-0" />
-                                  <span className="font-mono text-xs text-white font-medium tracking-wider select-all">
-                                    {revealedPasswords[u.id]
-                                      ? (u.password || (u.roleId === 'super_admin' ? 'Admin@2026' : 'User@2026'))
-                                      : '••••••••'}
-                                  </span>
-                                </div>
-
-                                {/* Eye toggle to reveal actual DB password */}
-                                <button
-                                  type="button"
-                                  onClick={() => toggleRevealPassword(u.id)}
-                                  title={revealedPasswords[u.id] ? 'Qari furaha' : 'Muuji furaha dhabta ah ee database-ka'}
-                                  className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
-                                >
-                                  {revealedPasswords[u.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                                </button>
-
-                                {/* Copy button */}
-                                <button
-                                  type="button"
-                                  onClick={() => handleCopyPassword(u)}
-                                  title="Koobiyeey furaha sirta ah"
-                                  className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-emerald-400 transition-colors cursor-pointer"
-                                >
-                                  {copiedPassId === u.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                                </button>
-
-                                {/* Quick Change / Update Password Button */}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedUser({ ...u });
-                                    setEditPassword(u.password || (u.roleId === 'super_admin' ? 'Admin@2026' : 'User@2026'));
-                                    setIsEditUserModalOpen(true);
-                                  }}
-                                  title="Beddel / Cusboonaysii Furaha Sirta ah ee database-ka"
-                                  className="px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-[10px] font-sans font-semibold transition-colors flex items-center gap-1 cursor-pointer"
-                                >
-                                  <Edit3 className="w-3 h-3" />
-                                  <span>Beddel</span>
-                                </button>
-                              </div>
-
-                              {/* Database Status Tag */}
-                              <div className="flex items-center gap-1.5 text-[10px]">
-                                {u.password ? (
-                                  <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold font-mono">
-                                    <Database className="w-2.5 h-2.5 text-emerald-400" />
-                                    <span>Firestore Synced & Active</span>
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 text-slate-400 font-mono">
-                                    <span>Standard Default</span>
-                                  </span>
-                                )}
-                              </div>
-                            </div>
                           </td>
 
                           {/* Role Preset (Read-Only Badge) */}

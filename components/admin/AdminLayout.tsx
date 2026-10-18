@@ -400,7 +400,7 @@ export const AdminLayout: React.FC = () => {
           onClick={toggleCollapse}
           className={`hidden md:flex absolute top-6 ${
             isRTL ? '-left-3.5' : '-right-3.5'
-          } z-30 w-7 h-7 rounded-full bg-slate-900 border border-slate-700/80 hover:border-rose-500 text-slate-300 hover:text-white items-center justify-center shadow-xl shadow-black/50 hover:shadow-[0_0_12px_rgba(225,29,72,0.35)] transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer group`}
+          } z-[60] w-7 h-7 rounded-full bg-slate-900 border border-slate-700/90 hover:border-primary text-slate-300 hover:text-white items-center justify-center shadow-2xl shadow-black/80 ring-1 ring-white/10 hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer group`}
           title={isCollapsed ? `${t('admin_expand_sidebar')} (Ctrl+B)` : `${t('admin_collapse_sidebar')} (Ctrl+B)`}
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
