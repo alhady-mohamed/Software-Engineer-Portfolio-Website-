@@ -44,7 +44,10 @@ const AnimatedRoutes: React.FC = () => {
 
   return (
     <AnimatePresence mode="wait">
-      <div key={location.pathname.startsWith('/admin') ? 'admin-zone' : location.pathname}>
+      <div
+        className={location.pathname.startsWith('/admin') && location.pathname !== '/admin/login' ? 'h-full flex flex-col min-h-0 overflow-hidden' : undefined}
+        key={location.pathname.startsWith('/admin') ? 'admin-zone' : location.pathname}
+      >
         <Routes location={location}>
         {/* Public Portfolio Routes */}
         <Route path="/" element={<Home />} />
@@ -118,9 +121,14 @@ const AppShell: React.FC = () => {
   }, [navigate, logout]);
 
   if (isAdminRoute) {
+    const isLoginPage = location.pathname === '/admin/login';
     return (
-      <div className="bg-slate-950 min-h-screen text-slate-200 selection:bg-primary selection:text-white flex flex-col">
-        <main className="flex-grow">
+      <div
+        className={`bg-slate-950 ${
+          isLoginPage ? 'min-h-screen overflow-y-auto' : 'h-screen max-h-screen overflow-hidden'
+        } text-slate-200 selection:bg-primary selection:text-white flex flex-col`}
+      >
+        <main className={isLoginPage ? 'flex-grow' : 'flex-1 min-h-0 flex flex-col overflow-hidden'}>
           <AnimatedRoutes />
         </main>
       </div>

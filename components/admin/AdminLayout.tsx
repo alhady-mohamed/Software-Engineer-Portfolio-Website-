@@ -294,7 +294,7 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen ${
+      className={`h-screen max-h-screen overflow-hidden ${
         isDayMode
           ? 'bg-slate-100 text-slate-900'
           : isMidnight
@@ -304,9 +304,9 @@ export const AdminLayout: React.FC = () => {
         isRTL ? 'rtl' : 'ltr'
       }`}
     >
-      {/* Mobile Top Header */}
+      {/* Mobile Top Header - Stable & Fixed */}
       <header
-        className={`md:hidden flex items-center justify-between px-4 py-3 ${
+        className={`md:hidden shrink-0 flex items-center justify-between px-4 py-3 ${
           isDayMode
             ? 'bg-white border-slate-200 shadow-sm'
             : isMidnight
@@ -422,18 +422,18 @@ export const AdminLayout: React.FC = () => {
         <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden relative">
           {/* Logo Zone & Collapse Button - Standalone Enclosed Section with Bottom Divider */}
           <div
-            className={`sticky top-0 z-30 shrink-0 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md transition-all duration-300 ${
+            className={`sticky top-0 z-30 shrink-0 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md transition-all duration-300 flex items-center ${
               isCollapsed
-                ? 'py-3 px-2'
-                : 'py-3 px-3.5'
+                ? 'h-[70.4px] px-2 justify-center'
+                : 'h-[70.4px] w-[256.2px] max-w-full px-3.5'
             }`}
           >
-            <div className={`flex items-center ${isCollapsed ? 'flex-col gap-2 justify-center' : 'justify-between'}`}>
+            <div className={`flex items-center w-full ${isCollapsed ? 'flex-col gap-2 justify-center' : 'justify-between'}`}>
               <div className={`flex items-center gap-2.5 ${isCollapsed ? 'justify-center w-full' : 'min-w-0'}`}>
                 <img
                   src={siteFaviconUrl}
                   alt={settings?.branding?.siteName || 'Favicon'}
-                  className="w-8 h-8 rounded-xl object-contain border border-slate-700/80 shadow-md shrink-0 p-1 bg-slate-900/90"
+                  className="w-[40px] h-[42px] rounded-xl object-contain border border-slate-700/80 shadow-md shrink-0 p-0 bg-slate-900/90"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%2322c55e'/%3E%3Ctext x='50' y='67' font-size='52' font-family='sans-serif' font-weight='900' text-anchor='middle' fill='%23050b14'%3EM%3C/text%3E%3C/svg%3E";
@@ -441,10 +441,10 @@ export const AdminLayout: React.FC = () => {
                 />
                 {!isCollapsed && (
                   <div className="truncate min-w-0">
-                    <h1 className="font-bold text-white text-sm tracking-tight truncate leading-tight">
+                    <h1 className="font-bold text-white text-[19px] tracking-tight truncate leading-tight">
                       {settings?.branding?.siteName || t('admin_portal')}
                     </h1>
-                    <p className="text-[10px] text-slate-400 font-mono truncate leading-tight mt-0.5">{t('admin_control_center')}</p>
+                    <p className="text-[11px] text-slate-400 font-mono truncate leading-tight mt-0.5">{t('admin_control_center')}</p>
                   </div>
                 )}
               </div>
@@ -560,22 +560,22 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Pane */}
-      <main className={`flex-1 min-h-screen ${
+      <main className={`flex-1 h-full min-w-0 min-h-0 ${
         isDayMode
           ? 'bg-slate-50'
           : isMidnight
             ? 'bg-[#030712]'
             : 'bg-slate-950'
-      } flex flex-col overflow-x-hidden transition-colors`}>
-        {/* Clean, High-Polish Top Bar on Desktop */}
+      } flex flex-col overflow-hidden transition-colors`}>
+        {/* Clean, High-Polish Top Bar on Desktop - Stable, Fixed & Standing */}
         <div
           className={`hidden md:flex items-center justify-between px-8 py-3.5 border-b ${
             isDayMode
-              ? 'bg-white/90 border-slate-200/90 text-slate-800'
+              ? 'bg-white/95 border-slate-200/90 text-slate-800'
               : isMidnight
-                ? 'bg-[#070d19]/90 border-slate-800/80 text-white'
-                : 'bg-slate-900/60 border-slate-800/80 text-white'
-          } backdrop-blur-md sticky top-0 z-30 transition-colors duration-200 shadow-sm`}
+                ? 'bg-[#070d19]/95 border-slate-800/80 text-white'
+                : 'bg-slate-900/90 border-slate-800/80 text-white'
+          } backdrop-blur-md shrink-0 sticky top-0 z-30 transition-colors duration-200 shadow-sm`}
         >
           <div className="flex items-center gap-3">
             {/* Active Screen Indicator */}
@@ -935,9 +935,11 @@ export const AdminLayout: React.FC = () => {
           </div>
         </div>
 
-        {/* Dynamic Nested Screen Route */}
-        <div className="p-4 sm:p-6 md:p-8 flex-1 max-w-7xl w-full mx-auto">
-          <Outlet />
+        {/* Scrollable Content Viewport - Only this bottom section scrolls */}
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-8">
+          <div className="max-w-7xl w-full mx-auto">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>
