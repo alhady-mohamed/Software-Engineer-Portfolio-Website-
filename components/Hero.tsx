@@ -123,7 +123,8 @@ const Hero: React.FC = () => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="lg:col-span-7 xl:col-span-7 flex flex-col justify-center items-center lg:items-start text-center lg:text-left w-full min-w-0 max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-none mx-auto lg:mx-0 lg:pb-10 xl:pb-14"
+            style={{ marginLeft: '20px' }}
+            className="lg:col-span-7 xl:col-span-7 flex flex-col justify-center items-center lg:items-start text-center lg:text-left w-full min-w-0 max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-none mx-auto lg:mx-0 lg:ml-[20px] lg:pb-10 xl:pb-14"
           >
             {/* Status pill badge with pulsing online dot indicator */}
             {hero.isBadgeVisible !== false && (
@@ -157,14 +158,14 @@ const Hero: React.FC = () => {
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 sm:gap-4 w-full sm:w-auto mx-auto lg:mx-0">
               <Link
                 to={hero.primaryCtaLink || '/projects'}
-                className="group flex items-center justify-center gap-2 px-8 py-3.5 bg-primary hover:opacity-90 text-dark rounded-full font-bold transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 text-center w-full sm:w-auto"
+                className="group flex items-center justify-center gap-2 px-8 py-3.5 bg-primary hover:opacity-90 text-dark rounded-full font-bold transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 text-center w-full sm:w-auto lg:w-[191px]"
               >
                 {hero.primaryCtaText || t('hero_view_work')}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link 
                 to={hero.secondaryCtaLink || '/contact'}
-                className="flex items-center justify-center gap-2 px-8 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-full font-medium transition-all backdrop-blur-sm hover:border-white/20 text-center w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 px-8 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-full font-medium transition-all backdrop-blur-sm hover:border-white/20 text-center w-full sm:w-auto lg:w-[190px]"
               >
                 {hero.secondaryCtaText || t('hero_contact_me')}
               </Link>
@@ -185,7 +186,7 @@ const Hero: React.FC = () => {
             <div className={`relative mx-auto transition-all duration-500 group ${
               isSquare
                 ? 'max-w-[420px] sm:max-w-[460px] lg:max-w-[490px] xl:max-w-[530px] aspect-square flex items-center lg:items-end justify-center'
-                : 'max-w-[420px] sm:max-w-[450px] lg:max-w-[480px] xl:max-w-[520px] aspect-[4/5] flex items-end justify-center'
+                : 'max-w-[370px] sm:max-w-[400px] lg:max-w-[410px] xl:max-w-[440px] max-h-[490px] lg:max-h-[530px] xl:max-h-[560px] aspect-[4/5] flex items-end justify-center'
             } ${
               hero.isTransparentImage !== false
                 ? 'bg-transparent border-0 shadow-none overflow-visible'
@@ -196,11 +197,13 @@ const Hero: React.FC = () => {
                 alt={hero.imageAlt || 'Hero portrait'}
                 onLoad={handleImageLoad}
                 style={{ marginBottom: '-40px' }}
-                className={`w-full h-full -mb-[40px] transition-all duration-700 ease-out lg:scale-[1.06] xl:scale-[1.10] origin-bottom group-hover:scale-[1.14] ${
+                className={`w-full h-full -mb-[40px] transition-all duration-700 ease-out origin-bottom ${
+                  isSquare
+                    ? 'lg:scale-[1.06] xl:scale-[1.10] group-hover:scale-[1.14]'
+                    : 'scale-100 lg:scale-[0.98] xl:scale-[1.00] group-hover:scale-[1.03]'
+                } ${
                   hero.isTransparentImage !== false || hero.imageFit === 'contain'
-                    ? isSquare
-                      ? 'object-contain object-bottom drop-shadow-[0_20px_35px_rgba(0,0,0,0.7)]'
-                      : 'object-contain object-bottom drop-shadow-[0_20px_35px_rgba(0,0,0,0.7)]'
+                    ? 'object-contain object-bottom drop-shadow-[0_20px_35px_rgba(0,0,0,0.7)]'
                     : 'object-cover object-bottom'
                 }`}
                 referrerPolicy="no-referrer"
@@ -257,71 +260,7 @@ const Hero: React.FC = () => {
               )}
             </div>
 
-            {/* Floating micro-badges around portrait - Professional balanced composition */}
-            {hero.showWidgets !== false && (
-              <>
-                {/* floating Badge 1: FULL-STACK ARCHITECTURE */}
-                <motion.div
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }}
-                  className="absolute -top-3 sm:-top-5 -left-2 sm:-left-6 z-20 p-2.5 sm:p-3 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/10 hover:border-primary/40 shadow-2xl flex items-center gap-2.5 transition-all duration-300 hover:scale-105"
-                >
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary shrink-0 shadow-sm shadow-primary/20">
-                    <Code2 size={16} />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-[8px] font-bold text-primary uppercase tracking-widest leading-none mb-1">{t('hero_badge_fullstack')}</div>
-                    <div className="text-[11px] font-bold text-white tracking-tight leading-none whitespace-nowrap">{t('hero_badge_clean_code')}</div>
-                  </div>
-                </motion.div>
 
-                {/* floating Badge 2: CREATIVE TECH & HIGH PERFORMANCE (Balanced on Right Side) */}
-                <motion.div
-                  animate={{ y: [0, 6, 0] }}
-                  transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 0.6 }}
-                  className="absolute top-4 sm:top-6 -right-2 sm:-right-8 z-20 p-2.5 sm:p-3 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/10 hover:border-secondary/40 shadow-2xl flex items-center gap-2.5 transition-all duration-300 hover:scale-105"
-                >
-                  <div className="w-8 h-8 rounded-xl bg-secondary/10 border border-secondary/25 flex items-center justify-center text-secondary shrink-0 shadow-sm shadow-secondary/20">
-                    <Cpu size={16} />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-[8px] font-bold text-secondary uppercase tracking-widest leading-none mb-1">{t('hero_badge_ui_ux')}</div>
-                    <div className="text-[11px] font-bold text-white tracking-tight leading-none whitespace-nowrap">{t('hero_badge_scalable_apps')}</div>
-                  </div>
-                </motion.div>
-
-                {/* floating Badge 3: CLOUD & SCALABLE SYSTEMS */}
-                <motion.div
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ repeat: Infinity, duration: 5.2, ease: "easeInOut", delay: 1.2 }}
-                  className="absolute bottom-20 sm:bottom-24 -left-2 sm:-left-8 z-20 p-2.5 sm:p-3 rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/10 hover:border-emerald-500/40 shadow-2xl flex items-center gap-2.5 transition-all duration-300 hover:scale-105"
-                >
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0 shadow-sm shadow-emerald-500/20">
-                    <Database size={16} />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest leading-none mb-1">{t('hero_badge_cloud_api')}</div>
-                    <div className="text-[11px] font-bold text-white tracking-tight leading-none whitespace-nowrap">Node · APIs · Cloud</div>
-                  </div>
-                </motion.div>
-
-                {/* Floating Badge 4: Status Indicator displaying live hire readiness */}
-                <motion.div 
-                  animate={{ y: [0, -7, 0] }}
-                  transition={{ repeat: Infinity, duration: 4.8, ease: "easeInOut", delay: 0.3 }}
-                  className="absolute -bottom-4 sm:-bottom-6 -right-2 sm:-right-6 bg-slate-950/90 backdrop-blur-xl border border-white/10 hover:border-emerald-500/40 p-3 sm:p-4 rounded-2xl shadow-2xl flex items-center gap-3 z-20 transition-all duration-300"
-                >
-                  <div className="relative flex items-center justify-center">
-                    <div className="w-3 h-3 bg-emerald-400 rounded-full animate-ping absolute opacity-75"></div>
-                    <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full relative z-10 shadow-sm shadow-emerald-400/50"></div>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-0.5 leading-none">{t('hero_status')}</p>
-                    <p className="text-xs sm:text-sm font-bold text-white leading-none whitespace-nowrap">{t('hero_accepting_projects')}</p>
-                  </div>
-                </motion.div>
-              </>
-            )}
 
           </motion.div>
 
