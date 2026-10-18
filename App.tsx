@@ -11,7 +11,7 @@ import ProjectDetail from './components/ProjectDetail';
 
 // Context Providers
 import { SiteDataProvider } from './src/context/SiteDataContext';
-import { AdminAuthProvider } from './src/context/AdminAuthContext';
+import { AdminAuthProvider, useAdminAuth } from './src/context/AdminAuthContext';
 import { LanguageProvider } from './src/context/LanguageContext';
 
 // Admin CMS Components
@@ -55,10 +55,10 @@ const AnimatedRoutes: React.FC = () => {
 
         {/* Admin Authentication Route & WordPress-Style URL Direct Access */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/wp-admin" element={<Navigate to="/admin" replace />} />
+        <Route path="/wp-admin" element={<Navigate to="/admin/login" replace />} />
         <Route path="/wp-login" element={<Navigate to="/admin/login" replace />} />
         <Route path="/login" element={<Navigate to="/admin/login" replace />} />
-        <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
+        <Route path="/dashboard" element={<Navigate to="/admin/login" replace />} />
 
         {/* Secure Admin CMS Dashboard Routes */}
         <Route
@@ -91,12 +91,14 @@ const AnimatedRoutes: React.FC = () => {
 const AppShell: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAdminAuth();
   const isAdminRoute =
     location.pathname.startsWith('/admin') ||
     location.pathname.startsWith('/wp-admin') ||
     location.pathname.startsWith('/wp-login');
 
   // Discreet keyboard shortcut (Alt + A or Ctrl + Shift + A) to enter admin dashboard from anywhere on the site
+  // Enforces mandatory re-authentication by calling logout and routing directly to /admin/login
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -105,12 +107,15 @@ const AppShell: React.FC = () => {
       }
       if ((e.altKey && (e.key === 'a' || e.key === 'A')) || (e.ctrlKey && e.shiftKey && (e.key === 'a' || e.key === 'A'))) {
         e.preventDefault();
-        navigate('/admin');
+        try {
+          logout();
+        } catch {}
+        navigate('/admin/login');
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [navigate]);
+  }, [navigate, logout]);
 
   if (isAdminRoute) {
     return (

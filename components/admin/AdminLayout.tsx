@@ -22,20 +22,45 @@ import {
   Layers,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  Check,
   Moon,
   Sun,
   Monitor,
   Sparkles,
+  Mail,
+  User as UserIcon,
+  Clock,
+  FileText,
 } from 'lucide-react';
 
 export type ThemeMode = 'day' | 'night' | 'system';
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAdminAuth();
-  const { messages, isFirebaseConnected, settings, updateSettings, users } = useSiteData();
+  const { messages, isFirebaseConnected, settings, updateSettings, users, roles, currentUser } = useSiteData();
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const activeUser = currentUser || (user ? users.find((u) => u.id === user.id) : null);
+  const displayName = activeUser?.fullName || user?.fullName || user?.username || user?.email?.split('@')[0] || 'Admin';
+  const roleTitle = activeUser?.roleId ? activeUser.roleId.replace(/_/g, ' ') : (user?.roleId ? user.roleId.replace(/_/g, ' ') : 'Super Admin');
+  const avatarUrl = activeUser?.avatarUrl || user?.avatarUrl;
+  const initials = (displayName || 'AD').slice(0, 2).toUpperCase();
+
+  const userRole = roles?.find((r) => r.id === (activeUser?.roleId || user?.roleId));
+  const roleName = userRole?.name || (roleTitle ? roleTitle.toUpperCase() : 'SUPER ADMIN');
+  const userEmail = activeUser?.email || user?.email || 'admin@portfolio.local';
+  const username = activeUser?.username || user?.username || 'admin';
+  const description = activeUser?.notes || userRole?.description || 'Awood buuxda oo maamul, xakameynta amniga (RBAC), iyo beddelidda nidaamka oo dhan.';
+  const lastLoginText = activeUser?.lastLoginAt ? new Date(activeUser.lastLoginAt).toLocaleString() : undefined;
+
+  const siteFaviconUrl =
+    settings?.branding?.faviconUrl ||
+    settings?.branding?.siteIconUrl ||
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%2322c55e'/%3E%3Ctext x='50' y='67' font-size='52' font-family='sans-serif' font-weight='900' text-anchor='middle' fill='%23050b14'%3EM%3C/text%3E%3C/svg%3E";
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(() => {
     try {
@@ -149,6 +174,38 @@ export const AdminLayout: React.FC = () => {
       }
     } catch {}
   }, [isDayMode]);
+
+  // Dropdown open/close state for top bar theme selector and user profile popover
+  const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+  const themeDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const [userProfileDropdownOpen, setUserProfileDropdownOpen] = useState(false);
+  const userProfileDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (themeDropdownRef.current && !themeDropdownRef.current.contains(e.target as Node)) {
+        setThemeDropdownOpen(false);
+      }
+      if (userProfileDropdownRef.current && !userProfileDropdownRef.current.contains(e.target as Node)) {
+        setUserProfileDropdownOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setThemeDropdownOpen(false);
+        setUserProfileDropdownOpen(false);
+      }
+    };
+    if (themeDropdownOpen || userProfileDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [themeDropdownOpen, userProfileDropdownOpen]);
 
   // Determine active nav item cleanly without duplicate query hacks
   const isItemActive = (to: string, exact?: boolean) => {
@@ -292,6 +349,25 @@ export const AdminLayout: React.FC = () => {
           {/* Mobile Language Switcher */}
           <LanguageSelector variant="admin" compact />
 
+          {/* User Account Avatar in Mobile Header Corner */}
+          <div
+            className="flex items-center relative"
+            title={`${displayName} • ${roleTitle}`}
+          >
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="w-7 h-7 rounded-lg object-cover border border-slate-700/80 shadow-sm"
+              />
+            ) : (
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-[10px] shadow-sm">
+                {initials}
+              </div>
+            )}
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-slate-950" />
+          </div>
+
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white cursor-pointer"
@@ -344,92 +420,50 @@ export const AdminLayout: React.FC = () => {
         </button>
 
         <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden relative">
-          {/* Logo Zone & Collapse Button */}
+          {/* Logo Zone & Collapse Button - Standalone Enclosed Section with Bottom Divider */}
           <div
-            className={`border-b border-slate-800 flex items-center transition-all duration-300 ${
+            className={`sticky top-0 z-30 shrink-0 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md transition-all duration-300 ${
               isCollapsed
-                ? 'p-3 flex-col gap-2.5 justify-center items-center'
-                : 'p-4 justify-between items-center'
+                ? 'py-3 px-2'
+                : 'py-3 px-3.5'
             }`}
           >
-            <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center w-full' : 'min-w-0'}`}>
-              {settings?.branding?.logoImageUrl ? (
+            <div className={`flex items-center ${isCollapsed ? 'flex-col gap-2 justify-center' : 'justify-between'}`}>
+              <div className={`flex items-center gap-2.5 ${isCollapsed ? 'justify-center w-full' : 'min-w-0'}`}>
                 <img
-                  src={settings.branding.logoImageUrl}
-                  alt={settings?.branding?.siteName || 'Logo'}
-                  className="w-10 h-10 rounded-full object-cover border border-slate-700/80 shadow-md shrink-0"
+                  src={siteFaviconUrl}
+                  alt={settings?.branding?.siteName || 'Favicon'}
+                  className="w-8 h-8 rounded-xl object-contain border border-slate-700/80 shadow-md shrink-0 p-1 bg-slate-900/90"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
+                    const target = e.target as HTMLImageElement;
+                    target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%2322c55e'/%3E%3Ctext x='50' y='67' font-size='52' font-family='sans-serif' font-weight='900' text-anchor='middle' fill='%23050b14'%3EM%3C/text%3E%3C/svg%3E";
                   }}
                 />
-              ) : (
-                <div
-                  className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#8b151b] via-rose-700 to-rose-600 flex items-center justify-center text-white shadow-md shadow-rose-950/40 shrink-0 font-bold text-sm ring-2 ring-rose-500/20"
-                  title={settings?.branding?.siteName || t('admin_portal')}
-                >
-                  <ShieldCheck size={20} />
-                </div>
-              )}
-              {!isCollapsed && (
-                <div className="truncate min-w-0">
-                  <h1 className="font-bold text-white text-sm tracking-tight truncate">
-                    {settings?.branding?.siteName || t('admin_portal')}
-                  </h1>
-                  <p className="text-[10px] text-slate-400 font-mono truncate">{t('admin_control_center')}</p>
-                </div>
-              )}
+                {!isCollapsed && (
+                  <div className="truncate min-w-0">
+                    <h1 className="font-bold text-white text-sm tracking-tight truncate leading-tight">
+                      {settings?.branding?.siteName || t('admin_portal')}
+                    </h1>
+                    <p className="text-[10px] text-slate-400 font-mono truncate leading-tight mt-0.5">{t('admin_control_center')}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Close button on mobile */}
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white"
+                aria-label="Close Navigation"
+              >
+                <X size={18} />
+              </button>
             </div>
-
-            {/* Close button on mobile */}
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white"
-              aria-label="Close Navigation"
-            >
-              <X size={18} />
-            </button>
           </div>
 
-          {/* Compact Connection Indicator */}
-          <div className={isCollapsed ? 'px-2 pt-3 pb-1 flex justify-center' : 'px-4 pt-3 pb-1'}>
-            {isCollapsed ? (
-              <div
-                className={`w-10 h-10 rounded-xl border flex items-center justify-center relative cursor-help transition-all ${
-                  isFirebaseConnected
-                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
-                    : 'bg-slate-800/60 border-slate-700/60 text-slate-400'
-                }`}
-                title={isFirebaseConnected ? 'Firebase: Synced' : 'Storage: Browser Mode'}
-              >
-                <Database size={16} className="shrink-0 text-slate-300" />
-                <span
-                  className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
-                    isFirebaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
-                  }`}
-                />
-              </div>
-            ) : (
-              <div
-                className={`px-3 py-1.5 rounded-xl border text-[11px] flex items-center justify-between ${
-                  isFirebaseConnected
-                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
-                    : 'bg-slate-800/60 border-slate-700/60 text-slate-400'
-                }`}
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <Database size={13} className="shrink-0 text-slate-300" />
-                  <span className="truncate font-medium">
-                    {isFirebaseConnected ? 'Firebase: Synced' : 'Storage: Browser Mode'}
-                  </span>
-                </div>
-                <span
-                  className={`w-2 h-2 rounded-full shrink-0 ${
-                    isFirebaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
-                  }`}
-                />
-              </div>
-            )}
-          </div>
+          {/* Crisp Horizontal Divider Below Header */}
+          <div className="h-px w-full bg-slate-800/80 shrink-0 shadow-sm" />
+
+
 
           {/* Grouped Navigation Links */}
           <nav className={`space-y-4 flex-1 ${isCollapsed ? 'p-2' : 'p-3'}`}>
@@ -522,60 +556,6 @@ export const AdminLayout: React.FC = () => {
             ))}
           </nav>
 
-          {/* User Account & Unified Sign Out Zone */}
-          <div
-            className={`border-t border-slate-800 bg-slate-950/70 ${
-              isCollapsed ? 'p-2 space-y-2 flex flex-col items-center' : 'p-3 space-y-2.5'
-            }`}
-          >
-            {/* User Account Info */}
-            {isCollapsed ? (
-              <div
-                className="relative cursor-default"
-                title={`${user?.email || 'Admin'} • ${user?.isDemo ? 'Demo Mode' : 'Verified Admin'}`}
-              >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
-                  {user?.email ? user.email.slice(0, 2).toUpperCase() : 'AD'}
-                </div>
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-slate-950" />
-              </div>
-            ) : (
-              <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-slate-900/70 border border-slate-800/80">
-                <div className="relative shrink-0">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
-                    {user?.email ? user.email.slice(0, 2).toUpperCase() : 'AD'}
-                  </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-slate-950" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-white truncate leading-tight">{user?.email || 'Admin'}</p>
-                  <span className="text-[10px] text-slate-400 font-mono block leading-tight">
-                    {user?.isDemo ? 'Demo Mode' : 'Verified Admin'}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Single Unified Professional Sign Out Button */}
-            {isCollapsed ? (
-              <button
-                onClick={handleLogout}
-                title={t('admin_logout')}
-                aria-label={t('admin_logout')}
-                className="w-10 h-10 flex items-center justify-center rounded-xl text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
-              >
-                <LogOut size={16} />
-              </button>
-            ) : (
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 transition-all duration-200 cursor-pointer shadow-sm group active:scale-[0.98]"
-              >
-                <LogOut size={15} className="transition-transform group-hover:-translate-x-0.5" />
-                <span>{t('admin_logout')}</span>
-              </button>
-            )}
-          </div>
         </div>
       </aside>
 
@@ -613,96 +593,179 @@ export const AdminLayout: React.FC = () => {
 
           {/* Header Actions: Day/Night/System Theme Segmented Control, Language Switcher, Live Site */}
           <div className="flex items-center gap-3">
-            {/* Professional Day / Night / System Theme Switcher */}
-            <div
-              className={`flex items-center p-1 rounded-xl border shadow-inner transition-colors ${
-                isDayMode
-                  ? 'bg-slate-100 border-slate-300/80'
-                  : 'bg-slate-900/95 border-slate-800'
-              }`}
-              role="radiogroup"
-              aria-label="Theme mode selector"
-            >
-              {/* Day Option */}
+            {/* Professional Day / Night / System Theme Dropdown */}
+            <div ref={themeDropdownRef} className="relative">
               <button
                 type="button"
-                onClick={() => handleSelectThemeMode('day')}
-                title="Day Mode / Maalin (Iftiin)"
-                aria-checked={themeMode === 'day'}
-                role="radio"
-                className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                  themeMode === 'day'
-                    ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 shadow-sm font-bold scale-[1.02]'
+                onClick={() => setThemeDropdownOpen((prev) => !prev)}
+                title={`Theme Mode: ${themeMode.toUpperCase()} (Riix si aad u doorato)`}
+                aria-expanded={themeDropdownOpen}
+                aria-haspopup="listbox"
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all duration-200 cursor-pointer shadow-sm ${
+                  themeDropdownOpen
+                    ? isDayMode
+                      ? 'bg-amber-500/10 border-amber-500/50 text-slate-900 ring-2 ring-amber-500/20'
+                      : 'bg-indigo-500/20 border-indigo-500/50 text-white ring-2 ring-indigo-500/20'
                     : isDayMode
-                      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                      ? 'bg-slate-100 hover:bg-slate-200/80 border-slate-300 text-slate-800'
+                      : isMidnight
+                        ? 'bg-[#0d1527] hover:bg-[#121c33] border-slate-800 text-slate-200'
+                        : 'bg-slate-900 hover:bg-slate-800/90 border-slate-800 text-slate-200'
                 }`}
               >
-                <Sun
-                  size={14}
-                  className={`transition-transform duration-200 group-hover:rotate-45 ${
-                    themeMode === 'day' ? 'text-amber-500 fill-amber-400/30' : ''
-                  }`}
-                />
-                <span className="tracking-wide">Day</span>
-              </button>
-
-              {/* Night Option */}
-              <button
-                type="button"
-                onClick={() => handleSelectThemeMode('night')}
-                title="Night Mode / Habeen (Mugdi)"
-                aria-checked={themeMode === 'night'}
-                role="radio"
-                className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                  themeMode === 'night'
-                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm font-bold scale-[1.02]'
-                    : isDayMode
-                      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-                }`}
-              >
-                <Moon
-                  size={14}
-                  className={`transition-transform duration-200 group-hover:-rotate-12 ${
-                    themeMode === 'night' ? 'text-indigo-400 fill-indigo-400/30' : ''
-                  }`}
-                />
-                <span className="tracking-wide">Night</span>
-              </button>
-
-              {/* System Option */}
-              <button
-                type="button"
-                onClick={() => handleSelectThemeMode('system')}
-                title="System Auto Mode / Nidaamka Qalabka (Auto Detect)"
-                aria-checked={themeMode === 'system'}
-                role="radio"
-                className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                  themeMode === 'system'
-                    ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 shadow-sm font-bold scale-[1.02]'
-                    : isDayMode
-                      ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-                }`}
-              >
-                <Monitor
-                  size={14}
-                  className={`transition-transform duration-200 group-hover:scale-110 ${
-                    themeMode === 'system' ? 'text-emerald-500' : ''
-                  }`}
-                />
-                <span className="tracking-wide">System</span>
+                {themeMode === 'day' && (
+                  <Sun size={15} className="text-amber-500 fill-amber-400/30 shrink-0" />
+                )}
+                {themeMode === 'night' && (
+                  <Moon size={15} className="text-indigo-400 fill-indigo-400/30 shrink-0" />
+                )}
                 {themeMode === 'system' && (
-                  <span className={`text-[9px] font-mono px-1 py-0.2 rounded border uppercase ${
-                    isSystemDark
-                      ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30'
-                      : 'bg-amber-100 text-amber-700 border-amber-300'
-                  }`}>
+                  <Monitor size={15} className="text-emerald-400 shrink-0" />
+                )}
+
+                <span className="capitalize font-medium">
+                  {themeMode === 'day' ? 'Day' : themeMode === 'night' ? 'Night' : 'System'}
+                </span>
+
+                {themeMode === 'system' && (
+                  <span
+                    className={`text-[9px] font-mono px-1 py-0.2 rounded border uppercase font-bold ${
+                      isSystemDark
+                        ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30'
+                        : 'bg-amber-100 text-amber-700 border-amber-300'
+                    }`}
+                  >
                     {isSystemDark ? 'Dark' : 'Light'}
                   </span>
                 )}
+
+                <ChevronDown
+                  size={13}
+                  className={`text-slate-400 transition-transform duration-200 ${
+                    themeDropdownOpen ? 'rotate-180 text-primary' : ''
+                  }`}
+                />
               </button>
+
+              {/* Theme Dropdown Menu */}
+              {themeDropdownOpen && (
+                <div
+                  role="listbox"
+                  className={`absolute ${
+                    isRTL ? 'left-0' : 'right-0'
+                  } mt-2 w-56 rounded-2xl border p-1.5 shadow-2xl backdrop-blur-xl z-50 animate-in fade-in zoom-in-95 duration-150 ${
+                    isDayMode
+                      ? 'bg-white/95 border-slate-200 text-slate-900 shadow-slate-300/50'
+                      : isMidnight
+                        ? 'bg-[#09101f]/95 border-slate-800 text-slate-100 shadow-black/80'
+                        : 'bg-slate-900/95 border-slate-800 text-slate-100 shadow-black/80'
+                  }`}
+                >
+                  <div className="px-2.5 py-1.5 mb-1 border-b border-slate-700/40 flex items-center justify-between">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold">
+                      Dooro Theme-ka
+                    </span>
+                    <span className="text-[9px] font-mono text-primary font-bold">
+                      {themeMode.toUpperCase()}
+                    </span>
+                  </div>
+
+                  {/* Day Option */}
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={themeMode === 'day'}
+                    onClick={() => {
+                      handleSelectThemeMode('day');
+                      setThemeDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all cursor-pointer ${
+                      themeMode === 'day'
+                        ? isDayMode
+                          ? 'bg-amber-500/15 text-amber-800 font-bold'
+                          : 'bg-amber-500/20 text-amber-300 font-bold'
+                        : isDayMode
+                          ? 'hover:bg-slate-100 text-slate-700'
+                          : 'hover:bg-slate-800/70 text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
+                        <Sun size={15} className="fill-amber-400/30" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-semibold leading-tight">Day (Maalin)</p>
+                        <p className="text-[10px] text-slate-400">Iftiin cad oo nadiif ah</p>
+                      </div>
+                    </div>
+                    {themeMode === 'day' && <Check size={14} className="text-amber-500 shrink-0 ml-2" />}
+                  </button>
+
+                  {/* Night Option */}
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={themeMode === 'night'}
+                    onClick={() => {
+                      handleSelectThemeMode('night');
+                      setThemeDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all cursor-pointer mt-0.5 ${
+                      themeMode === 'night'
+                        ? isDayMode
+                          ? 'bg-indigo-500/15 text-indigo-800 font-bold'
+                          : 'bg-indigo-500/20 text-indigo-300 font-bold'
+                        : isDayMode
+                          ? 'hover:bg-slate-100 text-slate-700'
+                          : 'hover:bg-slate-800/70 text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+                        <Moon size={15} className="fill-indigo-400/30" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-semibold leading-tight">Night (Habeen)</p>
+                        <p className="text-[10px] text-slate-400">Mugdi indhaha u roon</p>
+                      </div>
+                    </div>
+                    {themeMode === 'night' && <Check size={14} className="text-indigo-400 shrink-0 ml-2" />}
+                  </button>
+
+                  {/* System Option */}
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={themeMode === 'system'}
+                    onClick={() => {
+                      handleSelectThemeMode('system');
+                      setThemeDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all cursor-pointer mt-0.5 ${
+                      themeMode === 'system'
+                        ? isDayMode
+                          ? 'bg-emerald-500/15 text-emerald-800 font-bold'
+                          : 'bg-emerald-500/20 text-emerald-300 font-bold'
+                        : isDayMode
+                          ? 'hover:bg-slate-100 text-slate-700'
+                          : 'hover:bg-slate-800/70 text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                        <Monitor size={15} />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-semibold leading-tight">System Auto</p>
+                        <p className="text-[10px] text-slate-400">
+                          La jaanqaad qalabka ({isSystemDark ? 'Dark' : 'Light'})
+                        </p>
+                      </div>
+                    </div>
+                    {themeMode === 'system' && <Check size={14} className="text-emerald-400 shrink-0 ml-2" />}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Multi-language Selector (English, Somali, Arabic) */}
@@ -723,6 +786,152 @@ export const AdminLayout: React.FC = () => {
               <ExternalLink size={13} />
               <span>{t('admin_live_site')}</span>
             </Link>
+
+            {/* Subtle Divider */}
+            <div className={`h-6 w-px ${isDayMode ? 'bg-slate-300' : 'bg-slate-800'} mx-0.5`} />
+
+            {/* User Profile Dropdown Popover in Top Header Corner */}
+            <div ref={userProfileDropdownRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setUserProfileDropdownOpen((prev) => !prev)}
+                aria-expanded={userProfileDropdownOpen}
+                aria-haspopup="dialog"
+                title={`${displayName} (@${username}) • Riix si aad u aragto profile-ka`}
+                className={`flex items-center gap-2.5 py-1.5 px-3 rounded-xl border transition-all duration-200 cursor-pointer shadow-sm group ${
+                  userProfileDropdownOpen
+                    ? isDayMode
+                      ? 'bg-primary/10 border-primary text-slate-900 ring-2 ring-primary/20'
+                      : 'bg-primary/20 border-primary/60 text-white ring-2 ring-primary/20'
+                    : isDayMode
+                      ? 'bg-slate-100 hover:bg-slate-200/80 border-slate-300 text-slate-800'
+                      : isMidnight
+                        ? 'bg-[#0b1220] hover:bg-[#121c33] border-slate-800 text-white'
+                        : 'bg-slate-900/90 hover:bg-slate-850 border-slate-800 text-white'
+                }`}
+              >
+                <div className="relative shrink-0">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={displayName}
+                      className="w-7 h-7 rounded-lg object-cover border border-slate-700/80 shadow-sm"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-[11px] shadow-sm">
+                      {initials}
+                    </div>
+                  )}
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-slate-950 animate-pulse" />
+                </div>
+                <div className="hidden xl:block text-left min-w-0 max-w-[130px]">
+                  <p className={`text-xs font-semibold leading-tight truncate ${isDayMode ? 'text-slate-900' : 'text-white'}`}>
+                    {displayName}
+                  </p>
+                  <span className={`text-[10px] font-mono block leading-tight capitalize truncate ${isDayMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                    {roleTitle}
+                  </span>
+                </div>
+                <ChevronDown
+                  size={13}
+                  className={`text-slate-400 transition-transform duration-200 ${
+                    userProfileDropdownOpen ? 'rotate-180 text-primary' : 'group-hover:text-slate-200'
+                  }`}
+                />
+              </button>
+
+              {/* User Profile Popover Card - Compact, Organized & Executive Design */}
+              {userProfileDropdownOpen && (
+                <div
+                  className={`absolute ${
+                    isRTL ? 'left-0' : 'right-0'
+                  } mt-2 w-72 sm:w-80 rounded-2xl border p-3 shadow-2xl backdrop-blur-2xl z-50 animate-in fade-in zoom-in-95 duration-150 ${
+                    isDayMode
+                      ? 'bg-white/95 border-slate-200 text-slate-900 shadow-slate-300/50'
+                      : isMidnight
+                        ? 'bg-[#09101f]/95 border-slate-800 text-slate-100 shadow-black/80'
+                        : 'bg-slate-900/95 border-slate-800 text-slate-100 shadow-black/80'
+                  }`}
+                >
+                  {/* Compact Header: Avatar + Identity */}
+                  <div className="flex items-center gap-3 p-1 pb-2.5 border-b border-slate-800/70">
+                    <div className="relative shrink-0">
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          alt={displayName}
+                          className="w-10 h-10 rounded-xl object-cover border border-primary/30 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                          {initials}
+                        </div>
+                      )}
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-slate-950" />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1">
+                        <h4 className={`text-xs font-bold truncate leading-tight ${isDayMode ? 'text-slate-900' : 'text-white'}`}>
+                          {displayName}
+                        </h4>
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
+                          Active
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-primary font-mono truncate leading-tight mt-0.5">
+                        @{username}
+                      </p>
+                      <span className={`inline-block text-[10px] font-medium capitalize truncate mt-0.5 ${isDayMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                        {roleName}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Compact Body: Essential User Info */}
+                  <div className="py-2.5 px-1 space-y-2 text-xs">
+                    {/* Email item */}
+                    <div className="flex items-center gap-2 text-[11px]">
+                      <Mail size={13} className="text-slate-400 shrink-0" />
+                      <span className={`truncate font-medium ${isDayMode ? 'text-slate-700' : 'text-slate-200'}`} title={userEmail}>
+                        {userEmail}
+                      </span>
+                    </div>
+
+                    {/* Description snippet */}
+                    <div className="flex items-start gap-2 text-[11px]">
+                      <FileText size={13} className="text-slate-400 shrink-0 mt-0.5" />
+                      <p className={`line-clamp-2 leading-relaxed text-[11px] ${isDayMode ? 'text-slate-600' : 'text-slate-300'}`} title={description}>
+                        {description}
+                      </p>
+                    </div>
+
+                    {/* Last active info */}
+                    {lastLoginText && (
+                      <div className={`flex items-center gap-2 pt-0.5 text-[10px] font-mono ${isDayMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                        <Clock size={11} className="shrink-0" />
+                        <span className="truncate">Joogitaankii: {lastLoginText}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Compact Footer: Sleek Sign Out Button */}
+                  <div className="pt-2 border-t border-slate-800/70">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserProfileDropdownOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full py-1.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 text-rose-300 hover:text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer shadow-sm active:scale-[0.98]"
+                    >
+                      <LogOut size={13} />
+                      <span>Ka Bax (Sign Out)</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

@@ -306,15 +306,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   });
 
-  const [currentUser, setCurrentUser] = useState<SystemUser | null>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.USERS);
-      const parsed = saved ? JSON.parse(saved) : INITIAL_SYSTEM_USERS;
-      return parsed.find((u: SystemUser) => u.roleId === 'super_admin') || parsed[0] || null;
-    } catch {
-      return INITIAL_SYSTEM_USERS[0] || null;
-    }
-  });
+  const [currentUser, setCurrentUser] = useState<SystemUser | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFirebaseConnected, setIsFirebaseConnected] = useState<boolean>(true);

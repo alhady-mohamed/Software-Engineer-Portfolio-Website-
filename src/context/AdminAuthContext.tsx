@@ -32,15 +32,22 @@ const AUTH_STORAGE_KEY = 'portfolio_admin_auth_user_v2';
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { users, roles, updateUser, logAction, logSecurityEvent, currentUser, setCurrentUser } = useSiteData();
 
-  const [user, setUser] = useState<AdminUser | null>(() => {
-    try {
-      const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  // Strict session authentication: Never persist authenticated user across page reloads or new visits
+  const [user, setUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Clear any existing legacy authentication tokens from localStorage and sessionStorage
+  useEffect(() => {
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem('portfolio_admin_auth_user');
+      localStorage.removeItem('portfolio_admin_auth');
+      localStorage.removeItem('portfolio_admin_auth_session');
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      sessionStorage.removeItem('portfolio_admin_auth_user');
+      sessionStorage.removeItem('portfolio_admin_auth');
+    } catch {}
+  }, []);
 
   // Synchronize authenticated user with SiteDataContext's currentUser
   useEffect(() => {
@@ -68,8 +75,8 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       isDemo: false,
     };
 
+    // User is kept in session memory only - not in localStorage
     setUser(authUser);
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser));
 
     // Update active user in SiteDataContext
     setCurrentUser(matched);
@@ -301,7 +308,13 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     setUser(null);
     setCurrentUser(null);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem('portfolio_admin_auth_user');
+      localStorage.removeItem('portfolio_admin_auth');
+      localStorage.removeItem('portfolio_admin_auth_session');
+      sessionStorage.clear();
+    } catch {}
   };
 
   const activeSystemUser = currentUser || (user ? users.find((u) => u.id === user.id) || null : null);

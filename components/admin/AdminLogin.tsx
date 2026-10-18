@@ -15,9 +15,8 @@ import {
   Sliders,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
 export const AdminLogin: React.FC = () => {
-  const { loginWithPassword, isAuthenticated, isLoading } = useAdminAuth();
+  const { loginWithPassword, logout, isLoading } = useAdminAuth();
   const { isFirebaseConnected } = useSiteData();
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,11 +29,11 @@ export const AdminLogin: React.FC = () => {
 
   const from = (location.state as any)?.from?.pathname || '/admin';
 
+  // Always reset and logout any in-memory session when arriving at login page
+  // Ensures username and password must be explicitly entered every single time
   React.useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/admin', { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
+    logout();
+  }, []);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
