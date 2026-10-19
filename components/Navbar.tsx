@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Code2, Sun, Moon } from 'lucide-react';
+import { Menu, X, Code2, Sun, Moon, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NavLink, Link } from 'react-router-dom';
 import { NAV_ITEMS } from '../constants';
 import { useSiteData } from '../src/context/SiteDataContext';
 import { useLanguage } from '../src/context/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
+import { QuoteModal } from './QuoteModal';
 
 /**
  * Global Header Navbar Component
@@ -22,6 +23,8 @@ const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // handles visual mode context
   const [isDark, setIsDark] = useState(true);
+  // Interactive Project Scoping & Quote Modal state
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
   useEffect(() => {
     // Check local storage or system preference to read saved user design theme
@@ -84,7 +87,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 ${isQuoteModalOpen ? 'z-[99999]' : 'z-50'} transition-all duration-300 ${
         isScrolled
           ? 'bg-dark/95 backdrop-blur-md border-b border-white/10 py-3 lg:py-4'
           : 'bg-dark/50 backdrop-blur-sm py-4 lg:py-6'
@@ -172,14 +175,18 @@ const Navbar: React.FC = () => {
               {isDark ? <Sun size={18} className="lg:w-5 lg:h-5" /> : <Moon size={18} className="lg:w-5 lg:h-5" />}
             </button>
 
-            {/* Action Call for custom engagement */}
+            {/* Action Call for custom engagement - Get a Quote */}
             <a
-              href={settings.whatsappNumber || "https://wa.link/cs6dy4"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1.5 md:px-3.5 md:py-1.5 lg:px-5 lg:py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-all text-xs lg:text-sm font-medium text-white shadow-sm whitespace-nowrap shrink-0 hover:border-white/20 hover:scale-[1.02]"
+              href="#quote"
+              role="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsQuoteModalOpen(true);
+              }}
+              className="px-3.5 py-1.5 md:px-4 md:py-1.5 lg:px-5 lg:py-2 rounded-full bg-gradient-to-r from-primary via-amber-400 to-yellow-400 hover:from-primary/95 hover:via-amber-300 hover:to-yellow-300 text-slate-950 font-bold text-xs lg:text-sm shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/35 hover:scale-[1.03] active:scale-[0.98] transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 cursor-pointer border border-primary/30 group"
             >
-              {t('nav_hire_me')}
+              <Sparkles size={14} className="text-slate-950 group-hover:rotate-12 transition-transform duration-300 shrink-0" />
+              <span>Get a Quote</span>
             </a>
           </div>
         </div>
@@ -231,19 +238,27 @@ const Navbar: React.FC = () => {
                 <span className="text-xs text-slate-400 font-medium">Luqadda / Language:</span>
                 <LanguageSelector variant="public" />
               </div>
-              <a
-                href={settings.whatsappNumber || "https://wa.link/cs6dy4"}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="mt-2 text-center px-5 py-3 rounded-lg bg-primary text-dark font-bold hover:opacity-90 transition-colors"
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsQuoteModalOpen(true);
+                }}
+                className="mt-2 w-full text-center px-5 py-3 rounded-xl bg-gradient-to-r from-primary via-amber-400 to-yellow-400 text-slate-950 font-bold text-sm shadow-lg shadow-primary/20 hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                {t('nav_hire_me')}
-              </a>
+                <Sparkles size={16} />
+                <span>Get a Quote</span>
+              </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Interactive Project Scoping & Quote Consultation Modal */}
+      <QuoteModal
+        isOpen={isQuoteModalOpen}
+        onClose={() => setIsQuoteModalOpen(false)}
+      />
     </nav>
   );
 };
