@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SKILLS_DATA, EXPERIENCE } from '../constants';
 import {
   Palette,
@@ -16,10 +16,19 @@ import {
   ArrowRight,
   ShieldCheck,
   Cpu,
-  Target
+  Target,
+  Plus,
+  Edit2,
+  Trash2,
+  ExternalLink,
+  X,
+  Check,
+  RotateCcw,
+  Link as LinkIcon
 } from 'lucide-react';
-import { motion, animate, useInView } from 'framer-motion';
+import { motion, animate, useInView, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { CertificationItem } from '../types';
 
 /**
  * AnimatedCounter Component
@@ -64,9 +73,92 @@ const AnimatedCounter = ({ to, suffix, delay = 0 }: { to: number; suffix: string
  * 7. Call To Action (Project inquiry prompt)
  */
 import { useSiteData } from '../src/context/SiteDataContext';
+import { useLanguage } from '../src/context/LanguageContext';
+import { useAdminAuth } from '../src/context/AdminAuthContext';
+
+const DEFAULT_CERTIFICATIONS: CertificationItem[] = [
+  {
+    id: 'cert-1',
+    title: 'AWS Certified Solutions Architect',
+    issuer: 'Amazon Web Services • Cloud Infrastructure',
+    dateOrValidity: 'Valid 2026',
+    badgeText: 'Valid 2026',
+    verificationUrl: 'https://aws.amazon.com/verification',
+    iconType: 'award',
+  },
+  {
+    id: 'cert-2',
+    title: 'Frontend Developer Professional',
+    issuer: 'Meta / Coursera • React & Modern Web',
+    dateOrValidity: '2022',
+    badgeText: 'Verified',
+    verificationUrl: 'https://coursera.org/verify',
+    iconType: 'code',
+  },
+  {
+    id: 'cert-3',
+    title: '1st Place Winner - Best Innovation',
+    issuer: 'TechHackathon 2021 • Real-Time Web Platform',
+    dateOrValidity: 'Winner',
+    badgeText: 'Winner',
+    verificationUrl: '',
+    iconType: 'sparkles',
+  },
+];
+
+const CERT_PRESETS = [
+  {
+    name: 'AWS Solutions Architect',
+    title: 'AWS Certified Solutions Architect - Associate',
+    issuer: 'Amazon Web Services (AWS)',
+    dateOrValidity: 'Valid 2027',
+    badgeText: 'AWS Certified',
+    verificationUrl: 'https://aws.amazon.com/verification',
+    iconType: 'award' as const,
+  },
+  {
+    name: 'Google Cloud Engineer',
+    title: 'Google Cloud Certified Professional Cloud Architect',
+    issuer: 'Google Cloud Platform (GCP)',
+    dateOrValidity: 'Valid 2026',
+    badgeText: 'GCP Certified',
+    verificationUrl: 'https://cloud.google.com/certification',
+    iconType: 'award' as const,
+  },
+  {
+    name: 'Meta Frontend Professional',
+    title: 'Meta Frontend Developer Professional Certificate',
+    issuer: 'Meta / Coursera • React & Modern Web',
+    dateOrValidity: '2024',
+    badgeText: 'Verified',
+    verificationUrl: 'https://coursera.org/verify',
+    iconType: 'code' as const,
+  },
+  {
+    name: 'Hackathon 1st Place',
+    title: '1st Place Winner - Best Technical Innovation',
+    issuer: 'Global TechHackathon • Real-Time Web Platform',
+    dateOrValidity: 'Winner',
+    badgeText: 'Winner',
+    verificationUrl: '',
+    iconType: 'sparkles' as const,
+  },
+  {
+    name: 'CompTIA Security+',
+    title: 'CompTIA Security+ Certified Systems Engineer',
+    issuer: 'CompTIA • Cybersecurity Infrastructure',
+    dateOrValidity: 'Valid 2026',
+    badgeText: 'Sec+ Certified',
+    verificationUrl: 'https://www.comptia.org/certifications/security',
+    iconType: 'shield' as const,
+  },
+];
 
 const About: React.FC = () => {
-  const { timelines, settings } = useSiteData();
+  const { timelines, settings, updateSettings } = useSiteData();
+  const { t, language } = useLanguage();
+  const { isAuthenticated } = useAdminAuth();
+  const isSomali = language === 'so';
 
   const aboutSettings = settings.about || {
     introBadge: 'Get to know me',
@@ -94,8 +186,130 @@ const About: React.FC = () => {
       'PostgreSQL', 'Python', 'Framer Motion', 'Figma', 'Premiere Pro',
       'After Effects', 'Docker', 'GraphQL', 'Git'
     ],
+    certifications: DEFAULT_CERTIFICATIONS,
     standardsTitle: 'Architecture Standards',
     standardsDescription: 'All projects adhere to WCAG accessibility, strict TypeScript validation, responsive design patterns, and SEO best practices.',
+  };
+
+  // Certifications dynamic data and modal state
+  const dynamicCertifications: CertificationItem[] =
+    aboutSettings.certifications && aboutSettings.certifications.length > 0
+      ? aboutSettings.certifications
+      : DEFAULT_CERTIFICATIONS;
+
+  const [isCertModalOpen, setIsCertModalOpen] = useState(false);
+  const [editingCert, setEditingCert] = useState<CertificationItem | null>(null);
+  const [isSavingCert, setIsSavingCert] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const [certForm, setCertForm] = useState<{
+    title: string;
+    issuer: string;
+    dateOrValidity: string;
+    badgeText: string;
+    verificationUrl: string;
+    iconType: 'award' | 'code' | 'sparkles' | 'shield' | 'check';
+  }>({
+    title: '',
+    issuer: '',
+    dateOrValidity: 'Valid 2026',
+    badgeText: 'Verified',
+    verificationUrl: '',
+    iconType: 'award',
+  });
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleOpenAddCert = () => {
+    setEditingCert(null);
+    setCertForm({
+      title: '',
+      issuer: '',
+      dateOrValidity: 'Valid ' + (new Date().getFullYear() + 2),
+      badgeText: 'Verified',
+      verificationUrl: '',
+      iconType: 'award',
+    });
+    setIsCertModalOpen(true);
+  };
+
+  const handleOpenEditCert = (cert: CertificationItem) => {
+    setEditingCert(cert);
+    setCertForm({
+      title: cert.title,
+      issuer: cert.issuer,
+      dateOrValidity: cert.dateOrValidity,
+      badgeText: cert.badgeText || '',
+      verificationUrl: cert.verificationUrl || '',
+      iconType: cert.iconType || 'award',
+    });
+    setIsCertModalOpen(true);
+  };
+
+  const handleDeleteCert = async (certId: string, certTitle: string) => {
+    if (!window.confirm(`Ma hubtaa inaad tirtirto shahaadada "${certTitle}"?`)) return;
+    const currentList = aboutSettings.certifications && aboutSettings.certifications.length > 0
+      ? aboutSettings.certifications
+      : DEFAULT_CERTIFICATIONS;
+    const updated = currentList.filter((c) => c.id !== certId);
+
+    await updateSettings({
+      about: {
+        ...aboutSettings,
+        certifications: updated,
+      },
+    });
+    showToast(`Shahaadadii "${certTitle}" waa la tirtiray`);
+  };
+
+  const handleSaveCert = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!certForm.title.trim()) return;
+
+    setIsSavingCert(true);
+    const currentList = aboutSettings.certifications && aboutSettings.certifications.length > 0
+      ? aboutSettings.certifications
+      : DEFAULT_CERTIFICATIONS;
+
+    let updatedList: CertificationItem[];
+    if (editingCert) {
+      updatedList = currentList.map((c) =>
+        c.id === editingCert.id
+          ? { ...c, ...certForm, id: editingCert.id }
+          : c
+      );
+    } else {
+      const newCert: CertificationItem = {
+        id: 'cert-' + Date.now(),
+        ...certForm,
+      };
+      updatedList = [...currentList, newCert];
+    }
+
+    await updateSettings({
+      about: {
+        ...aboutSettings,
+        certifications: updatedList,
+      },
+    });
+
+    setIsSavingCert(false);
+    setIsCertModalOpen(false);
+    showToast(editingCert ? 'Shahaadada si guul leh ayaa loo cusbooneysiiyay!' : 'Shahaado cusub ayaa si guul leh loogu daray!');
+  };
+
+  const handleApplyPreset = (preset: typeof CERT_PRESETS[0]) => {
+    setCertForm({
+      title: preset.title,
+      issuer: preset.issuer,
+      dateOrValidity: preset.dateOrValidity,
+      badgeText: preset.badgeText,
+      verificationUrl: preset.verificationUrl,
+      iconType: preset.iconType,
+    });
   };
 
   const dynamicMetrics = aboutSettings.metrics && aboutSettings.metrics.length > 0 ? aboutSettings.metrics : [
@@ -427,13 +641,15 @@ const About: React.FC = () => {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase mb-3">
               <Briefcase size={14} />
-              <span>Career Track</span>
+              <span>{isSomali ? 'Waayo-aragnimo Shaqo' : 'Career Track'}</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Work Experience & Roles
+              {isSomali ? 'Waayo-aragnimada Shaqada & Khibradda' : 'Work Experience & Roles'}
             </h2>
             <p className="text-gray-400 text-base">
-              A chronological overview of impactful technical leadership, agency collaboration, and engineering delivery.
+              {isSomali
+                ? 'Taariikh taxan oo ku saabsan hoggaaminta farsamada, shirkadaha la shaqeeyay, iyo mashaariicda la fuliyay.'
+                : 'A chronological overview of impactful technical leadership, agency collaboration, and engineering delivery.'}
             </p>
           </div>
 
@@ -486,13 +702,15 @@ const About: React.FC = () => {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-secondary/20 bg-secondary/10 text-secondary text-xs font-bold tracking-wider uppercase mb-3">
               <GraduationCap size={14} />
-              <span>Credentials</span>
+              <span>{isSomali ? 'Shahaadooyin & Aqoonsiyo' : 'Credentials'}</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Education & Certifications
+              {isSomali ? 'Waxbarashada & Shahaadooyinka' : 'Education & Certifications'}
             </h2>
             <p className="text-gray-400 text-base">
-              Formal foundation in computer science paired with verified industry credentials and hackathon accolades.
+              {isSomali
+                ? 'Aqoonta heer jaamacadeed oo ay weheliyaan shahaadooyin caalami ah iyo aqoonsiyo la xaqiijiyay.'
+                : 'Formal foundation in computer science paired with verified industry credentials and hackathon accolades.'}
             </p>
           </div>
 
@@ -502,37 +720,62 @@ const About: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="lg:col-span-5 bg-slate-900/50 p-8 rounded-3xl border border-white/10 shadow-xl"
+              className="lg:col-span-5 bg-slate-900/50 p-8 rounded-3xl border border-white/10 shadow-xl space-y-4"
             >
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-2">
                 <div className="p-3 bg-secondary/10 text-secondary rounded-xl border border-secondary/20">
                   <GraduationCap size={24} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Academic Degree</h3>
-                  <span className="text-xs text-gray-400">Formal Higher Education</span>
+                  <h3 className="text-xl font-bold text-white">
+                    {isSomali ? 'Shahaado Jaamacadeed' : 'Academic Degree'}
+                  </h3>
+                  <span className="text-xs text-gray-400">
+                    {isSomali ? 'Waxbarashada Sare ee Rasmiga ah' : 'Formal Higher Education'}
+                  </span>
                 </div>
               </div>
 
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
-                <div className="flex justify-between items-start gap-3">
-                  <h4 className="text-lg font-bold text-white">
-                    {dynamicEducation?.title || "B.S. in Software Engineering"}
-                  </h4>
-                  <span className="text-xs font-semibold text-secondary bg-secondary/10 px-2.5 py-1 rounded-full border border-secondary/20">
-                    {dynamicEducation?.period || "2022 - 2026"}
-                  </span>
+              {timelines.filter((t) => t.type === 'education').length > 0 ? (
+                timelines
+                  .filter((t) => t.type === 'education')
+                  .map((edu) => (
+                    <div key={edu.id} className="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-3">
+                      <div className="flex justify-between items-start gap-3">
+                        <h4 className="text-lg font-bold text-white">{edu.title}</h4>
+                        <span className="text-xs font-semibold text-secondary bg-secondary/10 px-2.5 py-1 rounded-full border border-secondary/20 shrink-0">
+                          {edu.period}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-300 font-medium">{edu.institution}</p>
+                      <p className="text-xs text-gray-400 leading-relaxed">{edu.description}</p>
+                      {edu.skills && edu.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {edu.skills.map((s, idx) => (
+                            <span key={idx} className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+              ) : (
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
+                  <div className="flex justify-between items-start gap-3">
+                    <h4 className="text-lg font-bold text-white">B.S. in Software Engineering</h4>
+                    <span className="text-xs font-semibold text-secondary bg-secondary/10 px-2.5 py-1 rounded-full border border-secondary/20">
+                      2022 - 2026
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-300 font-medium">
+                    University of Technology • Graduated with Honors
+                  </p>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    Focus on Data Structures, Algorithms, Distributed Computing, Software Engineering, and Human-Computer Interaction (HCI).
+                  </p>
                 </div>
-                <p className="text-sm text-gray-300 font-medium">
-                  {dynamicEducation?.institution
-                    ? `${dynamicEducation.institution} • Graduated with Honors`
-                    : "University of Technology • Graduated with Honors"}
-                </p>
-                <p className="text-xs text-gray-400 leading-relaxed">
-                  {dynamicEducation?.description ||
-                    "Focus on Data Structures, Algorithms, Distributed Computing, Software Engineering, and Human-Computer Interaction (HCI)."}
-                </p>
-              </div>
+              )}
             </motion.div>
 
             {/* Certifications & Awards List */}
@@ -541,64 +784,400 @@ const About: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="lg:col-span-7 bg-slate-900/50 p-8 rounded-3xl border border-white/10 shadow-xl space-y-4"
+              className="lg:col-span-7 bg-slate-900/50 p-8 rounded-3xl border border-white/10 shadow-xl space-y-5 relative"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-primary/10 text-primary rounded-xl border border-primary/20">
-                  <Award size={24} />
+              {/* Toast Notification */}
+              {toastMessage && (
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-xl bg-primary text-slate-950 font-bold text-xs shadow-xl flex items-center gap-2 animate-fadeIn">
+                  <CheckCircle2 size={16} />
+                  <span>{toastMessage}</span>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">Certifications & Honors</h3>
-                  <span className="text-xs text-gray-400">Accreditations & Industry Recognition</span>
+              )}
+
+              {/* Header with Title and Add Button */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-primary/10 text-primary rounded-xl border border-primary/20">
+                    <Award size={24} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xl font-bold text-white">
+                        {isSomali ? 'Shahaadooyinka & Aqoonsiyada' : 'Certifications & Honors'}
+                      </h3>
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25">
+                        {dynamicCertifications.length} {isSomali ? 'La Xaqiijiyay' : 'Verified'}
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      {isSomali
+                        ? 'Aqoonsiyo rasmi ah, liisanno la hubiyay & aqoonsi caalami ah'
+                        : 'Accreditations, Verified Licenses & Industry Recognition'}
+                    </span>
+                  </div>
                 </div>
+
+                {isAuthenticated && (
+                  <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleOpenAddCert}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-slate-950 font-bold text-xs shadow-md shadow-primary/20 transition-all cursor-pointer"
+                    >
+                      <Plus size={14} />
+                      <span>{isSomali ? 'Ku dar Shahaado' : 'Add Certification'}</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
+              {/* Dynamic Certifications List */}
               <div className="space-y-3.5">
-                <div className="p-4 rounded-2xl border border-white/5 bg-white/5 flex items-center justify-between gap-4 hover:border-primary/30 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                      <Award size={20} />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-sm">AWS Certified Solutions Architect</h4>
-                      <p className="text-xs text-gray-400">Amazon Web Services • Cloud Infrastructure</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20 shrink-0">
-                    Valid 2026
-                  </span>
-                </div>
+                {dynamicCertifications.map((cert) => {
+                  const getIconComponent = (icon?: string) => {
+                    switch (icon) {
+                      case 'code':
+                        return <Code2 size={20} />;
+                      case 'sparkles':
+                        return <Sparkles size={20} />;
+                      case 'shield':
+                        return <ShieldCheck size={20} />;
+                      case 'check':
+                        return <CheckCircle2 size={20} />;
+                      case 'award':
+                      default:
+                        return <Award size={20} />;
+                    }
+                  };
 
-                <div className="p-4 rounded-2xl border border-white/5 bg-white/5 flex items-center justify-between gap-4 hover:border-primary/30 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                      <Code2 size={20} />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-sm">Frontend Developer Professional</h4>
-                      <p className="text-xs text-gray-400">Meta / Coursera • React & Modern Web</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-gray-300 bg-white/5 px-3 py-1 rounded-full border border-white/10 shrink-0">
-                    2022
-                  </span>
-                </div>
+                  const getIconColor = (icon?: string) => {
+                    switch (icon) {
+                      case 'code':
+                        return 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20';
+                      case 'sparkles':
+                        return 'bg-secondary/10 text-secondary border border-secondary/20';
+                      case 'shield':
+                        return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                      case 'check':
+                        return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+                      case 'award':
+                      default:
+                        return 'bg-primary/10 text-primary border border-primary/20';
+                    }
+                  };
 
-                <div className="p-4 rounded-2xl border border-white/5 bg-white/5 flex items-center justify-between gap-4 hover:border-secondary/30 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-                      <Sparkles size={20} />
+                  const getBadgeColor = (icon?: string) => {
+                    switch (icon) {
+                      case 'code':
+                        return 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20';
+                      case 'sparkles':
+                        return 'bg-secondary/10 text-secondary border-secondary/20';
+                      case 'shield':
+                        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                      case 'check':
+                        return 'bg-blue-500/10 text-blue-300 border-blue-500/20';
+                      case 'award':
+                      default:
+                        return 'bg-primary/10 text-primary border border-primary/20';
+                    }
+                  };
+
+                  return (
+                    <div
+                      key={cert.id}
+                      className="p-4 rounded-2xl border border-white/5 bg-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-primary/30 hover:bg-white/[0.08] transition-all group"
+                    >
+                      <div className="flex items-start sm:items-center gap-3.5">
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${getIconColor(cert.iconType)}`}>
+                          {getIconComponent(cert.iconType)}
+                        </div>
+                        <div>
+                          <h4 className="text-white font-bold text-sm group-hover:text-primary transition-colors">
+                            {cert.title}
+                          </h4>
+                          <p className="text-xs text-gray-400">
+                            {cert.issuer}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                        {cert.badgeText && (
+                          <span className={`text-xs font-bold px-3 py-1 rounded-full border shrink-0 ${getBadgeColor(cert.iconType)}`}>
+                            {cert.badgeText}
+                          </span>
+                        )}
+
+                        {cert.verificationUrl && (
+                          <a
+                            href={cert.verificationUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-primary/20 text-gray-300 hover:text-primary border border-white/10 hover:border-primary/30 text-xs font-medium transition-all"
+                            title={isSomali ? 'Xaqiiji Shahaadada (Verify Credential)' : 'Verify Credential'}
+                          >
+                            <ExternalLink size={12} />
+                            <span className="hidden sm:inline">{isSomali ? 'Xaqiiji' : 'Verify'}</span>
+                          </a>
+                        )}
+
+                        {isAuthenticated && (
+                          <div className="flex items-center gap-1 pl-1 border-l border-white/10">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditCert(cert)}
+                              className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                              title="Wax ka bedel shahaadadan"
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCert(cert.id, cert.title)}
+                              className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                              title="Tirtir shahaadadan"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-white font-bold text-sm">1st Place Winner - Best Innovation</h4>
-                      <p className="text-xs text-gray-400">TechHackathon 2021 • Real-Time Web Platform</p>
-                    </div>
+                  );
+                })}
+
+                {dynamicCertifications.length === 0 && (
+                  <div className="text-center py-10 px-4 rounded-2xl border border-dashed border-white/10 bg-white/[0.02]">
+                    <Award size={32} className="mx-auto text-gray-500 mb-2 opacity-50" />
+                    <p className="text-sm font-medium text-gray-300">
+                      {isSomali ? 'Weli wax shahaadooyin ah kuma jiraan' : 'No credentials yet'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1 mb-4">
+                      {isSomali
+                        ? 'Shahaadooyinka iyo aqoonsiyada rasmiga ah halkan ayay ka soo muuqanayaan.'
+                        : 'Official certifications and verified licenses will appear here.'}
+                    </p>
+                    {isAuthenticated && (
+                      <button
+                        type="button"
+                        onClick={handleOpenAddCert}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-slate-950 font-bold text-xs cursor-pointer"
+                      >
+                        <Plus size={14} />
+                        <span>{isSomali ? 'Ku dar Shahaado' : 'Add Certification'}</span>
+                      </button>
+                    )}
                   </div>
-                  <span className="text-xs font-bold text-secondary bg-secondary/10 px-3 py-1 rounded-full border border-secondary/20 shrink-0">
-                    Winner
-                  </span>
-                </div>
+                )}
               </div>
+
+              {/* Interactive Modal for Adding / Editing Certification */}
+              <AnimatePresence>
+                {isCertModalOpen && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto"
+                    >
+                      {/* Modal Header */}
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                            <Award size={20} />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-white">
+                              {editingCert ? 'Wax ka bedel Shahaadada' : 'Ku dar Shahaado Cusub'}
+                            </h3>
+                            <p className="text-xs text-slate-400">
+                              Geli macluumaadka shahaadada iyo xiriirka xaqiijinta (Verification URL)
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsCertModalOpen(false)}
+                          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+
+                      {/* Quick Presets Selection */}
+                      <div className="space-y-2">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                          Tusaalayaal Diyaar ah (Quick Presets):
+                        </label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {CERT_PRESETS.map((preset) => (
+                            <button
+                              key={preset.name}
+                              type="button"
+                              onClick={() => handleApplyPreset(preset)}
+                              className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 hover:border-primary/40 transition-all cursor-pointer flex items-center gap-1"
+                            >
+                              <Plus size={11} className="text-primary" />
+                              <span>{preset.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Form inputs */}
+                      <form onSubmit={handleSaveCert} className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                            Magaca Shahaadada (Title) *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={certForm.title}
+                            onChange={(e) => setCertForm({ ...certForm, title: e.target.value })}
+                            placeholder="e.g. AWS Certified Solutions Architect"
+                            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:border-primary focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                            Hay'adda Bixisay (Issuer & Category) *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={certForm.issuer}
+                            onChange={(e) => setCertForm({ ...certForm, issuer: e.target.value })}
+                            placeholder="e.g. Amazon Web Services • Cloud Infrastructure"
+                            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:border-primary focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                              Xilliga / Taariikhda (Validity)
+                            </label>
+                            <input
+                              type="text"
+                              value={certForm.dateOrValidity}
+                              onChange={(e) => setCertForm({ ...certForm, dateOrValidity: e.target.value })}
+                              placeholder="e.g. Valid 2026 ama 2024"
+                              className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:border-primary focus:outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                              Qoraalka Badge-ka (Badge Text)
+                            </label>
+                            <input
+                              type="text"
+                              value={certForm.badgeText}
+                              onChange={(e) => setCertForm({ ...certForm, badgeText: e.target.value })}
+                              placeholder="e.g. Valid 2026, Verified, Winner"
+                              className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:border-primary focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                            Link-ga Xaqiijinta Shahaadada (Verification URL / Certificate Link)
+                          </label>
+                          <div className="relative">
+                            <input
+                              type="url"
+                              value={certForm.verificationUrl}
+                              onChange={(e) => setCertForm({ ...certForm, verificationUrl: e.target.value })}
+                              placeholder="https://www.credly.com/badges/... ama link-ga shahaadada"
+                              className="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:border-primary focus:outline-none"
+                            />
+                            <LinkIcon size={14} className="absolute left-3 top-3 text-slate-500" />
+                          </div>
+                        </div>
+
+                        {/* Icon Type Selection */}
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                            Dooro Astaanta (Icon Style):
+                          </label>
+                          <div className="grid grid-cols-5 gap-2">
+                            {[
+                              { id: 'award', label: 'Award', icon: <Award size={18} /> },
+                              { id: 'code', label: 'Code', icon: <Code2 size={18} /> },
+                              { id: 'sparkles', label: 'Trophy', icon: <Sparkles size={18} /> },
+                              { id: 'shield', label: 'Security', icon: <ShieldCheck size={18} /> },
+                              { id: 'check', label: 'Verified', icon: <CheckCircle2 size={18} /> },
+                            ].map((item) => (
+                              <button
+                                key={item.id}
+                                type="button"
+                                onClick={() => setCertForm({ ...certForm, iconType: item.id as any })}
+                                className={`p-2.5 rounded-xl border flex flex-col items-center gap-1 transition-all ${
+                                  certForm.iconType === item.id
+                                    ? 'bg-primary/20 border-primary text-primary shadow-md'
+                                    : 'bg-slate-950 border-slate-850 text-slate-400 hover:text-white'
+                                }`}
+                              >
+                                {item.icon}
+                                <span className="text-[10px] font-medium">{item.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Live Preview Box */}
+                        <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1.5">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                            Horudhaca (Live Preview):
+                          </span>
+                          <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                                <Award size={18} />
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-white">
+                                  {certForm.title || 'Magaca Shahaadada'}
+                                </p>
+                                <p className="text-[11px] text-gray-400">
+                                  {certForm.issuer || "Hay'adda ama Machadka"}
+                                </p>
+                              </div>
+                            </div>
+                            <span className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
+                              {certForm.badgeText || 'Verified'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Modal Action Buttons */}
+                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                          <button
+                            type="button"
+                            onClick={() => setIsCertModalOpen(false)}
+                            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-750 transition-all cursor-pointer"
+                          >
+                            Ka noqo
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={isSavingCert}
+                            className="px-5 py-2.5 rounded-xl text-xs font-bold bg-primary hover:bg-primary/90 text-slate-950 shadow-lg shadow-primary/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
+                          >
+                            <Check size={14} />
+                            <span>{isSavingCert ? 'Waa la keydinayaa...' : 'Kaydi Shahaadada'}</span>
+                          </button>
+                        </div>
+                      </form>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </div>
         </div>

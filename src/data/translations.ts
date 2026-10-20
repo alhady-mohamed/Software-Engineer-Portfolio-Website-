@@ -743,9 +743,34 @@ export const translations = {
     ar: 'المسار المهني والتعليمي',
   },
   admin_timeline_subtitle: {
-    en: 'Manage university degrees, certifications, and work experience on the About page.',
-    so: 'Maamul shahaadooyinka jaamacadda iyo waayo-aragnimada shaqada ee bogga About.',
-    ar: 'إدارة الشهادات الجامعية والخبرات المهنية المعروضة في صفحة من أنا.',
+    en: 'Manage university degrees, professional work experience, and verified credentials displayed on your portfolio.',
+    so: 'Maamul shahaadooyinka heer jaamacadeed, waayo-aragnimada shaqada, iyo aqoonsiyada la xaqiijiyay ee ka muuqanaya boggaaga.',
+    ar: 'إدارة الشهادات الجامعية والخبرات المهنية والشهادات المعتمدة المعروضة في موقعك.',
+  },
+  admin_timeline_search_ph: {
+    en: 'Search by role, institution, degree, certification or skill...',
+    so: 'Raadi shaqo, jaamacad, shirkad, shahaado ama xirfad...',
+    ar: 'ابحث عن وظيفة، جامعة، شركة، شهادة أو مهارة...',
+  },
+  admin_timeline_tab_all: {
+    en: 'All Records',
+    so: 'Dhammaan Xogta',
+    ar: 'جميع السجلات',
+  },
+  admin_timeline_tab_education: {
+    en: 'Education & Degrees',
+    so: 'Waxbarashada & Jaamacadaha',
+    ar: 'التعليم والشهادات الجامعية',
+  },
+  admin_timeline_tab_experience: {
+    en: 'Work Experience',
+    so: 'Waayo-aragnimada Shaqada',
+    ar: 'الخبرة المهنية والوظائف',
+  },
+  admin_timeline_tab_certifications: {
+    en: 'Certifications & Verifications',
+    so: 'Shahaadooyinka & Xaqiijinta',
+    ar: 'الشهادات والاعتمادات الموثقة',
   },
   admin_add_education: {
     en: 'Add Education',
@@ -756,6 +781,41 @@ export const translations = {
     en: 'Add Experience',
     so: 'Ku Dar Shaqo',
     ar: 'إضافة خبرة عمل',
+  },
+  admin_add_certification: {
+    en: 'Add Certification',
+    so: 'Ku Dar Shahaado',
+    ar: 'إضافة شهادة معتمدة',
+  },
+  admin_timeline_total_records: {
+    en: 'Total Records',
+    so: 'Wadarta Guud',
+    ar: 'إجمالي السجلات',
+  },
+  admin_timeline_academic_degrees: {
+    en: 'Degrees & Diplomas',
+    so: 'Shahaadooyinka Jaamacadda',
+    ar: 'الشهادات الجامعية',
+  },
+  admin_timeline_work_roles: {
+    en: 'Career Roles',
+    so: 'Boosaska Shaqo',
+    ar: 'الوظائف والخبرات',
+  },
+  admin_timeline_verified_creds: {
+    en: 'Verified Credentials',
+    so: 'Aqoonsiyo La Xaqiijiyay',
+    ar: 'شهادات موثقة',
+  },
+  admin_timeline_verify_link: {
+    en: 'Verify Credential',
+    so: 'Xaqiiji Shahaadada',
+    ar: 'التحقق من الشهادة',
+  },
+  admin_timeline_empty_records: {
+    en: 'No records found matching your filter or search query.',
+    so: 'Wax xog ah lagama helin shaandhaynta ama raadintaada.',
+    ar: 'لم يتم العثور على سجلات مطابقة للبحث أو التصفية.',
   },
   admin_testimonials_title: {
     en: 'Client Reviews & Testimonials',
@@ -891,6 +951,103 @@ export const translations = {
     en: 'Manage system users, fine-grained Role Presets, Capability Matrices (Role → Page → Tabs), and live audit logs.',
     so: 'Maamul isticmaaleyaasha nidaamka, noocyada doorarka (RBAC), awoodaha tab-yada, iyo raadraaca amniga.',
     ar: 'إدارة مستخدمي النظام ومصفوفة الصلاحيات وسجلات التدقيق والأمان المباشرة.',
+  },
+
+  // Login Page Translations
+  login_return_to_site: {
+    en: 'Return to Website',
+    so: 'Ku noqo Websaytka',
+    ar: 'العودة إلى الموقع',
+  },
+  login_rbac_governance_active: {
+    en: 'RBAC Governance Active',
+    so: 'Nidaamka RBAC Waa Firfircoon yahay',
+    ar: 'نظام حوكمة الصلاحيات نشط',
+  },
+  login_cms_title: {
+    en: 'Admin Portal',
+    so: 'Albaabka Maamulka',
+    ar: 'بوابة الإدارة',
+  },
+  login_cms_subtitle: {
+    en: 'Sign in with your authorized credentials to access your administrative dashboard.',
+    so: 'Geli xogtaada rasmiga ah si aad u gasho qaybta maamulka ee websaytka.',
+    ar: 'سجّل الدخول ببياناتك المعتمدة للوصول إلى لوحة التحكم الإدارية.',
+  },
+  login_firestore_synced: {
+    en: 'Firestore Synced',
+    so: 'Xogtu Way Xiriirsan Tahay (Firestore)',
+    ar: 'متزامن مع Firestore',
+  },
+  login_local_mode: {
+    en: 'Local Storage Mode',
+    so: 'Kaydka Gudaha (Local Mode)',
+    ar: 'وضع التخزين المحلي',
+  },
+  login_password_auth: {
+    en: 'Password Authenticated',
+    so: 'Lagu Xaqiijiyay Furaha',
+    ar: 'موثّق بكلمة مرور',
+  },
+  login_identity_label: {
+    en: 'Email or Username',
+    so: 'Email ama Username',
+    ar: 'البريد الإلكتروني أو اسم المستخدم',
+  },
+  login_identity_placeholder: {
+    en: 'Enter your email or username',
+    so: 'Geli email-kaaga ama username-kaaga',
+    ar: 'أدخل البريد الإلكتروني أو اسم المستخدم',
+  },
+  login_password_label: {
+    en: 'Password',
+    so: 'Furaha Sirta ah (Password)',
+    ar: 'كلمة المرور',
+  },
+  login_password_key_hint: {
+    en: 'RBAC Security Key',
+    so: 'Furaha Amniga RBAC',
+    ar: 'مفتاح الأمان RBAC',
+  },
+  login_password_placeholder: {
+    en: 'Enter your password',
+    so: 'Geli furahaaga sirta ah',
+    ar: 'أدخل كلمة المرور الخاصة بك',
+  },
+  login_show_password: {
+    en: 'Show password',
+    so: 'Muuji furaha',
+    ar: 'إظهار كلمة المرور',
+  },
+  login_hide_password: {
+    en: 'Hide password',
+    so: 'Qari furaha',
+    ar: 'إخفاء كلمة المرور',
+  },
+  login_submit_btn: {
+    en: 'Sign In',
+    so: 'Gal Koontada',
+    ar: 'تسجيل الدخول',
+  },
+  login_verifying: {
+    en: 'Signing in...',
+    so: 'Waa la gelayaa...',
+    ar: 'جارٍ تسجيل الدخول...',
+  },
+  login_footer_note: {
+    en: 'Authorized administrative access only. All authentication attempts and administrative actions are logged and protected.',
+    so: 'Waxaa loogu talagalay maamulka oo keliya. Dhammaan galitaannada iyo falalka maamulka waa la diiwaangeliyaa waana la dhowraa.',
+    ar: 'مخصص للمسؤولين المصرح لهم فقط. يتم توثيق وحماية جميع محاولات تسجيل الدخول والأنشطة الإدارية.',
+  },
+  login_error_failed: {
+    en: 'Sign in failed. Please verify your credentials.',
+    so: 'Gelitaanku ma guuleysan. Fadlan hubi xogtaada.',
+    ar: 'فشل تسجيل الدخول. يرجى التحقق من صحة البيانات.',
+  },
+  login_error_general: {
+    en: 'An error occurred during authentication.',
+    so: 'Cilad ayaa dhacday intii lagu guda jiray gelitaanka.',
+    ar: 'حدث خطأ غير متوقع أثناء محاولة تسجيل الدخول.',
   },
 };
 

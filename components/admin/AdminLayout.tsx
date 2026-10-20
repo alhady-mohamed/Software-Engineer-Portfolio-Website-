@@ -579,16 +579,16 @@ export const AdminLayout: React.FC = () => {
           } backdrop-blur-md shrink-0 sticky top-0 z-30 transition-colors duration-200 shadow-sm`}
         >
           <div className="flex items-center gap-3">
-            {/* Active Screen Indicator */}
-            <div
-              className={`flex items-center gap-2 font-bold px-3.5 py-1.5 rounded-xl border shadow-sm text-xs transition-colors ${
-                isDayMode
-                  ? 'bg-slate-100 border-slate-200 text-slate-900'
-                  : 'bg-slate-800/80 border-slate-700/60 text-white'
-              }`}
-            >
-              <ActiveIcon size={14} className="text-primary" />
-              <span>{activeBreadcrumb.title}</span>
+            {/* Active Screen Title - Clean & Frameless */}
+            <div className="flex items-center gap-2.5">
+              <ActiveIcon size={17} className="text-primary shrink-0" />
+              <h2
+                className={`text-sm font-bold tracking-tight ${
+                  isDayMode ? 'text-slate-900' : 'text-white'
+                }`}
+              >
+                {activeBreadcrumb.title}
+              </h2>
             </div>
           </div>
 

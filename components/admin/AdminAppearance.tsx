@@ -11,6 +11,7 @@ import {
   AboutSettings,
   SkillItem,
   AboutMetricItem,
+  CertificationItem,
   SocialLinksSettings,
 } from '../../types';
 import {
@@ -278,6 +279,36 @@ export const AdminAppearance: React.FC = () => {
     if (INITIAL_SETTINGS.about) {
       setAboutForm(INITIAL_SETTINGS.about);
     }
+  };
+
+  const handleAddCertification = (preset?: Partial<CertificationItem>) => {
+    const newCert: CertificationItem = {
+      id: `cert_${Date.now()}`,
+      title: preset?.title || 'AWS Certified Solutions Architect',
+      issuer: preset?.issuer || 'Amazon Web Services • Cloud Infrastructure',
+      dateOrValidity: preset?.dateOrValidity || 'Valid 2026',
+      badgeText: preset?.badgeText || 'Verified',
+      verificationUrl: preset?.verificationUrl || '',
+      iconType: preset?.iconType || 'award',
+    };
+    setAboutForm((prev) => ({
+      ...prev,
+      certifications: [...(prev.certifications || []), newCert],
+    }));
+  };
+
+  const handleUpdateCertification = (id: string, field: keyof CertificationItem, value: any) => {
+    setAboutForm((prev) => ({
+      ...prev,
+      certifications: (prev.certifications || []).map((c) => (c.id === id ? { ...c, [field]: value } : c)),
+    }));
+  };
+
+  const handleDeleteCertification = (id: string) => {
+    setAboutForm((prev) => ({
+      ...prev,
+      certifications: (prev.certifications || []).filter((c) => c.id !== id),
+    }));
   };
 
   // Quick Logo Upload Board state for instant inline logo uploading
@@ -3503,6 +3534,170 @@ export const AdminAppearance: React.FC = () => {
                   className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* ============================================================== */}
+          {/* SECTION 5: CERTIFICATIONS & VERIFIED CREDENTIALS               */}
+          {/* ============================================================== */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                    <Award size={15} />
+                  </span>
+                  <h3 className="text-base font-bold text-white">
+                    5. Shahaadooyinka & Aqoonsiyada (Certifications & Credentials)
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Maamul shahaadooyinkaaga, aqoonsiyada caalamiga ah, iyo xiriirinta xaqiijinta tooska ah (Verification URLs).
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleAddCertification()}
+                  className="px-3.5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-slate-950 text-xs font-bold transition-all shadow-md shadow-primary/20 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus size={14} />
+                  <span>Ku dar Shahaado</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Preset Buttons */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-medium text-slate-400 block">
+                Ku dar tusaale diyaar ah 1-guji kaliya:
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { title: 'AWS Certified Solutions Architect', issuer: 'Amazon Web Services (AWS)', iconType: 'award' as const, badgeText: 'AWS Certified', dateOrValidity: 'Valid 2027', verificationUrl: 'https://aws.amazon.com/verification' },
+                  { title: 'Google Cloud Professional Architect', issuer: 'Google Cloud Platform (GCP)', iconType: 'award' as const, badgeText: 'GCP Certified', dateOrValidity: 'Valid 2026', verificationUrl: 'https://cloud.google.com/certification' },
+                  { title: 'Meta Frontend Developer Professional', issuer: 'Meta / Coursera', iconType: 'code' as const, badgeText: 'Verified', dateOrValidity: '2024', verificationUrl: 'https://coursera.org/verify' },
+                  { title: '1st Place Winner - Best Innovation', issuer: 'Global TechHackathon', iconType: 'sparkles' as const, badgeText: 'Winner', dateOrValidity: 'Winner', verificationUrl: '' },
+                  { title: 'CompTIA Security+ Certified', issuer: 'CompTIA • Cybersecurity', iconType: 'shield' as const, badgeText: 'Sec+ Certified', dateOrValidity: 'Valid 2026', verificationUrl: 'https://www.comptia.org/certifications/security' },
+                ].map((item) => (
+                  <button
+                    key={item.title}
+                    type="button"
+                    onClick={() => handleAddCertification(item)}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 hover:border-primary/40 transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <Plus size={11} className="text-primary" />
+                    <span>{item.title.split(' ')[0]} {item.title.split(' ')[1]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* List of Certifications */}
+            <div className="space-y-4">
+              {(aboutForm.certifications || []).map((cert, index) => (
+                <div
+                  key={cert.id || index}
+                  className="p-4 sm:p-5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-4 hover:border-slate-700 transition-all"
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-850">
+                    <span className="text-xs font-bold text-slate-300 flex items-center gap-2">
+                      <Award size={15} className="text-primary" />
+                      Shahaadada #{index + 1}: {cert.title || 'Untitled'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteCertification(cert.id)}
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                      title="Ka saar shahaadadan"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                        Magaca Shahaadada (Title)
+                      </label>
+                      <input
+                        type="text"
+                        value={cert.title}
+                        onChange={(e) => handleUpdateCertification(cert.id, 'title', e.target.value)}
+                        placeholder="AWS Certified Solutions Architect"
+                        className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-white text-xs focus:border-primary focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                        Hay'adda ama Bixiyaha (Issuer)
+                      </label>
+                      <input
+                        type="text"
+                        value={cert.issuer}
+                        onChange={(e) => handleUpdateCertification(cert.id, 'issuer', e.target.value)}
+                        placeholder="Amazon Web Services • Cloud Infrastructure"
+                        className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-white text-xs focus:border-primary focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                        Xilliga / Taariikhda (Validity)
+                      </label>
+                      <input
+                        type="text"
+                        value={cert.dateOrValidity}
+                        onChange={(e) => handleUpdateCertification(cert.id, 'dateOrValidity', e.target.value)}
+                        placeholder="Valid 2026"
+                        className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-white text-xs focus:border-primary focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                        Qoraalka Badge-ka (Badge Text)
+                      </label>
+                      <input
+                        type="text"
+                        value={cert.badgeText || ''}
+                        onChange={(e) => handleUpdateCertification(cert.id, 'badgeText', e.target.value)}
+                        placeholder="Verified ama Valid 2026"
+                        className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-white text-xs focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                      Xiriirka Xaqiijinta Shahaadada (Verification URL)
+                    </label>
+                    <input
+                      type="url"
+                      value={cert.verificationUrl || ''}
+                      onChange={(e) => handleUpdateCertification(cert.id, 'verificationUrl', e.target.value)}
+                      placeholder="https://aws.amazon.com/verification ama https://www.credly.com/..."
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-white text-xs focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                </div>
+              ))}
+
+              {(!aboutForm.certifications || aboutForm.certifications.length === 0) && (
+                <div className="p-6 text-center rounded-xl border border-dashed border-slate-800 bg-slate-950/40">
+                  <p className="text-xs text-slate-500">Weli wax shahaadooyin ah kuma jiraan.</p>
+                  <button
+                    type="button"
+                    onClick={() => handleAddCertification()}
+                    className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/20 text-primary border border-primary/30 text-xs font-semibold hover:bg-primary/30 transition-all cursor-pointer"
+                  >
+                    <Plus size={13} />
+                    Ku dar Shahaado Hadda
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Bottom Save Button */}

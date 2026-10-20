@@ -171,7 +171,19 @@ export interface AboutMetricItem {
   suffix: string;      // e.g. '+'
 }
 
-// About page customizable modules (Bio, Key Metrics, Skill Bars, Tech Stack)
+// Editable Certification & Verified Credential
+export interface CertificationItem {
+  id: string;
+  title: string;          // e.g. 'AWS Certified Solutions Architect'
+  issuer: string;         // e.g. 'Amazon Web Services • Cloud Infrastructure'
+  dateOrValidity: string; // e.g. 'Valid 2026' or '2024'
+  badgeText?: string;     // e.g. 'Valid 2026', 'Winner', 'Verified'
+  verificationUrl?: string; // Link to credential verification page or certificate
+  iconType?: 'award' | 'code' | 'sparkles' | 'shield' | 'check';
+  displayOrder?: number;
+}
+
+// About page customizable modules (Bio, Key Metrics, Skill Bars, Tech Stack, Certifications)
 export interface AboutSettings {
   introBadge?: string;
   headingTitle?: string;
@@ -179,9 +191,10 @@ export interface AboutSettings {
   paragraph1?: string;
   paragraph2?: string;
   paragraph3?: string;
-  metrics: AboutMetricItem[];
-  skills: SkillItem[];
-  techStack: string[];
+  metrics?: AboutMetricItem[];
+  skills?: SkillItem[];
+  techStack?: string[];
+  certifications?: CertificationItem[];
   standardsTitle?: string;
   standardsDescription?: string;
 }
