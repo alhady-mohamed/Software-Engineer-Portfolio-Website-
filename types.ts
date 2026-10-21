@@ -183,8 +183,12 @@ export interface CertificationItem {
   displayOrder?: number;
 }
 
-// About page customizable modules (Bio, Key Metrics, Skill Bars, Tech Stack, Certifications)
+// About page customizable modules (Bio, Portrait Photo, Key Metrics, Skill Bars, Tech Stack, Certifications)
 export interface AboutSettings {
+  imageUrl?: string;
+  imageAlt?: string;
+  badgeBioTitle?: string;
+  availabilityStatus?: string;
   introBadge?: string;
   headingTitle?: string;
   leadText?: string;

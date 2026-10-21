@@ -24,7 +24,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useSiteData } from '../src/context/SiteDataContext';
 import { useLanguage } from '../src/context/LanguageContext';
-import defaultHeroPortrait from '../src/assets/images/hero_portrait_1781209944400.jpg';
+const defaultHeroPortrait = '/assets/aistudio/black_875c126c.png';
 
 /**
  * Hero component of the portfolio landing page.

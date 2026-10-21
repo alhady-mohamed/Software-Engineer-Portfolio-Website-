@@ -10,7 +10,7 @@ import {
   SecurityAuditItem,
 } from '../../types';
 import { PROJECTS as DEFAULT_PROJECTS, EXPERIENCE as DEFAULT_EXPERIENCE } from '../../constants';
-import defaultHeroPortrait from '../assets/images/hero_portrait_1781209944400.jpg';
+const defaultHeroPortrait = '/assets/aistudio/black_875c126c.png';
 
 export const INITIAL_TIMELINES: TimelineItem[] = [
   {
@@ -192,6 +192,10 @@ export const INITIAL_SETTINGS: SiteSettings = {
     ],
   },
   about: {
+    imageUrl: '/assets/aistudio/black_875c126c.png',
+    imageAlt: 'Mohamed Alhady - Senior Full-Stack & Creative Technologist',
+    badgeBioTitle: 'SENIOR FULL-STACK & CREATIVE TECHNOLOGIST',
+    availabilityStatus: 'Available for Select Projects',
     introBadge: 'Get to know me',
     headingTitle: 'Mohamed Alhady',
     leadText: 'Creative Strategist & Full-Stack Developer bridging engineering precision with cinematic storytelling and digital growth.',

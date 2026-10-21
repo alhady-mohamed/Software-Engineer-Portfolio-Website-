@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { SKILLS_DATA, EXPERIENCE } from '../constants';
 import {
   Palette,
@@ -24,11 +24,15 @@ import {
   X,
   Check,
   RotateCcw,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Camera,
+  UploadCloud,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { motion, animate, useInView, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { CertificationItem } from '../types';
+const defaultHeroPortrait = '/assets/aistudio/black_875c126c.png';
 
 /**
  * AnimatedCounter Component
@@ -154,6 +158,9 @@ const CERT_PRESETS = [
   },
 ];
 
+const OFFICIAL_PORTRAIT_DARK = '/assets/aistudio/black_875c126c.png';
+const OFFICIAL_PORTRAIT_GOLD = '/assets/aistudio/white__43ddcbfb.png';
+
 const About: React.FC = () => {
   const { timelines, settings, updateSettings } = useSiteData();
   const { t, language } = useLanguage();
@@ -161,6 +168,10 @@ const About: React.FC = () => {
   const isSomali = language === 'so';
 
   const aboutSettings = settings.about || {
+    imageUrl: OFFICIAL_PORTRAIT_DARK,
+    imageAlt: 'Mohamed Alhady - Senior Full-Stack & Creative Technologist',
+    badgeBioTitle: 'SENIOR FULL-STACK & CREATIVE TECHNOLOGIST',
+    availabilityStatus: 'Available for Select Projects',
     introBadge: 'Get to know me',
     headingTitle: 'Mohamed Alhady',
     leadText: 'Creative Strategist & Full-Stack Developer bridging engineering precision with cinematic storytelling and digital growth.',
@@ -189,6 +200,90 @@ const About: React.FC = () => {
     certifications: DEFAULT_CERTIFICATIONS,
     standardsTitle: 'Architecture Standards',
     standardsDescription: 'All projects adhere to WCAG accessibility, strict TypeScript validation, responsive design patterns, and SEO best practices.',
+  };
+
+  const currentImageUrl = aboutSettings.imageUrl || OFFICIAL_PORTRAIT_DARK;
+  const isOfficialArtwork =
+    currentImageUrl.includes('black_875c126c') ||
+    currentImageUrl.includes('white__43ddcbfb') ||
+    currentImageUrl.includes('about_portrait_custom') ||
+    currentImageUrl.includes('about_portrait_gold');
+
+  // Photo Upload Modal state for authenticated admins
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [photoFormUrl, setPhotoFormUrl] = useState('');
+  const [photoFormAlt, setPhotoFormAlt] = useState('');
+  const [photoFormTitle, setPhotoFormTitle] = useState('');
+  const [photoFormStatus, setPhotoFormStatus] = useState('');
+  const [isSavingPhoto, setIsSavingPhoto] = useState(false);
+  const [isCompressingPhoto, setIsCompressingPhoto] = useState(false);
+  const photoFileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleOpenPhotoModal = () => {
+    setPhotoFormUrl(aboutSettings.imageUrl || OFFICIAL_PORTRAIT_DARK);
+    setPhotoFormAlt(aboutSettings.imageAlt || 'Mohamed Alhady - Senior Full-Stack & Creative Technologist');
+    setPhotoFormTitle(aboutSettings.badgeBioTitle || 'SENIOR FULL-STACK & CREATIVE TECHNOLOGIST');
+    setPhotoFormStatus(aboutSettings.availabilityStatus || 'Available for Select Projects');
+    setIsPhotoModalOpen(true);
+  };
+
+  const handlePhotoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsCompressingPhoto(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxWidth = 960;
+          const maxHeight = 1200;
+
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+
+          canvas.width = Math.max(1, width);
+          canvas.height = Math.max(1, height);
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.82);
+            setPhotoFormUrl(compressed);
+          }
+          setIsCompressingPhoto(false);
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      setIsCompressingPhoto(false);
+    }
+  };
+
+  const handleSavePhotoModal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingPhoto(true);
+    await updateSettings({
+      about: {
+        ...aboutSettings,
+        imageUrl: photoFormUrl.trim() || aboutSettings.imageUrl || defaultHeroPortrait,
+        imageAlt: photoFormAlt.trim() || aboutSettings.imageAlt || 'Mohamed Alhady - Professional Portrait',
+        badgeBioTitle: photoFormTitle.trim() || aboutSettings.badgeBioTitle || 'Senior Full-Stack & Creative Technologist',
+        availabilityStatus: photoFormStatus.trim() || aboutSettings.availabilityStatus || 'Available for Select Projects',
+      },
+    });
+    setIsSavingPhoto(false);
+    setIsPhotoModalOpen(false);
+    showToast(isSomali ? 'Sawirka shakhsiga ah ee About page waa la keydiyay!' : 'Profile portrait successfully saved!');
   };
 
   // Certifications dynamic data and modal state
@@ -346,69 +441,176 @@ const About: React.FC = () => {
   return (
     <div className="pt-28 pb-24 min-h-screen bg-dark text-slate-200">
       
-      {/* SECTION 1: Page Header & Bio Overview */}
+      {/* SECTION 1: Page Header, Professional Portrait & Bio Overview */}
       <section id="about-intro" className="py-12 border-b border-white/5 relative overflow-hidden">
         {/* Ambient background glow */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none -z-10" />
         <div className="absolute bottom-0 left-10 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none -z-10" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-12"
-          >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase mb-4">
-              <User size={14} />
-              <span>{aboutSettings.introBadge || 'Get to know me'}</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-4">
-              About <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary">{aboutSettings.headingTitle || 'Mohamed Alhady'}</span>
-            </h1>
-            <p className="text-gray-400 text-lg max-w-2xl">
-              {aboutSettings.leadText || 'Creative Strategist & Full-Stack Developer bridging engineering precision with cinematic storytelling and digital growth.'}
-            </p>
-          </motion.div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            
+            {/* COLUMN 1: Frameless Portrait Photo with Sculpted Signature Shape */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              className="lg:col-span-5 relative flex flex-col items-center justify-center"
+            >
+              <div className="relative w-full max-w-[420px] sm:max-w-[460px] mx-auto flex flex-col items-center group">
+                {/* Background Ambient Warm Glow */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] bg-gradient-to-tr from-amber-500/25 via-primary/20 to-yellow-500/15 rounded-full blur-[90px] opacity-75 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none -z-10" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Bio Narrative */}
+                {/* Cyber Dot Matrix Decorative Accent */}
+                <div className="absolute -top-4 -right-4 w-28 h-28 bg-[radial-gradient(#facc15_1.5px,transparent_1.5px)] [background-size:12px_12px] opacity-30 pointer-events-none -z-10" />
+                <div className="absolute -bottom-4 -left-4 w-28 h-28 bg-[radial-gradient(#22c55e_1.5px,transparent_1.5px)] [background-size:14px_14px] opacity-25 pointer-events-none -z-10" />
+
+                {/* Sculpted Signature Backdrop (Rendered for custom uploads to provide the exact iconic golden shield shape) */}
+                {!isOfficialArtwork && (
+                  <div className="absolute inset-x-2 sm:inset-x-4 top-6 bottom-12 rounded-[3.2rem] bg-gradient-to-br from-amber-500/25 via-slate-900/90 to-black/95 border-2 border-amber-500/60 -rotate-3 pointer-events-none -z-10 shadow-[0_0_50px_rgba(217,119,6,0.3)]">
+                    {/* Watermark Shield inside the backdrop shape */}
+                    <div className="absolute top-12 left-10 text-amber-500/15 pointer-events-none">
+                      <ShieldCheck size={120} strokeWidth={1.2} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Frameless Photo Presentation - No Rigid Box Frame! */}
+                <div className="relative w-full flex items-center justify-center">
+                  <img
+                    src={currentImageUrl}
+                    alt={aboutSettings.imageAlt || aboutSettings.headingTitle || 'Mohamed Alhady - Senior Full-Stack & Creative Technologist'}
+                    style={{ marginTop: '0px', height: '600px', width: '408.663px', paddingLeft: '11px' }}
+                    className={`max-h-none object-contain drop-shadow-[0_25px_40px_rgba(0,0,0,0.85)] filter select-none transition-transform duration-700 ease-out group-hover:scale-[1.02] mt-0 pl-[11px] h-[600px] w-[408.663px] max-w-full ${
+                      !isOfficialArtwork ? 'rounded-[2.8rem] p-2.5' : ''
+                    }`}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = OFFICIAL_PORTRAIT_DARK;
+                    }}
+                  />
+
+                  {/* Top-Right Action: Beddel Sawirka for Logged-In Admin (Floats neatly without obstructing face) */}
+                  {isAuthenticated && (
+                    <button
+                      type="button"
+                      onClick={handleOpenPhotoModal}
+                      className="absolute top-2 right-2 sm:right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/85 hover:bg-amber-500 text-amber-300 hover:text-slate-950 text-xs font-bold border border-amber-500/40 backdrop-blur-md shadow-2xl transition-all cursor-pointer group/btn"
+                      title="Guji si aad sawirkaaga u beddesho ama cusub u soo galiso"
+                    >
+                      <Camera size={13} className="text-amber-400 group-hover/btn:text-slate-950 transition-colors" />
+                      <span>{isSomali ? 'Beddel Sawirka' : 'Change Photo'}</span>
+                    </button>
+                  )}
+
+                  {/* For custom uploaded photos, render the signature floating status pill at the bottom */}
+                  {!isOfficialArtwork && (
+                    <div
+                      style={{ borderRadius: '40px', borderStyle: 'dotted' }}
+                      className="absolute bottom-2 inset-x-3 sm:inset-x-5 p-3 rounded-[40px] border-dotted bg-gradient-to-r from-amber-600/90 via-slate-950/95 to-slate-950/95 backdrop-blur-md border border-amber-500/50 shadow-2xl flex items-center gap-3"
+                    >
+                      <div className="w-10 h-10 rounded-full border border-amber-400/60 overflow-hidden flex-shrink-0 bg-slate-900">
+                        <img src={currentImageUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                          </span>
+                          <p className="text-xs font-bold text-white tracking-wide truncate">
+                            {aboutSettings.availabilityStatus || (isSomali ? 'Diyaar u ah Mashaariic Cusub' : 'Available for Select Projects')}
+                          </p>
+                        </div>
+                        <p className="text-[10px] text-amber-200/90 font-semibold tracking-wider uppercase truncate">
+                          {aboutSettings.badgeBioTitle || (isSomali ? 'Senior Full-Stack & Creative Technologist' : 'Creative Strategist & Full-Stack Developer')}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Sub-card: Fast Admin Shortcut */}
+              {isAuthenticated && (
+                <div className="mt-4 w-full max-w-[420px] flex items-center justify-between px-4 py-2 rounded-xl bg-slate-900/60 border border-white/5 text-[11px] text-gray-400">
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles size={13} className="text-amber-400" />
+                    <span>Maamul sawirka & muuqaalka</span>
+                  </span>
+                  <Link
+                    to="/admin/appearance?tab=about"
+                    className="text-amber-400 hover:underline font-semibold flex items-center gap-1"
+                  >
+                    <span>Admin Hub</span>
+                    <ExternalLink size={11} />
+                  </Link>
+                </div>
+              )}
+            </motion.div>
+
+            {/* COLUMN 2: Bio Narrative, Headings & Key Performance Metrics */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="lg:col-span-7 space-y-5 text-gray-300 text-base leading-relaxed"
+              className="lg:col-span-7 space-y-6"
             >
-              <p className="text-xl text-white font-medium leading-relaxed">
-                {aboutSettings.paragraph1 || 'I help modern brands, startups, and enterprises translate ambitious ideas into scalable software, distinctive visual identities, and high-impact digital experiences.'}
-              </p>
-              <p className="text-gray-400">
-                {aboutSettings.paragraph2 || 'With over five years at the intersection of technology and creative media, my work spans end-to-end web engineering, visual branding systems, high-production video direction, and data-backed digital marketing.'}
-              </p>
-              <p className="text-gray-400">
-                {aboutSettings.paragraph3 || "I believe high-performing software should feel as refined as handcrafted art. When I'm not designing architectures or deploying code, I immerse myself in creative direction, motion design, and exploring cutting-edge web technologies."}
-              </p>
+              {/* Intro Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-primary/10 text-primary text-xs font-bold tracking-wider uppercase">
+                <User size={14} />
+                <span>{aboutSettings.introBadge || (isSomali ? 'Is barasho & Hordhac' : 'Get to know me')}</span>
+              </div>
+
+              {/* Page Title & Main Heading */}
+              <div>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-3">
+                  {isSomali ? 'Kusaabsan' : 'About'}{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-yellow-200 to-secondary">
+                    {aboutSettings.headingTitle || 'Mohamed Alhady'}
+                  </span>
+                </h1>
+                <p className="text-gray-300 text-base sm:text-lg leading-relaxed font-normal">
+                  {aboutSettings.leadText || 'Creative Strategist & Full-Stack Developer bridging engineering precision with cinematic storytelling and digital growth.'}
+                </p>
+              </div>
+
+              {/* Bio Narrative Paragraphs */}
+              <div className="space-y-4 text-gray-400 text-sm sm:text-base leading-relaxed pt-2 border-t border-white/5">
+                <p className="text-white font-medium leading-relaxed">
+                  {aboutSettings.paragraph1 || 'I help modern brands, startups, and enterprises translate ambitious ideas into scalable software, distinctive visual identities, and high-impact digital experiences.'}
+                </p>
+                <p>
+                  {aboutSettings.paragraph2 || 'With over five years at the intersection of technology and creative media, my work spans end-to-end web engineering, visual branding systems, high-production video direction, and data-backed digital marketing.'}
+                </p>
+                <p>
+                  {aboutSettings.paragraph3 || "I believe high-performing software should feel as refined as handcrafted art. When I'm not designing architectures or deploying code, I immerse myself in creative direction, motion design, and exploring cutting-edge web technologies."}
+                </p>
+              </div>
+
+              {/* Key Performance Metrics Grid */}
+              <div className="pt-6 border-t border-white/10">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-mono uppercase tracking-wider text-primary font-bold">
+                    {isSomali ? 'Guulaha & Tirakoobka Muhiimka ah' : 'Key Performance Metrics'}
+                  </span>
+                  <span className="text-[11px] text-gray-500 font-mono">Live Milestones</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {dynamicMetrics.map((m, idx) => (
+                    <div
+                      key={m.id || idx}
+                      className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 text-center hover:border-primary/40 transition-colors shadow-lg group/metric"
+                    >
+                      <div className="text-2xl sm:text-3xl font-extrabold text-primary mb-1">
+                        <AnimatedCounter to={Number(m.value) || 0} suffix={m.suffix || '+'} delay={0.2 + idx * 0.1} />
+                      </div>
+                      <div className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">{m.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </motion.div>
 
-            {/* Key Performance Metrics Grid */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-5 grid grid-cols-2 gap-4"
-            >
-              {dynamicMetrics.map((m, idx) => (
-                <div
-                  key={m.id || idx}
-                  className="bg-slate-900/60 border border-white/10 rounded-2xl p-6 text-center hover:border-primary/40 transition-colors shadow-lg group/metric"
-                >
-                  <div className="text-3xl md:text-4xl font-extrabold text-primary mb-1">
-                    <AnimatedCounter to={Number(m.value) || 0} suffix={m.suffix || '+'} delay={0.2 + idx * 0.1} />
-                  </div>
-                  <div className="text-xs text-gray-400 uppercase tracking-widest font-semibold">{m.label}</div>
-                </div>
-              ))}
-            </motion.div>
           </div>
         </div>
       </section>
@@ -1346,6 +1548,250 @@ const About: React.FC = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* PHOTO UPLOAD & CUSTOMIZATION MODAL (Admin Only) */}
+      <AnimatePresence>
+        {isPhotoModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                    <Camera size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">
+                      {isSomali ? 'Beddel Sawirkaaga (About Profile Photo)' : 'Customize About Profile Photo'}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {isSomali
+                        ? 'Soo gali sawir cusub, dooro sawir diyaar ah, ama geli link-ga sawirkaaga'
+                        : 'Upload a new headshot, paste an image link, or apply curated presets'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsPhotoModalOpen(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Live Preview & Image Selector */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
+                {/* Photo Thumbnail Preview (Sculpted Frameless Presentation) */}
+                <div className="sm:col-span-5 flex flex-col items-center">
+                  <div className="relative w-36 h-48 flex items-center justify-center p-2 rounded-2xl bg-slate-950/90 border border-amber-500/30 shadow-xl group overflow-hidden">
+                    {/* Background glow in preview */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 via-primary/10 to-transparent pointer-events-none" />
+
+                    <img
+                      src={photoFormUrl || OFFICIAL_PORTRAIT_DARK}
+                      alt="Preview"
+                      className="w-full h-full object-contain filter drop-shadow-md select-none"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = OFFICIAL_PORTRAIT_DARK;
+                      }}
+                    />
+                    <span className="absolute bottom-1.5 inset-x-2 text-center text-[9px] font-bold text-amber-300 bg-slate-950/85 px-2 py-0.5 rounded-full border border-amber-500/30">
+                      Live Preview (Sculpted)
+                    </span>
+                  </div>
+                </div>
+
+                {/* Upload & Quick Presets */}
+                <div className="sm:col-span-7 space-y-2.5">
+                  <input
+                    type="file"
+                    ref={photoFileInputRef}
+                    onChange={handlePhotoFileUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => photoFileInputRef.current?.click()}
+                    disabled={isCompressingPhoto}
+                    className="w-full py-2.5 px-4 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    <UploadCloud size={16} />
+                    <span>
+                      {isCompressingPhoto
+                        ? (isSomali ? 'Sawirka waa la habeeyaa...' : 'Optimizing photo...')
+                        : (isSomali ? 'Ka soo xulo Kumbuyuutarka / Mobile-ka' : 'Upload from Device')}
+                    </span>
+                  </button>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPhotoFormUrl(OFFICIAL_PORTRAIT_DARK)}
+                      className="py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-amber-500/30 text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      title="Sawirka Rasmiga ah ee Sculpted (Dark Background)"
+                    >
+                      <Sparkles size={12} className="text-amber-400" />
+                      <span>{isSomali ? 'Sawirka (Dark)' : 'Official (Dark)'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPhotoFormUrl(OFFICIAL_PORTRAIT_GOLD)}
+                      className="py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-amber-500/30 text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      title="Sawirka Rasmiga ah ee Sculpted (Gold Accent)"
+                    >
+                      <Sparkles size={12} className="text-yellow-400" />
+                      <span>{isSomali ? 'Sawirka (Gold)' : 'Official (Gold)'}</span>
+                    </button>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPhotoFormUrl(settings.hero?.imageUrl || OFFICIAL_PORTRAIT_DARK)}
+                      className="flex-1 py-1.5 px-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-[10px] font-medium transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      title="Isticmaal sawirka ku jira qaybta Hero-ga"
+                    >
+                      <span>{isSomali ? 'Sawirka Hero' : 'Hero Photo'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPhotoFormUrl(OFFICIAL_PORTRAIT_DARK)}
+                      className="flex-1 py-1.5 px-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-[10px] font-medium transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      title="Ku celi sawirka rasmiga ah"
+                    >
+                      <RotateCcw size={11} />
+                      <span>{isSomali ? 'Asalka' : 'Reset'}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Inputs */}
+              <form onSubmit={handleSavePhotoModal} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    {isSomali ? 'Link-ga Sawirka (Direct Image URL)' : 'Direct Image URL'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={photoFormUrl}
+                      onChange={(e) => setPhotoFormUrl(e.target.value)}
+                      placeholder="https://... ama soo upload garee kor"
+                      className="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:border-primary focus:outline-none"
+                    />
+                    <LinkIcon size={14} className="absolute left-3 top-3 text-slate-500" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      {isSomali ? 'Cinwaanka Xirfadlaha (Badge Subtitle)' : 'Professional Title'}
+                    </label>
+                    <input
+                      type="text"
+                      value={photoFormTitle}
+                      onChange={(e) => setPhotoFormTitle(e.target.value)}
+                      placeholder="Senior Full-Stack & Creative Technologist"
+                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:border-primary focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      {isSomali ? 'Xaaladda Shaqada (Availability Status)' : 'Availability Status'}
+                    </label>
+                    <input
+                      type="text"
+                      value={photoFormStatus}
+                      onChange={(e) => setPhotoFormStatus(e.target.value)}
+                      placeholder="Available for Select Projects"
+                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Alt Text (SEO & Accessibility)
+                  </label>
+                  <input
+                    type="text"
+                    value={photoFormAlt}
+                    onChange={(e) => setPhotoFormAlt(e.target.value)}
+                    placeholder="Mohamed Alhady - Creative Strategist & Full-Stack Developer"
+                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:border-primary focus:outline-none"
+                  />
+                </div>
+
+                {/* Modal Footer */}
+                <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+                  <Link
+                    to="/admin/appearance?tab=about"
+                    onClick={() => setIsPhotoModalOpen(false)}
+                    className="text-xs text-slate-400 hover:text-primary transition-colors flex items-center gap-1"
+                  >
+                    <ExternalLink size={13} />
+                    <span>{isSomali ? 'Tag Bogga Maamulka (Admin)' : 'Open Full Admin Hub'}</span>
+                  </Link>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsPhotoModalOpen(false)}
+                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all cursor-pointer"
+                    >
+                      {isSomali ? 'Ka noqo' : 'Cancel'}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSavingPhoto}
+                      className="px-6 py-2.5 rounded-xl bg-primary hover:opacity-90 text-slate-950 text-xs font-bold transition-all shadow-md shadow-primary/20 disabled:opacity-50 cursor-pointer flex items-center gap-2"
+                    >
+                      {isSavingPhoto ? (
+                        <>
+                          <RotateCcw size={14} className="animate-spin" />
+                          <span>{isSomali ? 'Waa la badbaadinayaa...' : 'Saving...'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check size={14} />
+                          <span>{isSomali ? 'Badbaadi Sawirka' : 'Save Photo'}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl bg-emerald-500 text-slate-950 font-bold text-xs shadow-2xl shadow-emerald-500/30"
+          >
+            <CheckCircle2 size={16} />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

@@ -64,7 +64,7 @@ import {
 import { motion } from 'framer-motion';
 import { ImageUploader } from './ImageUploader';
 import { INITIAL_SETTINGS } from '../../src/data/initialData';
-import defaultHeroPortrait from '../../src/assets/images/hero_portrait_1781209944400.jpg';
+const defaultHeroPortrait = '/assets/aistudio/black_875c126c.png';
 
 // Curated primary accent colors
 const ACCENT_COLOR_PRESETS = [
@@ -447,6 +447,8 @@ export const AdminAppearance: React.FC = () => {
         if (settings.branding) setBrandingForm(settings.branding);
         if (settings.theme) setThemeForm(settings.theme);
         if (settings.marquee) setMarqueeForm(settings.marquee);
+        if (settings.about) setAboutForm(settings.about);
+        if (settings.socialLinks) setSocialForm(settings.socialLinks);
       }
     }
   }, [settings, saveStatus.type]);
@@ -3029,6 +3031,159 @@ export const AdminAppearance: React.FC = () => {
                   <p className="text-lg font-bold text-white mt-0.5">{aboutForm.techStack.length} Ecosystem Tags</p>
                 </div>
                 <Layers className="text-primary opacity-80" size={24} />
+              </div>
+            </div>
+          </div>
+
+          {/* ============================================================== */}
+          {/* SECTION 0: ABOUT PROFILE PHOTO & VISUAL IDENTITY               */}
+          {/* ============================================================== */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                    <ImageIcon size={15} />
+                  </span>
+                  <h3 className="text-base font-bold text-white">
+                    0. Sawirka Shakhsiga ah ee About Page (Professional Portrait)
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Halkan ku soo dar ama ku beddel sawirkaaga shakhsiga ah si uu ugu dhex muuqdo About Page-ka si professional ah oo heersare ah.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAboutForm((prev) => ({ ...prev, imageUrl: '/assets/aistudio/black_875c126c.png' }))}
+                  className="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 hover:text-white text-[11px] font-semibold border border-amber-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Sawirka Rasmiga ah ee Sculpted (Dark Theme)"
+                >
+                  <Sparkles size={12} className="text-amber-400" />
+                  <span>Sawirka Rasmiga ah (Dark)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAboutForm((prev) => ({ ...prev, imageUrl: '/assets/aistudio/white__43ddcbfb.png' }))}
+                  className="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-yellow-300 hover:text-white text-[11px] font-semibold border border-amber-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Sawirka Rasmiga ah ee Sculpted (Gold Accent)"
+                >
+                  <Sparkles size={12} className="text-yellow-400" />
+                  <span>Sawirka Rasmiga ah (Gold)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAboutForm((prev) => ({ ...prev, imageUrl: heroForm.imageUrl }))}
+                  className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-medium border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Isticmaal sawirka ku jira Hero Section-ka"
+                >
+                  <span>Hero Photo</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAboutForm((prev) => ({ ...prev, imageUrl: '/assets/aistudio/black_875c126c.png' }))}
+                  className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-medium border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Ku celi sawirka asalka ah"
+                >
+                  <RotateCcw size={12} />
+                  <span>Dib u celi</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-7 space-y-4">
+                <ImageUploader
+                  label="Soo geli Sawirkaaga (Upload Photo ama Image URL)"
+                  value={aboutForm.imageUrl || ''}
+                  onChange={(newUrl) => setAboutForm({ ...aboutForm, imageUrl: newUrl })}
+                  placeholder="https://... ama dooro faylka sawirkaaga"
+                  helperText="Soo upload garee sawirkaaga shakhsiga ah (JPG, PNG, WEBP) ama gali link toos ah. Sawirkaagu wuxuu yeelanayaa qaabka quruxda badan (Sculpted Shape)."
+                  bucketName="portfolio-media"
+                  folderPath="about-portrait"
+                  recommendedSize="Cabirka ugu habboon: Transparent Cutout PNG ama 800x1000px"
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                      Magaca Xirfadlaha / Badge Title
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutForm.badgeBioTitle || ''}
+                      onChange={(e) => setAboutForm({ ...aboutForm, badgeBioTitle: e.target.value })}
+                      placeholder="Senior Full-Stack & Creative Technologist"
+                      className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                      Xaaladda Shaqada (Availability Status)
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutForm.availabilityStatus || ''}
+                      onChange={(e) => setAboutForm({ ...aboutForm, availabilityStatus: e.target.value })}
+                      placeholder="Available for Select Projects"
+                      className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                    Alt Text (Sharraxaadda Sawirka SEO)
+                  </label>
+                  <input
+                    type="text"
+                    value={aboutForm.imageAlt || ''}
+                    onChange={(e) => setAboutForm({ ...aboutForm, imageAlt: e.target.value })}
+                    placeholder="Mohamed Alhady - Creative Strategist & Full-Stack Developer"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white text-xs focus:border-primary focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Live Preview Card (Frameless Sculpted Shape Presentation) */}
+              <div className="lg:col-span-5">
+                <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-amber-400 font-bold flex items-center gap-1.5">
+                      <Sparkles size={13} />
+                      Muuqaalka About (Frameless Sculpted)
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+                      <ShieldCheck size={11} /> Verified Pro
+                    </span>
+                  </div>
+
+                  <div className="relative rounded-2xl p-4 bg-slate-900/60 border border-white/5 flex items-center justify-center min-h-[320px] overflow-hidden">
+                    {/* Ambient Glow */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/15 via-primary/10 to-transparent pointer-events-none" />
+
+                    {aboutForm.imageUrl ? (
+                      <div className="relative w-full max-w-[260px] flex flex-col items-center">
+                        <img
+                          src={aboutForm.imageUrl}
+                          alt={aboutForm.imageAlt || 'About Portrait'}
+                          className="w-full h-auto max-h-[300px] object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] filter select-none transition-transform duration-500 hover:scale-105"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/assets/aistudio/black_875c126c.png';
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-center p-6 text-slate-500">
+                        <ImageIcon size={40} className="mx-auto mb-2 opacity-40 text-amber-400" />
+                        <p className="text-xs">Weli ma jiro sawir la doortay</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -194,7 +194,7 @@ const SETTINGS = {
     titleLine1: 'Building the',
     titleLine2: 'Digital Future',
     bio: "I'm Mohamed Alhady, a Creative Strategist & Developer specializing in Software Development, Branding, Video Production, and Social Media Marketing. I transform ideas into impactful digital experiences.",
-    imageUrl: '/src/assets/images/hero_portrait_1781209944400.jpg',
+    imageUrl: '/assets/aistudio/black_875c126c.png',
     imageAlt: 'Mohamed Alhady - Creative Strategist & Developer',
     primaryCtaText: 'View Work',
     primaryCtaLink: '/projects',

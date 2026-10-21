@@ -25,7 +25,7 @@ import {
   RBAC_PAGES_CATALOG,
 } from '../data/initialData';
 import { db } from '../lib/firebase';
-import { collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch, query, limit } from 'firebase/firestore';
 
 // Helper to convert hex to RGB components for Tailwind alpha blending
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
@@ -564,8 +564,9 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.warn('Firestore roles listener error:', err);
     });
 
-    // 8. Audit Logs (History Actions)
-    const unsubAudit = onSnapshot(collection(db, 'audit_logs'), (snapshot) => {
+    // 8. Audit Logs (History Actions - optimized with query limit to prevent initial latency)
+    const auditQuery = query(collection(db, 'audit_logs'), limit(50));
+    const unsubAudit = onSnapshot(auditQuery, (snapshot) => {
       if (!snapshot.empty) {
         const remoteLogs: AuditLogItem[] = [];
         snapshot.forEach((docSnap) => {
@@ -591,8 +592,9 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.warn('Firestore audit logs error:', err);
     });
 
-    // 9. Security Audit Logs
-    const unsubSec = onSnapshot(collection(db, 'security_audit_logs'), (snapshot) => {
+    // 9. Security Audit Logs (optimized with query limit)
+    const secQuery = query(collection(db, 'security_audit_logs'), limit(50));
+    const unsubSec = onSnapshot(secQuery, (snapshot) => {
       if (!snapshot.empty) {
         const remoteSec: SecurityAuditItem[] = [];
         snapshot.forEach((docSnap) => {
