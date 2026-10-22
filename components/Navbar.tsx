@@ -164,7 +164,7 @@ const Navbar: React.FC = () => {
           {/* Controls group */}
           <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3">
             {/* Language Switcher Dropdown (English, Somali, Arabic) */}
-            <LanguageSelector variant="public" />
+            <LanguageSelector variant="public" iconOnly={true} />
 
             {/* Light/Dark Toggle */}
             <button

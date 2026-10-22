@@ -182,6 +182,9 @@ export const AdminLayout: React.FC = () => {
   const [userProfileDropdownOpen, setUserProfileDropdownOpen] = useState(false);
   const userProfileDropdownRef = React.useRef<HTMLDivElement>(null);
 
+  const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
+  const mobileProfileRef = React.useRef<HTMLDivElement>(null);
+
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (themeDropdownRef.current && !themeDropdownRef.current.contains(e.target as Node)) {
@@ -190,14 +193,18 @@ export const AdminLayout: React.FC = () => {
       if (userProfileDropdownRef.current && !userProfileDropdownRef.current.contains(e.target as Node)) {
         setUserProfileDropdownOpen(false);
       }
+      if (mobileProfileRef.current && !mobileProfileRef.current.contains(e.target as Node)) {
+        setMobileProfileOpen(false);
+      }
     };
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setThemeDropdownOpen(false);
         setUserProfileDropdownOpen(false);
+        setMobileProfileOpen(false);
       }
     };
-    if (themeDropdownOpen || userProfileDropdownOpen) {
+    if (themeDropdownOpen || userProfileDropdownOpen || mobileProfileOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleKeyDown);
     }
@@ -205,7 +212,7 @@ export const AdminLayout: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [themeDropdownOpen, userProfileDropdownOpen]);
+  }, [themeDropdownOpen, userProfileDropdownOpen, mobileProfileOpen]);
 
   // Determine active nav item cleanly without duplicate query hacks
   const isItemActive = (to: string, exact?: boolean) => {
@@ -304,28 +311,78 @@ export const AdminLayout: React.FC = () => {
         isRTL ? 'rtl' : 'ltr'
       }`}
     >
-      {/* Mobile Top Header - Stable & Fixed */}
+      {/* Mobile Top Header - Clean, Responsive & Perfectly Balanced */}
       <header
-        className={`md:hidden shrink-0 flex items-center justify-between px-4 py-3 ${
+        className={`md:hidden shrink-0 h-16 flex items-center justify-between px-3 sm:px-4 ${
           isDayMode
-            ? 'bg-white border-slate-200 shadow-sm'
+            ? 'bg-white/95 border-slate-200/90 shadow-xs'
             : isMidnight
-              ? 'bg-[#070d19] border-slate-800'
-              : 'bg-slate-900 border-slate-800'
-        } border-b sticky top-0 z-40 transition-colors`}
+              ? 'bg-[#070d19]/95 border-slate-800/90'
+              : 'bg-slate-900/95 border-slate-800/90'
+        } border-b sticky top-0 z-40 backdrop-blur-xl transition-all`}
       >
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-bold">
-            <ShieldCheck size={18} />
-          </div>
-          <div>
-            <h2 className={`text-sm font-bold leading-tight ${isDayMode ? 'text-slate-900' : 'text-white'}`}>{t('admin_portal')}</h2>
-            <span className={`text-[10px] font-mono ${isDayMode ? 'text-slate-500' : 'text-slate-400'}`}>{t('admin_control_center')}</span>
+        {/* Left Side: Sidebar Toggle Menu Button & Active Screen Title */}
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 pr-1">
+          {/* Mobile Sidebar Menu Toggle Button replacing the static page icon */}
+          <button
+            type="button"
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            aria-label={sidebarOpen ? t('admin_collapse_sidebar', 'Xidh Menu-ga') : t('admin_expand_sidebar', 'Fur Menu-ga Sidebarka')}
+            aria-expanded={sidebarOpen}
+            title={sidebarOpen ? t('admin_collapse_sidebar', 'Xidh Menu-ga') : t('admin_expand_sidebar', 'Fur Menu-ga Sidebarka')}
+            className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all cursor-pointer shrink-0 shadow-xs active:scale-95 ${
+              sidebarOpen
+                ? 'bg-primary text-slate-950 border-primary ring-2 ring-primary/25 shadow-sm'
+                : isDayMode
+                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                  : isMidnight
+                    ? 'bg-[#0b1220] hover:bg-[#121c33] text-slate-200 border-slate-800'
+                    : 'bg-slate-800/90 hover:bg-slate-750 text-slate-200 border-slate-700/80'
+            }`}
+          >
+            {sidebarOpen ? (
+              <X size={18} className="text-rose-400 stroke-[2.5]" />
+            ) : (
+              <Menu size={18} className="text-primary stroke-[2.2]" />
+            )}
+          </button>
+
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-1.5 text-xs font-bold leading-tight truncate">
+              <span className={`truncate max-w-[110px] xs:max-w-[170px] sm:max-w-none ${isDayMode ? 'text-slate-800' : 'text-white'}`}>
+                {activeBreadcrumb.title}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="relative flex h-1.5 w-1.5 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+              </span>
+              <span className="text-[10px] font-mono text-emerald-400/90 font-medium truncate">
+                {isFirebaseConnected ? 'Live Cloud' : 'Local'}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Mobile Theme Toggle Button: Day / Night / System */}
+        {/* Right Side: Compact, Clean Action Cluster with Profile Section */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Quick Link to Live Portfolio */}
+          <Link
+            to="/"
+            target="_blank"
+            rel="noreferrer"
+            title={t('admin_live_site')}
+            className={`w-8 h-8 rounded-xl flex items-center justify-center border transition-all cursor-pointer shadow-xs ${
+              isDayMode
+                ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
+                : 'bg-slate-800/80 hover:bg-slate-750 border-slate-700/80 text-slate-300'
+            }`}
+          >
+            <ExternalLink size={14} />
+          </Link>
+
+          {/* Mobile Theme Toggle Button: Day / Night / System (Icon-Only Compact) */}
           <button
             type="button"
             onClick={() => {
@@ -333,48 +390,136 @@ export const AdminLayout: React.FC = () => {
               handleSelectThemeMode(nextMode);
             }}
             title={`Mode: ${themeMode.toUpperCase()} (Day / Night / System)`}
-            className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center gap-1 ${
+            className={`w-8 h-8 rounded-xl border transition-all cursor-pointer flex items-center justify-center shadow-xs ${
               isDayMode
-                ? 'bg-slate-100 border-slate-300 text-amber-600'
-                : 'bg-slate-900 border-slate-800 text-slate-200'
+                ? 'bg-slate-100 border-slate-300 text-amber-600 hover:bg-slate-200'
+                : 'bg-slate-800/80 border-slate-700/80 text-slate-200 hover:bg-slate-750'
             }`}
             aria-label="Toggle Theme Mode"
           >
-            {themeMode === 'day' && <Sun size={16} className="text-amber-500 fill-amber-400/30" />}
-            {themeMode === 'night' && <Moon size={16} className="text-indigo-400 fill-indigo-400/30" />}
-            {themeMode === 'system' && <Monitor size={16} className="text-emerald-400" />}
-            <span className="text-[10px] font-mono uppercase font-bold">{themeMode}</span>
+            {themeMode === 'day' && <Sun size={15} className="text-amber-500 fill-amber-400/30" />}
+            {themeMode === 'night' && <Moon size={15} className="text-indigo-400 fill-indigo-400/30" />}
+            {themeMode === 'system' && <Monitor size={15} className="text-emerald-400" />}
           </button>
 
-          {/* Mobile Language Switcher */}
-          <LanguageSelector variant="admin" compact />
+          {/* Mobile Language Switcher (Ultra-compact, Icon-Only) */}
+          <LanguageSelector variant="admin" compact iconOnly />
 
-          {/* User Account Avatar in Mobile Header Corner */}
-          <div
-            className="flex items-center relative"
-            title={`${displayName} • ${roleTitle}`}
-          >
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={displayName}
-                className="w-7 h-7 rounded-lg object-cover border border-slate-700/80 shadow-sm"
-              />
-            ) : (
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-[10px] shadow-sm">
-                {initials}
+          {/* Mobile Profile Trigger Button & Popover Card */}
+          <div className="relative" ref={mobileProfileRef}>
+            <button
+              type="button"
+              onClick={() => setMobileProfileOpen((prev) => !prev)}
+              aria-expanded={mobileProfileOpen}
+              aria-label="Admin Profile"
+              title={`${displayName} (@${username})`}
+              className={`w-8 h-8 rounded-xl relative flex items-center justify-center border transition-all cursor-pointer shadow-xs overflow-hidden ${
+                mobileProfileOpen
+                  ? 'border-primary ring-2 ring-primary/20'
+                  : isDayMode
+                    ? 'border-slate-300 bg-slate-100 hover:bg-slate-200'
+                    : 'border-slate-700/80 bg-slate-800/80 hover:bg-slate-750'
+              }`}
+            >
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-xs">
+                  {initials}
+                </div>
+              )}
+              <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-slate-950 animate-pulse" />
+            </button>
+
+            {/* Mobile Profile Popover Card */}
+            {mobileProfileOpen && (
+              <div
+                className={`fixed sm:absolute top-16 right-2 sm:right-0 w-[calc(100vw-1rem)] sm:w-80 max-w-sm rounded-2xl border p-3.5 shadow-2xl backdrop-blur-2xl z-50 animate-in fade-in zoom-in-95 duration-150 ${
+                  isDayMode
+                    ? 'bg-white/95 border-slate-200 text-slate-900 shadow-slate-300/50'
+                    : isMidnight
+                      ? 'bg-[#09101f]/95 border-slate-800 text-slate-100 shadow-black/80'
+                      : 'bg-slate-900/95 border-slate-800 text-slate-100 shadow-black/80'
+                }`}
+              >
+                {/* Header: Avatar + Identity */}
+                <div className="flex items-center gap-3 pb-3 border-b border-slate-800/70">
+                  <div className="relative shrink-0">
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={displayName}
+                        className="w-10 h-10 rounded-xl object-cover border border-primary/30 shadow-sm"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                        {initials}
+                      </div>
+                    )}
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-slate-950" />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <h4 className={`text-xs font-bold truncate leading-tight ${isDayMode ? 'text-slate-900' : 'text-white'}`}>
+                        {displayName}
+                      </h4>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
+                        Active
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-primary font-mono truncate leading-tight mt-0.5">
+                      @{username}
+                    </p>
+                    <span className={`inline-block text-[10px] font-medium capitalize truncate mt-0.5 ${isDayMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                      {roleName}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="py-2.5 space-y-1.5 border-b border-slate-800/70 text-[11px]">
+                  <div className={`flex items-center gap-2 ${isDayMode ? 'text-slate-600' : 'text-slate-300'}`}>
+                    <Mail size={12} className="text-primary shrink-0" />
+                    <span className="truncate">{user?.email || 'admin@portfolio.local'}</span>
+                  </div>
+                  {lastLoginText && (
+                    <div className={`flex items-center gap-2 text-[10px] font-mono ${isDayMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      <Clock size={11} className="shrink-0" />
+                      <span className="truncate">Joogitaankii: {lastLoginText}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions & Sign Out */}
+                <div className="pt-2.5 flex items-center gap-2">
+                  <Link
+                    to="/admin/settings"
+                    onClick={() => setMobileProfileOpen(false)}
+                    className="flex-1 py-1.5 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-750 text-slate-200 border border-slate-700/80 text-xs font-medium flex items-center justify-center gap-1.5"
+                  >
+                    <Settings size={13} />
+                    <span>Settings</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileProfileOpen(false);
+                      handleLogout();
+                    }}
+                    className="flex-1 py-1.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 hover:border-rose-500 text-rose-300 hover:text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <LogOut size={13} />
+                    <span>Ka Bax</span>
+                  </button>
+                </div>
               </div>
             )}
-            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-slate-950" />
           </div>
-
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white cursor-pointer"
-            aria-label="Toggle Navigation"
-          >
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
         </div>
       </header>
 
@@ -557,6 +702,47 @@ export const AdminLayout: React.FC = () => {
             ))}
           </nav>
 
+          {/* Bottom Sidebar Management Controller - "Dhinaca Soke ee Sidebarka" */}
+          <div className="shrink-0 p-3 border-t border-slate-800/90 bg-slate-950/85 backdrop-blur-md">
+            {/* Desktop: Collapse/Expand Sidebar Controller Button */}
+            <button
+              type="button"
+              onClick={toggleCollapse}
+              className={`hidden md:flex items-center ${
+                isCollapsed ? 'justify-center w-full h-10' : 'justify-between w-full px-3 py-2.5'
+              } rounded-xl bg-slate-800/80 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700/80 text-xs font-semibold transition-all cursor-pointer shadow-xs group`}
+              title={isCollapsed ? t('admin_expand_sidebar') : t('admin_collapse_sidebar')}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {isCollapsed ? (
+                isRTL ? (
+                  <ChevronLeft size={16} className="text-primary group-hover:scale-110 transition-transform" />
+                ) : (
+                  <ChevronRight size={16} className="text-primary group-hover:scale-110 transition-transform" />
+                )
+              ) : (
+                <>
+                  <div className="flex items-center gap-2.5">
+                    {isRTL ? <ChevronRight size={16} className="text-primary" /> : <ChevronLeft size={16} className="text-primary" />}
+                    <span>{t('admin_collapse_sidebar', 'Soo Koob Sidebarka')}</span>
+                  </div>
+                  <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-900 text-slate-400 border border-slate-700">
+                    Ctrl+B
+                  </kbd>
+                </>
+              )}
+            </button>
+
+            {/* Mobile: Close/Manage Sidebar Controller inside sidebar drawer */}
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(false)}
+              className="md:hidden w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/90 font-bold text-xs transition-all shadow-sm cursor-pointer active:scale-98"
+            >
+              <X size={16} className="text-rose-400" />
+              <span>Xidh Liiska Menuga</span>
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -569,7 +755,7 @@ export const AdminLayout: React.FC = () => {
             : 'bg-slate-950'
       } flex flex-col overflow-hidden transition-colors`}>
         {/* Clean, High-Polish Top Bar on Desktop - Stable, Fixed & Standing */}
-        <div
+        <header
           className={`hidden md:flex items-center justify-between px-8 py-3.5 border-b ${
             isDayMode
               ? 'bg-white/95 border-slate-200/90 text-slate-800'
@@ -590,6 +776,12 @@ export const AdminLayout: React.FC = () => {
                 {activeBreadcrumb.title}
               </h2>
             </div>
+
+            {/* Cloud Sync Status Badge */}
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>{isFirebaseConnected ? 'Cloud Synced' : 'Offline'}</span>
+            </span>
           </div>
 
           {/* Header Actions: Day/Night/System Theme Segmented Control, Language Switcher, Live Site */}
@@ -770,7 +962,7 @@ export const AdminLayout: React.FC = () => {
             </div>
 
             {/* Multi-language Selector (English, Somali, Arabic) */}
-            <LanguageSelector variant="admin" />
+            <LanguageSelector variant="admin" compact />
 
             {/* View Live Site */}
             <Link
@@ -939,9 +1131,9 @@ export const AdminLayout: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
+        </header>
 
-        {/* Scrollable Content Viewport - Only this bottom section scrolls */}
+        {/* Scrollable Content Viewport - Only this main section scrolls */}
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-8">
           <div className="max-w-7xl w-full mx-auto">
             <Outlet />

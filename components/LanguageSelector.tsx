@@ -6,11 +6,13 @@ import { Language } from '../src/data/translations';
 interface LanguageSelectorProps {
   variant?: 'public' | 'admin';
   compact?: boolean;
+  iconOnly?: boolean;
 }
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   variant = 'public',
   compact = false,
+  iconOnly = false,
 }) => {
   const { language, setLanguage, languages, isRTL } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -41,27 +43,37 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        title="Change Language / Dooro Luqadda / تغيير اللغة"
+        title={`Language: ${activeLang.name} (${activeLang.nativeName}) - Dooro Luqadda`}
         aria-label="Switch Language / Dooro Luqadda / تغيير اللغة"
-        className={`flex items-center gap-1.5 md:gap-2 rounded-xl transition-all cursor-pointer font-medium select-none shadow-sm ${
-          isPublic
-            ? 'px-2 py-1.5 md:px-2.5 md:py-1.5 lg:px-3 lg:py-2 text-xs text-gray-200 hover:text-white bg-white/5 hover:bg-white/10 border border-white/15 hover:border-primary/40'
-            : 'px-3 py-2 text-xs text-slate-200 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-primary/40'
-        }`}
+        className={
+          iconOnly
+            ? `w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer font-medium select-none shadow-xs border ${
+                isPublic
+                  ? 'bg-white/5 hover:bg-white/10 border-white/15 text-white hover:border-primary/40'
+                  : 'bg-slate-800/80 hover:bg-slate-750 border-slate-700/80 text-slate-200 hover:border-primary/40'
+              }`
+            : `flex items-center gap-1.5 md:gap-2 rounded-xl transition-all cursor-pointer font-medium select-none shadow-sm ${
+                isPublic
+                  ? 'px-2 py-1.5 md:px-2.5 md:py-1.5 lg:px-3 lg:py-2 text-xs text-gray-200 hover:text-white bg-white/5 hover:bg-white/10 border border-white/15 hover:border-primary/40'
+                  : 'px-3 py-2 text-xs text-slate-200 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-primary/40'
+              }`
+        }
       >
-        <LanguagesIcon size={15} className="text-primary shrink-0 lg:w-4 lg:h-4" />
-        <span className="text-sm leading-none">{activeLang.flag}</span>
-        {!compact && (
+        <LanguagesIcon size={iconOnly ? 16 : 15} className="text-primary shrink-0" />
+        {!iconOnly && <span className="text-sm leading-none">{activeLang.flag}</span>}
+        {!compact && !iconOnly && (
           <span className="font-bold uppercase tracking-wider text-[11px] text-white">
             {activeLang.code}
           </span>
         )}
-        <ChevronDown
-          size={13}
-          className={`transition-transform duration-200 text-gray-400 ${
-            isOpen ? 'rotate-180' : ''
-          }`}
-        />
+        {!iconOnly && (
+          <ChevronDown
+            size={13}
+            className={`transition-transform duration-200 text-gray-400 ${
+              isOpen ? 'rotate-180' : ''
+            }`}
+          />
+        )}
       </button>
 
       {/* Dropdown Menu */}
