@@ -123,8 +123,8 @@ const Hero: React.FC = () => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            style={{ marginLeft: '20px' }}
-            className="lg:col-span-7 xl:col-span-7 flex flex-col justify-center items-center lg:items-start text-center lg:text-left w-full min-w-0 max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-none mx-auto lg:mx-0 lg:ml-[20px] lg:pb-10 xl:pb-14"
+            style={{ marginLeft: '0px' }}
+            className="lg:col-span-7 xl:col-span-7 flex flex-col justify-center items-center lg:items-start text-center lg:text-left w-full min-w-0 max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-none mx-auto lg:mx-0 ml-0 lg:ml-[20px] lg:pb-10 xl:pb-14"
           >
             {/* Status pill badge with pulsing online dot indicator */}
             {hero.isBadgeVisible !== false && (
